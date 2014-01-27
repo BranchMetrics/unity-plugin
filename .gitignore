@@ -1,0 +1,7 @@
+*.meta
+sample/Library
+sample/ProjectSettings
+sample/Temp
+sampleapptoapp/Library
+sampleapptoapp/ProjectSettings
+sampleapptoapp/Temp
