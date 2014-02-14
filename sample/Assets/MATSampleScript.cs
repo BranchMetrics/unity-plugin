@@ -4,8 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-public class MATSampleScript : MonoBehaviour {
-
+public class MATSampleScript : MonoBehaviour
+{
     public struct MATItem
     {
         public string   name;
@@ -26,12 +26,40 @@ public class MATSampleScript : MonoBehaviour {
         [DllImport ("mobileapptracker")]
         private static extern void initNativeCode(string advertiserId, string conversionKey);
 
+        // Methods to help debugging and testing
         [DllImport ("mobileapptracker")]
-        private static extern void setAllowDuplicateRequests(bool allowDups);
+        private static extern void setAllowDuplicates(bool allowDups);
+        [DllImport ("mobileapptracker")]
+        private static extern void setDebugMode(bool enable);
+
+        [DllImport ("mobileapptracker")]
+        private static extern void setAge(int age);
+        [DllImport ("mobileapptracker")]
+        private static extern void setAppAdTracking(bool enable);
         [DllImport ("mobileapptracker")]
         private static extern void setCurrencyCode(string currencyCode);
         [DllImport ("mobileapptracker")]
-        private static extern void setDebugMode(bool enable);
+        private static extern void setEventAttribute1(string value);
+        [DllImport ("mobileapptracker")]
+        private static extern void setEventAttribute2(string value);
+        [DllImport ("mobileapptracker")]
+        private static extern void setEventAttribute3(string value);
+        [DllImport ("mobileapptracker")]
+        private static extern void setEventAttribute4(string value);
+        [DllImport ("mobileapptracker")]
+        private static extern void setEventAttribute5(string value);
+        [DllImport ("mobileapptracker")]
+        private static extern void setExistingUser(bool isExisting);
+        [DllImport ("mobileapptracker")]
+        private static extern void setFacebookUserId(string facebookUserId);
+        [DllImport ("mobileapptracker")]
+        private static extern void setGender(int gender);
+        [DllImport ("mobileapptracker")]
+        private static extern void setGoogleAdvertisingId(string advertisingId);
+        [DllImport ("mobileapptracker")]
+        private static extern void setGoogleUserId(string googleUserId);
+        [DllImport ("mobileapptracker")]
+        private static extern void setLocation(double latitude, double longitude, double altitude);
         [DllImport ("mobileapptracker")]
         private static extern void setPackageName(string packageName);
         [DllImport ("mobileapptracker")]
@@ -39,65 +67,43 @@ public class MATSampleScript : MonoBehaviour {
         [DllImport ("mobileapptracker")]
         private static extern void setTRUSTeId(string trusteId);
         [DllImport ("mobileapptracker")]
+        private static extern void setTwitterUserId(string twitterUserId);
+        [DllImport ("mobileapptracker")]
+        private static extern void setUserEmail(string userEmail);
+        [DllImport ("mobileapptracker")]
         private static extern void setUserId(string userId);
         [DllImport ("mobileapptracker")]
-        private static extern void setFacebookUserId(string facebookUserId);
-        [DllImport ("mobileapptracker")]
-        private static extern void setGoogleUserId(string googleUserId);
-        [DllImport ("mobileapptracker")]
-        private static extern void setTwitterUserId(string twitterUserId);
+        private static extern void setUserName(string userName);
 
         [DllImport ("mobileapptracker")]
         private static extern void startAppToAppTracking(string targetAppId, string advertiserId, string offerId, string publisherId, bool shouldRedirect);
 
+        // Tracking functions
         [DllImport ("mobileapptracker")]
-        private static extern void trackAction(string action, bool isId, double revenue, string currencyCode);
-
+        private static extern void trackAction(string action, double revenue, string currencyCode, string refId);
         [DllImport ("mobileapptracker")]
-        private static extern void trackActionWithEventItem(string action, bool isId, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receiptData, string receiptSignature);
-
+        private static extern void trackActionWithEventItem(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receiptData, string receiptSignature);
         [DllImport ("mobileapptracker")]
-        private static extern int trackInstall();
-        [DllImport ("mobileapptracker")]
-        private static extern int trackUpdate();
-        [DllImport ("mobileapptracker")]
-        private static extern void trackInstallWithReferenceId(string refId);
-        [DllImport ("mobileapptracker")]
-        private static extern void trackUpdateWithReferenceId(string refId);
+        private static extern int trackSession();
 
         // iOS-only functions that are imported for cross-platform coding convenience
         [DllImport ("mobileapptracker")]
-        private static extern void setAppAdTracking(bool enable);
+        private static extern void setAppleAdvertisingIdentifier(string advertiserIdentifier, bool trackingEnabled);
+        [DllImport ("mobileapptracker")]
+        private static extern void setAppleVendorIdentifier(string vendorIdentifier);
         [DllImport ("mobileapptracker")]
         private static extern void setDelegate(bool enable);
         [DllImport ("mobileapptracker")]
-        private static extern void setMACAddress(string mac);
-        [DllImport ("mobileapptracker")]
-        private static extern void setODIN1(string odin1);
-        [DllImport ("mobileapptracker")]
-        private static extern void setOpenUDID(string openUDID);
+        private static extern void setJailbroken(bool isJailbroken);
         [DllImport ("mobileapptracker")]
         private static extern void setRedirectUrl(string redirectUrl);
         [DllImport ("mobileapptracker")]
-        private static extern void setUIID(string uiid);
+        private static extern void setShouldAutoDetectJailbroken(bool shouldAutoDetect);
         [DllImport ("mobileapptracker")]
-        private static extern void setAge(int age);
-        [DllImport ("mobileapptracker")]
-        private static extern void setGender(int gender);
-        [DllImport ("mobileapptracker")]
-        private static extern void setLocation(double latitude, double longitude, double altitude);
-        [DllImport ("mobileapptracker")]
-        private static extern void setShouldAutoGenerateVendorIdentifier(bool shouldAutoGenerate);
-        [DllImport ("mobileapptracker")]
-        private static extern void setShouldAutoGenerateAdvertiserIdentifier(bool shouldAutoGenerate);
+        private static extern void setShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate);
         [DllImport ("mobileapptracker")]
         private static extern void setUseCookieTracking(bool useCookieTracking);
-        [DllImport ("mobileapptracker")]
-        private static extern void setAdvertiserIdentifier(string advertiserIdentifier);
-        [DllImport ("mobileapptracker")]
-        private static extern void setVendorIdentifier(string vendorIdentifier);
-        [DllImport ("mobileapptracker")]
-        private static extern string getSDKDataParameters();
+
     #endif
 
     #if UNITY_IPHONE
@@ -109,11 +115,7 @@ public class MATSampleScript : MonoBehaviour {
         [DllImport ("__Internal")]
         private static extern void setDebugMode(bool enable);
         [DllImport ("__Internal")]
-        private static extern void setAllowDuplicateRequests(bool allowDuplicateRequests);
-
-        // Method to get a json string representation of the tracking request params to be used by the MAT SDK
-        [DllImport ("__Internal")]
-        private static extern string getSDKDataParameters();
+        private static extern void setAllowDuplicates(bool allowDuplicateRequests);
 
         // Method to enable MAT delegate success/failure callbacks
         [DllImport ("__Internal")]
@@ -123,12 +125,6 @@ public class MATSampleScript : MonoBehaviour {
         [DllImport ("__Internal")]
         private static extern void setAppAdTracking(bool enable);
         [DllImport ("__Internal")]
-        private static extern void setMACAddress(string mac);
-        [DllImport ("__Internal")]
-        private static extern void setODIN1(string odin1);
-        [DllImport ("__Internal")]
-        private static extern void setOpenUDID(string openUDID);
-        [DllImport ("__Internal")]
         private static extern void setCurrencyCode(string currencyCode);
         [DllImport ("__Internal")]
         private static extern void setPackageName(string packageName);
@@ -137,15 +133,19 @@ public class MATSampleScript : MonoBehaviour {
         [DllImport ("__Internal")]
         private static extern void setTRUSTeId(string trusteTPID);
         [DllImport ("__Internal")]
-        private static extern void setUIID(string uiid);
+        private static extern void setUserEmail(string userEmail);
         [DllImport ("__Internal")]
         private static extern void setUserId(string userId);
+        [DllImport ("__Internal")]
+        private static extern void setUserName(string userName);
         [DllImport ("__Internal")]
         private static extern void setFacebookUserId(string facebookUserId);
         [DllImport ("__Internal")]
         private static extern void setTwitterUserId(string twitterUserId);
         [DllImport ("__Internal")]
         private static extern void setGoogleUserId(string googleUserId);
+        [DllImport ("__Internal")]
+        private static extern void setExistingUser(bool isExisting);
         [DllImport ("__Internal")]
         private static extern void setJailbroken(bool isJailbroken);
         [DllImport ("__Internal")]
@@ -156,6 +156,16 @@ public class MATSampleScript : MonoBehaviour {
         private static extern void setGender(int gender);
         [DllImport ("__Internal")]
         private static extern void setLocation(double latitude, double longitude, double altitude);
+        [DllImport ("__Internal")]
+        private static extern void setEventAttribute1(string value);
+        [DllImport ("__Internal")]
+        private static extern void setEventAttribute2(string value);
+        [DllImport ("__Internal")]
+        private static extern void setEventAttribute3(string value);
+        [DllImport ("__Internal")]
+        private static extern void setEventAttribute4(string value);
+        [DllImport ("__Internal")]
+        private static extern void setEventAttribute5(string value);
 
         // Method to enable cookie based tracking
         [DllImport ("__Internal")]
@@ -163,14 +173,12 @@ public class MATSampleScript : MonoBehaviour {
 
         // Methods for setting Apple related id
         [DllImport ("__Internal")]
-        private static extern void setAppleAdvertisingIdentifier(string appleAdvertisingIdentifier);
+        private static extern void setAppleAdvertisingIdentifier(string appleAdvertisingIdentifier, bool trackingEnabled);
         [DllImport ("__Internal")]
         private static extern void setAppleVendorIdentifier(string appleVendorIdentifier);
         [DllImport ("__Internal")]
         private static extern void setShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate);
-        [DllImport ("__Internal")]
-        private static extern void setShouldAutoGenerateAppleAdvertisingIdentifier(bool shouldAutoGenerate);
-
+        
         // Methods for app-to-app tracking
         [DllImport ("__Internal")]
         private static extern void startAppToAppTracking(string targetAppId, string advertiserId, string offerId, string publisherId, bool shouldRedirect);
@@ -179,27 +187,30 @@ public class MATSampleScript : MonoBehaviour {
 
         // Methods to track custom in-app events
         [DllImport ("__Internal")]
-        private static extern void trackAction(string action, bool isId, double revenue, string  currencyCode);
+        private static extern void trackAction(string action, double revenue, string  currencyCode, string refId);
         [DllImport ("__Internal")]
-        private static extern void trackActionWithEventItem(string action, bool isId, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature);
+        private static extern void trackActionWithEventItem(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature);
 
         // Methods to track install, update events
         [DllImport ("__Internal")]
-        private static extern void trackInstall();
+        private static extern void trackSession();
         [DllImport ("__Internal")]
-        private static extern void trackUpdate();
+        private static extern void trackSessionWithReferenceId(string refId);
+
+        // Android-only methods
         [DllImport ("__Internal")]
-        private static extern void trackInstallWithReferenceId(string refId);
-        [DllImport ("__Internal")]
-        private static extern void trackUpdateWithReferenceId(string refId);
+        private static extern void setGoogleAdvertisingId(string advertisingId);
+
+    #endif
+
+    #if UNITY_ANDROID || UNITY_IPHONE
+        string MAT_ADVERTISER_ID = null;
+        string MAT_CONVERSION_KEY = null;
     #endif
 
     void Awake ()
     {
         #if UNITY_ANDROID || UNITY_IPHONE
-            string MAT_ADVERTISER_ID = null;
-            string MAT_CONVERSION_KEY = null;
-
             #if UNITY_ANDROID
                 // Android
                 MAT_ADVERTISER_ID = "877";
@@ -211,56 +222,86 @@ public class MATSampleScript : MonoBehaviour {
             #endif
 
             print("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);
-
-            initNativeCode(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
-
-            setDelegate(true);
-
-            // NOTE: !!! ONLY FOR DEBUG !!!
-            // !!! Make sure you set to false 
-            //     OR 
-            //     remove the setDebugMode and setAllowDuplicateRequests calls for Production builds !!!
-            setDebugMode(true);
-            setAllowDuplicateRequests(true);
-
-            setAppAdTracking(true);
-
-            setAge(28);
-            setGender(1); // 0 = male, 1 = female
-		
-			setTwitterUserId("mytwitter");
-			setGoogleUserId("mygoogle");
-			setFacebookUserId("myfacebook");
-
-            print("MATSampleScript Awake: sdk data parameters: " + getSDKDataParameters());
-
-            print("MATSampleScript Awake: sdk data parameters: finished");
         #endif
 
         return;
     }
 
-    void OnGUI()
+    void OnGUI ()
     {
-        if (GUI.Button(new Rect(10, 10, 350, 100), "Track Install"))
+        GUIStyle headingLabelStyle = new GUIStyle();
+        headingLabelStyle.fontStyle = FontStyle.Bold;
+        headingLabelStyle.fontSize = 50;
+        headingLabelStyle.alignment = TextAnchor.MiddleCenter;
+        headingLabelStyle.normal.textColor = Color.white;
+
+        GUI.Label(new Rect(10, 5, Screen.width - 20, 100), "MAT Unity Test App", headingLabelStyle);
+
+        GUI.skin.button.fontSize = 40;
+
+        if (GUI.Button (new Rect (10, 120, Screen.width - 20, 100), "Start MAT"))
         {
-            print("trackInstall clicked");
+            print ("Start MAT clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
-                trackInstall();
+                initNativeCode(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
+
+                #if UNITY_IPHONE
+                    setAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+                #endif
             #endif
         }
 
-        if (GUI.Button(new Rect(10, 120, 350, 100), "Track Action"))
+        if (GUI.Button (new Rect (10, 230, Screen.width - 20, 100), "Set Delegate"))
         {
-            print("trackAction clicked");
+            print ("Set Delegate clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
-                trackAction("evt11", false, 0.35, "CAD");
+                setDelegate(true);
             #endif
         }
 
-        if (GUI.Button(new Rect(10, 230, 350, 100), "Track Action With Event Items"))
+        if (GUI.Button (new Rect (10, 340, Screen.width - 20, 100), "Enable Debug Mode"))
         {
-            print("trackActionWithEvent clicked");
+            print ("Enable Debug Mode clicked");
+            #if UNITY_ANDROID || UNITY_IPHONE
+            // NOTE: !!! ONLY FOR DEBUG !!!
+            // !!! Make sure you set to false 
+            //     OR 
+            //     remove the setDebugMode and setAllowDuplicates calls for Production builds !!!
+                setDebugMode(true);
+            #endif
+        }
+
+        if (GUI.Button (new Rect (10, 450, Screen.width - 20, 100), "Allow Duplicates"))
+        {
+            print ("Allow Duplicates clicked");
+            #if UNITY_ANDROID || UNITY_IPHONE
+                // NOTE: !!! ONLY FOR DEBUG !!!
+                // !!! Make sure you set to false 
+                //     OR 
+                //     remove the setDebugMode and setAllowDuplicates calls for Production builds !!!
+                setAllowDuplicates(true);
+            #endif
+        }
+
+        if (GUI.Button (new Rect (10, 560, Screen.width - 20, 100), "Track Session"))
+        {
+            print ("Track Session clicked");
+            #if UNITY_ANDROID || UNITY_IPHONE
+                trackSession();
+            #endif
+        }
+
+        if (GUI.Button (new Rect (10, 670, Screen.width - 20, 100), "Track Action"))
+        {
+            print ("Track Action clicked");
+            #if UNITY_ANDROID || UNITY_IPHONE
+                trackAction("evt11", 0.35, "CAD", "ref111");
+            #endif
+        }
+
+        if (GUI.Button (new Rect (10, 780, Screen.width - 20, 100), "Track Action With Event Items"))
+        {
+            print ("Track Action With Event Items clicked");
 
             #if UNITY_ANDROID || UNITY_IPHONE
                 MATItem item1 = new MATItem();
@@ -293,19 +334,57 @@ public class MATSampleScript : MonoBehaviour {
                     receiptData = getSampleiTunesIAPReceipt();
                 #endif
 
-                trackActionWithEventItem("event6With2Items", false, arr, arr.Length, null, 10, "USD", transactionState, receiptData, receiptSignature);
+                trackActionWithEventItem("event6With2Items", arr, arr.Length, "ref222", 10, null, transactionState, receiptData, receiptSignature);
+            #endif
+        }
+
+        if (GUI.Button (new Rect (10, 890, Screen.width - 20, 100), "Test Setter Methods"))
+        {
+            print ("Test Setter Methods clicked");
+            #if UNITY_ANDROID || UNITY_IPHONE
+                setAge(34);
+                setAllowDuplicates(true);
+                setAppAdTracking(true);
+                setAppleAdvertisingIdentifier("12345678-1234-1234-1234-123456789012", true);
+                setAppleVendorIdentifier("87654321-4321-4321-4321-210987654321");
+                setCurrencyCode("CAD");
+                setDebugMode(true);
+                setDelegate(true);
+                setEventAttribute1("test_attribute1");
+                setEventAttribute2("test_attribute2");
+                setEventAttribute3("test_attribute3");
+                setEventAttribute4("test_attribute4");
+                setEventAttribute5("test_attribute5");
+                setExistingUser(false);
+                setFacebookUserId("temp_facebook_user_id");
+                setGender(0);
+                setGoogleAdvertisingId("12345678-1234-1234-1234-123456789012");
+                setGoogleUserId("temp_google_user_id");
+                setJailbroken(false);
+                setLocation(111,222,333);
+                setPackageName("com.tempcompany.tempapp");
+                setRedirectUrl("http://www.example.com");
+                setShouldAutoDetectJailbroken(true);
+                setShouldAutoGenerateAppleVendorIdentifier(true);
+                setSiteId("mat_site_id");
+                setTRUSTeId("1234567890");
+                setTwitterUserId("temp_twitter_user_id");
+                setUseCookieTracking(false);
+                setUserEmail("tempuser@tempcompany.com");
+                setUserId("temp_user_id");
+                setUserName("temp_user_name");
             #endif
         }
     }
 
-    public void trackerDidSucceed(string data)
+    public void trackerDidSucceed (string data)
     {
-        print("trackerDidSucceed: " + DecodeFrom64(data));
+        print ("trackerDidSucceed: " + DecodeFrom64 (data));
     }
 
-    private void trackerDidFail(string error)
+    private void trackerDidFail (string error)
     {
-        print("trackerDidFail: " + error);
+        print ("trackerDidFail: " + error);
     }
 
     /// <summary>
@@ -313,13 +392,13 @@ public class MATSampleScript : MonoBehaviour {
     /// </summary>
     /// <param name="encodedData">A base64 encoded string.</param>
     /// <returns>A decoded string.</returns>
-    public static string DecodeFrom64(string encodedString)
+    public static string DecodeFrom64 (string encodedString)
     {
-        print("MATSampleScript.DecodeFrom64(string)");
-        return System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(encodedString));
+        print ("MATSampleScript.DecodeFrom64(string)");
+        return System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
     }
 
-    public static string getSampleiTunesIAPReceipt()
+    public static string getSampleiTunesIAPReceipt ()
     {
         return "{\"signature\" = \"AiuR/oePW4lQq2qAFerYcL/lU7HB7rqPKoddrjnqLUqvLywbSukO3OUwWwiRGE8iFiNvaqVF2CaG8siBkfkP5KYaeiTHT2RNLCIKyCfhOIr4q0wYCKwxNp2vdo3S8b+4boeSAXzgzBHCR1S1hTN5LuoeRzDeIWHoYT66CBweqDetAAADVzCCA1MwggI7oAMCAQICCGUUkU3ZWAS1MA0GCSqGSIb3DQEBBQUAMH8xCzAJBgNVBAYTAlVTMRMwEQYDVQQKDApBcHBsZSBJbmMuMSYwJAYDVQQLDB1BcHBsZSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTEzMDEGA1UEAwwqQXBwbGUgaVR1bmVzIFN0b3JlIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTA5MDYxNTIyMDU1NloXDTE0MDYxNDIyMDU1NlowZDEjMCEGA1UEAwwaUHVyY2hhc2VSZWNlaXB0Q2VydGlmaWNhdGUxGzAZBgNVBAsMEkFwcGxlIGlUdW5lcyBTdG9yZTETMBEGA1UECgwKQXBwbGUgSW5jLjELMAkGA1UEBhMCVVMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMrRjF2ct4IrSdiTChaI0g8pwv/cmHs8p/RwV/rt/91XKVhNl4XIBimKjQQNfgHsDs6yju++DrKJE7uKsphMddKYfFE5rGXsAdBEjBwRIxexTevx3HLEFGAt1moKx509dhxtiIdDgJv2YaVs49B0uJvNdy6SMqNNLHsDLzDS9oZHAgMBAAGjcjBwMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUNh3o4p2C0gEYtTJrDtdDC5FYQzowDgYDVR0PAQH/BAQDAgeAMB0GA1UdDgQWBBSpg4PyGUjFPhJXCBTMzaN+mV8k9TAQBgoqhkiG92NkBgUBBAIFADANBgkqhkiG9w0BAQUFAAOCAQEAEaSbPjtmN4C/IB3QEpK32RxacCDXdVXAeVReS5FaZxc+t88pQP93BiAxvdW/3eTSMGY5FbeAYL3etqP5gm8wrFojX0ikyVRStQ+/AQ0KEjtqB07kLs9QUe8czR8UGfdM1EumV/UgvDd4NwNYxLQMg4WTQfgkQQVy8GXZwVHgbE/UC6Y7053pGXBk51NPM3woxhd3gSRLvXj+loHsStcTEqe9pBDpmG5+sk4tw+GK3GMeEN5/+e1QT9np/Kl1nj+aBw7C0xsy0bFnaAd1cSS6xdory/CUvM6gtKsmnOOdqTesbp0bs8sn6Wqs0C9dgcxRHuOMZ2tm8npLUm7argOSzQ==\";\"purchase-info\" = \"ewoJIm9yaWdpbmFsLXB1cmNoYXNlLWRhdGUtcHN0IiA9ICIyMDEzLTA2LTE5IDEzOjMyOjE5IEFtZXJpY2EvTG9zX0FuZ2VsZXMiOwoJInVuaXF1ZS1pZGVudGlmaWVyIiA9ICJjODU0OGI1YWExZjM5NDA2NmY1ZWEwM2Q3ZGU0YTBiYzdjMTEyZDk5IjsKCSJvcmlnaW5hbC10cmFuc2FjdGlvbi1pZCIgPSAiMTAwMDAwMDA3Nzk2MDgzNSI7CgkiYnZycyIgPSAiMS4xIjsKCSJ0cmFuc2FjdGlvbi1pZCIgPSAiMTAwMDAwMDA4MzE1MjA1NCI7CgkicXVhbnRpdHkiID0gIjEiOwoJIm9yaWdpbmFsLXB1cmNoYXNlLWRhdGUtbXMiID0gIjEzNzE2NzM5MzkwMDAiOwoJInVuaXF1ZS12ZW5kb3ItaWRlbnRpZmllciIgPSAiQTM3MjFCQzctNDA3Qi00QzcyLTg4RDAtMTdGNjIwRUMzNzEzIjsKCSJwcm9kdWN0LWlkIiA9ICJjb20uaGFzb2ZmZXJzLmluYXBwcHVyY2hhc2V0cmFja2VyMS5iYWxsIjsKCSJpdGVtLWlkIiA9ICI2NTMyMzA4MjkiOwoJImJpZCIgPSAiY29tLkhhc09mZmVycy5JbkFwcFB1cmNoYXNlVHJhY2tlcjEiOwoJInB1cmNoYXNlLWRhdGUtbXMiID0gIjEzNzU4MTM2NDcxMDIiOwoJInB1cmNoYXNlLWRhdGUiID0gIjIwMTMtMDgtMDYgMTg6Mjc6MjcgRXRjL0dNVCI7CgkicHVyY2hhc2UtZGF0ZS1wc3QiID0gIjIwMTMtMDgtMDYgMTE6Mjc6MjcgQW1lcmljYS9Mb3NfQW5nZWxlcyI7Cgkib3JpZ2luYWwtcHVyY2hhc2UtZGF0ZSIgPSAiMjAxMy0wNi0xOSAyMDozMjoxOSBFdGMvR01UIjsKfQ==\";\"environment\" = \"Sandbox\";\"pod\" = \"100\";\"signing-status\" = \"0\";}";
     }

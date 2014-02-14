@@ -54,15 +54,7 @@ public class AppToAppSample : MonoBehaviour {
 	[DllImport ("mobileapptracker")]	
 	private static extern void setRedirectUrl(string redirectUrl);	
 	[DllImport ("mobileapptracker")]	
-    private static extern void setShouldAutoGenerateMacAddress(bool shouldAutoGenerate);
-	[DllImport ("mobileapptracker")]	
-    private static extern void setShouldAutoGenerateODIN1Key(bool shouldAutoGenerate);
-	[DllImport ("mobileapptracker")]	
-    private static extern void setShouldAutoGenerateOpenUDIDKey(bool shouldAutoGenerate);
-	[DllImport ("mobileapptracker")]	
     private static extern void setShouldAutoGenerateVendorIdentifier(bool shouldAutoGenerate);
-	[DllImport ("mobileapptracker")]	
-    private static extern void setShouldAutoGenerateAdvertiserIdentifier(bool shouldAutoGenerate);
 	[DllImport ("mobileapptracker")]	
 	private static extern void setUseCookieTracking(bool useCookieTracking);
 	[DllImport ("mobileapptracker")]	
@@ -126,7 +118,11 @@ public class AppToAppSample : MonoBehaviour {
 		initNativeCode("877", "8c14d6bbe466b65211e781d62e301eec"); // iOS
 		setDebugMode(true);
 		setDelegate(true);
-		
+
+		#if UNITY_IPHONE
+			setAppleAdvertisingIdentifier(iPhone.advertisingIdentifier);
+		#endif
+
 		return;
 	}
 	
