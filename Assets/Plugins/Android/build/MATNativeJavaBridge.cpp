@@ -444,25 +444,27 @@ extern "C"
         return;
     }
     
-    bool getIsPayingUser()
+    const bool getIsPayingUser()
     {
         bool payingUser = jni_env->CallBooleanMethod(MobileAppTracker, getIsPayingUserMethod);
         __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] isPayingUserMethod payingUser = %s\n", __FUNCTION__, payingUser);
         return payingUser;
     }
 
-    jstring getMatId()
+    const char* getMatId()
     {
         jstring matId = (jstring)jni_env->CallObjectMethod(MobileAppTracker, getMatIdMethod);
-        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] getMatIdMethod matId = %s\n", __FUNCTION__, matId);
-        return matId;
+        const char* matIdChars = jni_env->GetStringUTFChars(matId, NULL);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] getMatIdMethod matId = %s\n", __FUNCTION__, matIdChars);
+        return matIdChars;
     }
     
-    jstring getOpenLogId()
+    const char* getOpenLogId()
     {
         jstring openLogId = (jstring)jni_env->CallObjectMethod(MobileAppTracker, getOpenLogIdMethod);
+        const char* openLogIdChars = jni_env->GetStringUTFChars(openLogId, NULL);
         __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] getOpenLogIdMethod matId = %s\n", __FUNCTION__, openLogId);
-        return openLogId;
+        return openLogIdChars;
     }
 
     // iOS only functions that do nothing on Android
