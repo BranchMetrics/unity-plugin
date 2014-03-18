@@ -55,7 +55,7 @@ public class MATSampleScript : MonoBehaviour
         [DllImport ("mobileapptracker")]
         private static extern void setGender(int gender);
         [DllImport ("mobileapptracker")]
-        private static extern void setGoogleAdvertisingId(string advertisingId);
+        private static extern void setGoogleAdvertisingId(string advertisingId, bool limitAdTracking);
         [DllImport ("mobileapptracker")]
         private static extern void setGoogleUserId(string googleUserId);
         [DllImport ("mobileapptracker")]
@@ -80,11 +80,11 @@ public class MATSampleScript : MonoBehaviour
 
         // Tracking functions
         [DllImport ("mobileapptracker")]
-        private static extern void trackAction(string action, double revenue, string currencyCode, string refId);
+        private static extern void measureAction(string action, double revenue, string currencyCode, string refId);
         [DllImport ("mobileapptracker")]
-        private static extern void trackActionWithEventItem(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receiptData, string receiptSignature);
+        private static extern void measureActionWithEventItems(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receiptData, string receiptSignature);
         [DllImport ("mobileapptracker")]
-        private static extern int trackSession();
+        private static extern int measureSession();
 
         // iOS-only functions that are imported for cross-platform coding convenience
         [DllImport ("mobileapptracker")]
@@ -103,6 +103,13 @@ public class MATSampleScript : MonoBehaviour
         private static extern void setShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate);
         [DllImport ("mobileapptracker")]
         private static extern void setUseCookieTracking(bool useCookieTracking);
+        
+        [DllImport ("mobileapptracker")]
+        private static extern bool getIsPayingUser();
+        [DllImport ("mobileapptracker")]
+        private static extern string getMatId();
+        [DllImport ("mobileapptracker")]
+        private static extern string getOpenLogId();
 
     #endif
 
@@ -144,6 +151,8 @@ public class MATSampleScript : MonoBehaviour
         private static extern void setTwitterUserId(string twitterUserId);
         [DllImport ("__Internal")]
         private static extern void setGoogleUserId(string googleUserId);
+        [DllImport ("__Internal")]
+		private static extern bool getIsPayingUser();
         [DllImport ("__Internal")]
         private static extern void setExistingUser(bool isExisting);
         [DllImport ("__Internal")]
@@ -187,19 +196,24 @@ public class MATSampleScript : MonoBehaviour
 
         // Methods to track custom in-app events
         [DllImport ("__Internal")]
-        private static extern void trackAction(string action, double revenue, string  currencyCode, string refId);
+        private static extern void measureAction(string action, double revenue, string  currencyCode, string refId);
         [DllImport ("__Internal")]
-        private static extern void trackActionWithEventItem(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature);
+        private static extern void measureActionWithEventItems(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature);
 
         // Methods to track install, update events
         [DllImport ("__Internal")]
-        private static extern void trackSession();
+        private static extern void measureSession();
         [DllImport ("__Internal")]
-        private static extern void trackSessionWithReferenceId(string refId);
+        private static extern void measureSessionWithReferenceId(string refId);
+
+        [DllImport ("__Internal")]
+        private static extern string getMatId();
+        [DllImport ("__Internal")]
+        private static extern string getOpenLogId();
 
         // Android-only methods
         [DllImport ("__Internal")]
-        private static extern void setGoogleAdvertisingId(string advertisingId);
+        private static extern void setGoogleAdvertisingId(string advertisingId, bool limitAdTracking);
 
     #endif
 
@@ -211,17 +225,10 @@ public class MATSampleScript : MonoBehaviour
     void Awake ()
     {
         #if UNITY_ANDROID || UNITY_IPHONE
-            #if UNITY_ANDROID
-                // Android
-                MAT_ADVERTISER_ID = "877";
-                MAT_CONVERSION_KEY = "5afe3bc434184096023e3d8b2ae27e1c";
-            #elif UNITY_IPHONE
-                // iOS
-                MAT_ADVERTISER_ID = "877";
-                MAT_CONVERSION_KEY = "8c14d6bbe466b65211e781d62e301eec";
-            #endif
+            MAT_ADVERTISER_ID = "877";
+            MAT_CONVERSION_KEY = "8c14d6bbe466b65211e781d62e301eec";
 
-            print("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);
+            print ("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);
         #endif
 
         return;
@@ -235,11 +242,11 @@ public class MATSampleScript : MonoBehaviour
         headingLabelStyle.alignment = TextAnchor.MiddleCenter;
         headingLabelStyle.normal.textColor = Color.white;
 
-        GUI.Label(new Rect(10, 5, Screen.width - 20, 100), "MAT Unity Test App", headingLabelStyle);
+        GUI.Label(new Rect(10, 5, Screen.width - 20, 90), "MAT Unity Test App", headingLabelStyle);
 
         GUI.skin.button.fontSize = 40;
 
-        if (GUI.Button (new Rect (10, 120, Screen.width - 20, 100), "Start MAT"))
+        if (GUI.Button (new Rect (10, 110, Screen.width - 20, 90), "Start MAT"))
         {
             print ("Start MAT clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
@@ -251,7 +258,7 @@ public class MATSampleScript : MonoBehaviour
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 230, Screen.width - 20, 100), "Set Delegate"))
+        if (GUI.Button (new Rect (10, 210, Screen.width - 20, 90), "Set Delegate"))
         {
             print ("Set Delegate clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
@@ -259,7 +266,7 @@ public class MATSampleScript : MonoBehaviour
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 340, Screen.width - 20, 100), "Enable Debug Mode"))
+        if (GUI.Button (new Rect (10, 310, Screen.width - 20, 90), "Enable Debug Mode"))
         {
             print ("Enable Debug Mode clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
@@ -271,7 +278,7 @@ public class MATSampleScript : MonoBehaviour
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 450, Screen.width - 20, 100), "Allow Duplicates"))
+        if (GUI.Button (new Rect (10, 410, Screen.width - 20, 90), "Allow Duplicates"))
         {
             print ("Allow Duplicates clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
@@ -283,23 +290,23 @@ public class MATSampleScript : MonoBehaviour
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 560, Screen.width - 20, 100), "Track Session"))
+        if (GUI.Button (new Rect (10, 510, Screen.width - 20, 90), "Track Session"))
         {
             print ("Track Session clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
-                trackSession();
+                measureSession();
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 670, Screen.width - 20, 100), "Track Action"))
+        if (GUI.Button (new Rect (10, 610, Screen.width - 20, 90), "Track Action"))
         {
             print ("Track Action clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
-                trackAction("evt11", 0.35, "CAD", "ref111");
+                measureAction("evt11", 0.35, "CAD", "ref111");
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 780, Screen.width - 20, 100), "Track Action With Event Items"))
+        if (GUI.Button (new Rect (10, 710, Screen.width - 20, 90), "Track Action With Event Items"))
         {
             print ("Track Action With Event Items clicked");
 
@@ -334,11 +341,11 @@ public class MATSampleScript : MonoBehaviour
                     receiptData = getSampleiTunesIAPReceipt();
                 #endif
 
-                trackActionWithEventItem("event6With2Items", arr, arr.Length, "ref222", 10, null, transactionState, receiptData, receiptSignature);
+                measureActionWithEventItems("event6With2Items", arr, arr.Length, "ref222", 10, null, transactionState, receiptData, receiptSignature);
             #endif
         }
 
-        if (GUI.Button (new Rect (10, 890, Screen.width - 20, 100), "Test Setter Methods"))
+        if (GUI.Button (new Rect (10, 810, Screen.width - 20, 90), "Test Setter Methods"))
         {
             print ("Test Setter Methods clicked");
             #if UNITY_ANDROID || UNITY_IPHONE
@@ -358,7 +365,7 @@ public class MATSampleScript : MonoBehaviour
                 setExistingUser(false);
                 setFacebookUserId("temp_facebook_user_id");
                 setGender(0);
-                setGoogleAdvertisingId("12345678-1234-1234-1234-123456789012");
+                setGoogleAdvertisingId("12345678-1234-1234-1234-123456789012", true);
                 setGoogleUserId("temp_google_user_id");
                 setJailbroken(false);
                 setLocation(111,222,333);
@@ -375,27 +382,16 @@ public class MATSampleScript : MonoBehaviour
                 setUserName("temp_user_name");
             #endif
         }
-    }
 
-    public void trackerDidSucceed (string data)
-    {
-        print ("trackerDidSucceed: " + DecodeFrom64 (data));
-    }
-
-    private void trackerDidFail (string error)
-    {
-        print ("trackerDidFail: " + error);
-    }
-
-    /// <summary>
-    /// The method to decode base64 strings.
-    /// </summary>
-    /// <param name="encodedData">A base64 encoded string.</param>
-    /// <returns>A decoded string.</returns>
-    public static string DecodeFrom64 (string encodedString)
-    {
-        print ("MATSampleScript.DecodeFrom64(string)");
-        return System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
+        if (GUI.Button (new Rect (10, 910, Screen.width - 20, 90), "Test Getter Methods"))
+        {
+            print ("Test Getter Methods clicked");
+            #if UNITY_ANDROID || UNITY_IPHONE
+                print ("isPayingUser = " + getIsPayingUser());
+                print ("matId     = " + getMatId());
+                print ("openLogId = " + getOpenLogId());
+            #endif
+        }
     }
 
     public static string getSampleiTunesIAPReceipt ()

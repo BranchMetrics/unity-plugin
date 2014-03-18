@@ -22,13 +22,19 @@ extern "C"
     JNIEnv*    jni_env;
 
     jobject     MobileAppTracker;
-    jmethodID   trackActionMethod;
-    jmethodID   trackActionWithEventItemMethod;
-    jmethodID   trackActionWithEventItemAndReceiptMethod;
-    jmethodID   trackSessionMethod;
+    
+    jmethodID   getIsPayingUserMethod;
+    jmethodID   getMatIdMethod;
+    jmethodID   getOpenLogIdMethod;
+    
+    jmethodID   measureActionMethod;
+    jmethodID   measureActionWithEventItemsMethod;
+    jmethodID   measureActionWithEventItemsAndReceiptMethod;
+    jmethodID   measureSessionMethod;
     jmethodID   setAgeMethod;
     jmethodID   setAllowDuplicatesMethod;
     jmethodID   setAltitudeMethod;
+    jmethodID   setAppAdTrackingMethod;
     jmethodID   setCurrencyCodeMethod;
     jmethodID   setDebugModeMethod;
     jmethodID   setEventAttribute1Method;
@@ -40,7 +46,6 @@ extern "C"
     jmethodID   setGenderMethod;
     jmethodID   setGoogleAdvertisingIdMethod;
     jmethodID   setLatitudeMethod;
-    jmethodID   setLimitAdTrackingEnabledMethod;
     jmethodID   setLongitudeMethod;
     jmethodID   setPackageNameMethod;
     jmethodID   setRefIdMethod;
@@ -99,16 +104,33 @@ extern "C"
         jmethodID setReferralSourcesMethod = jni_env->GetMethodID(cls_MobileAppTracker, "setReferralSources", "(Landroid/app/Activity;)V");
         jni_env->CallVoidMethod(obj_MobileAppTracker, setReferralSourcesMethod, obj_Activity);
 
+        // Start GAID fetch
+        jclass cls_GAIDFetcher = jni_env->FindClass("com/mobileapptracker/gaidwrapper/GAIDFetcher");
+        jmethodID mid_GAIDFetcher = jni_env->GetMethodID(cls_GAIDFetcher, "<init>", "()V");
+        jobject obj_GAIDFetcher = jni_env->NewObject(cls_GAIDFetcher, mid_GAIDFetcher);
+
+        jmethodID useUnityInterfaceMethod = jni_env->GetMethodID(cls_GAIDFetcher, "useUnityFetcherInterface", "()V");
+        jni_env->CallVoidMethod(obj_GAIDFetcher, useUnityInterfaceMethod);
+
+        jmethodID fetchGAIDMethod = jni_env->GetMethodID(cls_GAIDFetcher, "fetchGAID", "(Landroid/content/Context;)V");
+        jni_env->CallVoidMethod(obj_GAIDFetcher, fetchGAIDMethod, obj_Activity);
+
         // Create a global reference to the MobileAppTracker object and fetch method ids
         MobileAppTracker        = jni_env->NewGlobalRef(obj_MobileAppTracker);
-        trackSessionMethod      = jni_env->GetMethodID(cls_MobileAppTracker, "trackSession", "()I");
-        trackActionMethod       = jni_env->GetMethodID(cls_MobileAppTracker, "trackAction", "(Ljava/lang/String;DLjava/lang/String;Ljava/lang/String;)I");
-        trackActionWithEventItemMethod = jni_env->GetMethodID(cls_MobileAppTracker, "trackAction", "(Ljava/lang/String;Ljava/util/List;DLjava/lang/String;Ljava/lang/String;)I");
-        trackActionWithEventItemAndReceiptMethod = jni_env->GetMethodID(cls_MobileAppTracker, "trackAction", "(Ljava/lang/String;Ljava/util/List;DLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
+        
+        getIsPayingUserMethod      = jni_env->GetMethodID(cls_MobileAppTracker, "getIsPayingUser", "()Z");
+        getMatIdMethod          = jni_env->GetMethodID(cls_MobileAppTracker, "getMatId", "()Ljava/lang/String;");
+        getOpenLogIdMethod      = jni_env->GetMethodID(cls_MobileAppTracker, "getOpenLogId", "()Ljava/lang/String;");
+        
+        measureSessionMethod      = jni_env->GetMethodID(cls_MobileAppTracker, "measureSession", "()I");
+        measureActionMethod       = jni_env->GetMethodID(cls_MobileAppTracker, "measureAction", "(Ljava/lang/String;DLjava/lang/String;Ljava/lang/String;)I");
+        measureActionWithEventItemsMethod = jni_env->GetMethodID(cls_MobileAppTracker, "measureAction", "(Ljava/lang/String;Ljava/util/List;DLjava/lang/String;Ljava/lang/String;)I");
+        measureActionWithEventItemsAndReceiptMethod = jni_env->GetMethodID(cls_MobileAppTracker, "measureAction", "(Ljava/lang/String;Ljava/util/List;DLjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I");
 
         setAgeMethod             = jni_env->GetMethodID(cls_MobileAppTracker, "setAge", "(I)V");
         setAllowDuplicatesMethod = jni_env->GetMethodID(cls_MobileAppTracker, "setAllowDuplicates", "(Z)V");
         setAltitudeMethod        = jni_env->GetMethodID(cls_MobileAppTracker, "setAltitude", "(D)V");
+        setAppAdTrackingMethod	= jni_env->GetMethodID(cls_MobileAppTracker, "setAppAdTrackingEnabled", "(Z)V");
         setCurrencyCodeMethod    = jni_env->GetMethodID(cls_MobileAppTracker, "setCurrencyCode", "(Ljava/lang/String;)V");
         setDebugModeMethod       = jni_env->GetMethodID(cls_MobileAppTracker, "setDebugMode", "(Z)V");
         setEventAttribute1Method = jni_env->GetMethodID(cls_MobileAppTracker, "setEventAttribute1", "(Ljava/lang/String;)V");
@@ -119,10 +141,9 @@ extern "C"
         setExistingUserMethod    = jni_env->GetMethodID(cls_MobileAppTracker, "setExistingUser", "(Z)V");
         setFacebookUserIdMethod  = jni_env->GetMethodID(cls_MobileAppTracker, "setFacebookUserId", "(Ljava/lang/String;)V");
         setGenderMethod          = jni_env->GetMethodID(cls_MobileAppTracker, "setGender", "(I)V");
-        setGoogleAdvertisingIdMethod = jni_env->GetMethodID(cls_MobileAppTracker, "setGoogleAdvertisingId", "(Ljava/lang/String;)V");
+        setGoogleAdvertisingIdMethod = jni_env->GetMethodID(cls_MobileAppTracker, "setGoogleAdvertisingId", "(Ljava/lang/String;Z)V");
         setGoogleUserIdMethod    = jni_env->GetMethodID(cls_MobileAppTracker, "setGoogleUserId", "(Ljava/lang/String;)V");
         setLatitudeMethod        = jni_env->GetMethodID(cls_MobileAppTracker, "setLatitude", "(D)V");
-        setLimitAdTrackingEnabledMethod	= jni_env->GetMethodID(cls_MobileAppTracker, "setLimitAdTrackingEnabled", "(Z)V");
         setLongitudeMethod       = jni_env->GetMethodID(cls_MobileAppTracker, "setLongitude", "(D)V");
         setPackageNameMethod     = jni_env->GetMethodID(cls_MobileAppTracker, "setPackageName", "(Ljava/lang/String;)V");
         setSiteIdMethod          = jni_env->GetMethodID(cls_MobileAppTracker, "setSiteId", "(Ljava/lang/String;)V");
@@ -160,13 +181,13 @@ extern "C"
         return;
     }
 
-    const void trackAction(char* eventName, double revenue, char* currencyCode, char* refId)
+    const void measureAction(char* eventName, double revenue, char* currencyCode, char* refId)
     {
         jstring eventNameUTF = jni_env->NewStringUTF(eventName);
         jstring currencyCodeUTF = jni_env->NewStringUTF(currencyCode);
         jstring refIdUTF = jni_env->NewStringUTF(refId);
-        jint trackStatus = jni_env->CallIntMethod(MobileAppTracker, trackActionMethod, eventNameUTF, revenue, currencyCodeUTF, refIdUTF);
-        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] trackAction status = %d\n", __FUNCTION__, trackStatus);
+        jint trackStatus = jni_env->CallIntMethod(MobileAppTracker, measureActionMethod, eventNameUTF, revenue, currencyCodeUTF, refIdUTF);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] measureAction status = %d\n", __FUNCTION__, trackStatus);
 
         jni_env->DeleteLocalRef(eventNameUTF);
         jni_env->DeleteLocalRef(currencyCodeUTF);
@@ -175,7 +196,7 @@ extern "C"
         return;
     }
 
-    const void trackActionWithEventItem(char* eventName, MATItem items[], int eventItemCount, char* refId, double revenue, char* currency, int transactionState, char* receiptData, char* receiptSignature)
+    const void measureActionWithEventItems(char* eventName, MATItem items[], int eventItemCount, char* refId, double revenue, char* currency, int transactionState, char* receiptData, char* receiptSignature)
     {
         // Get Java ArrayList class and add method
         jclass clsArrayList = jni_env->FindClass("java/util/ArrayList");
@@ -233,15 +254,15 @@ extern "C"
         if (receiptData && strlen(receiptData) > 0 && receiptSignature && strlen(receiptSignature) > 0) {
             jstring receiptDataUTF = jni_env->NewStringUTF(receiptData);
             jstring receiptSignatureUTF = jni_env->NewStringUTF(receiptSignature);
-            // Call trackActionWithEventItem with receipt data
-            trackStatus = jni_env->CallIntMethod(MobileAppTracker, trackActionWithEventItemAndReceiptMethod, eventNameUTF, jlistobj, revenue, currencyCodeUTF, refIdUTF, receiptDataUTF, receiptSignatureUTF);
+            // Call measureActionWithEventItems with receipt data
+            trackStatus = jni_env->CallIntMethod(MobileAppTracker, measureActionWithEventItemsAndReceiptMethod, eventNameUTF, jlistobj, revenue, currencyCodeUTF, refIdUTF, receiptDataUTF, receiptSignatureUTF);
             jni_env->DeleteLocalRef(receiptDataUTF);
             jni_env->DeleteLocalRef(receiptSignatureUTF);
         } else {
-            // Call trackActionWithEventItem
-            trackStatus = jni_env->CallIntMethod(MobileAppTracker, trackActionWithEventItemMethod, eventNameUTF, jlistobj, revenue, currencyCodeUTF, refIdUTF);
+            // Call measureActionWithEventItems
+            trackStatus = jni_env->CallIntMethod(MobileAppTracker, measureActionWithEventItemsMethod, eventNameUTF, jlistobj, revenue, currencyCodeUTF, refIdUTF);
         }
-        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] trackActionWithEventItem status = %d\n", __FUNCTION__, trackStatus);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] measureActionWithEventItems status = %d\n", __FUNCTION__, trackStatus);
 
         // Delete local variables used
         jni_env->DeleteLocalRef(eventNameUTF);
@@ -252,10 +273,10 @@ extern "C"
         return;
     }
 
-    const void trackSession()
+    const void measureSession()
     {
-        jint trackStatus = jni_env->CallIntMethod(MobileAppTracker, trackSessionMethod);
-        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] trackSession status = %d\n", __FUNCTION__, trackStatus);
+        jint trackStatus = jni_env->CallIntMethod(MobileAppTracker, measureSessionMethod);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] measureSession status = %d\n", __FUNCTION__, trackStatus);
         return;
     }
 
@@ -265,15 +286,15 @@ extern "C"
         return;
     }
 
-    const void setAllowDuplicateRequests(bool allowDuplicateRequests)
+    const void setAllowDuplicates(bool allowDuplicates)
     {
-        jni_env->CallVoidMethod(MobileAppTracker, setAllowDuplicatesMethod, allowDuplicateRequests);
+        jni_env->CallVoidMethod(MobileAppTracker, setAllowDuplicatesMethod, allowDuplicates);
         return;
     }
 
     const void setAppAdTracking(bool appAdTracking)
     {
-        jni_env->CallVoidMethod(MobileAppTracker, setLimitAdTrackingEnabledMethod, !appAdTracking);
+        jni_env->CallVoidMethod(MobileAppTracker, setAppAdTrackingMethod, appAdTracking);
         return;
     }
 
@@ -351,14 +372,6 @@ extern "C"
         return;
     }
 
-    const void setGoogleAdvertisingId(char* advertisingId)
-    {
-        jstring advertisingIdUTF = jni_env->NewStringUTF(advertisingId);
-        jni_env->CallVoidMethod(MobileAppTracker, setGoogleAdvertisingIdMethod, advertisingIdUTF);
-        jni_env->DeleteLocalRef(advertisingIdUTF);
-        return;
-    }
-
     const void setGoogleUserId(char* googleUserId)
     {
         jstring userIdUTF = jni_env->NewStringUTF(googleUserId);
@@ -430,6 +443,27 @@ extern "C"
         jni_env->DeleteLocalRef(userNameUTF);
         return;
     }
+    
+    bool getIsPayingUser()
+    {
+        bool payingUser = jni_env->CallBooleanMethod(MobileAppTracker, getIsPayingUserMethod);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] isPayingUserMethod payingUser = %s\n", __FUNCTION__, payingUser);
+        return payingUser;
+    }
+
+    jstring getMatId()
+    {
+        jstring matId = (jstring)jni_env->CallObjectMethod(MobileAppTracker, getMatIdMethod);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] getMatIdMethod matId = %s\n", __FUNCTION__, matId);
+        return matId;
+    }
+    
+    jstring getOpenLogId()
+    {
+        jstring openLogId = (jstring)jni_env->CallObjectMethod(MobileAppTracker, getOpenLogIdMethod);
+        __android_log_print(ANDROID_LOG_INFO, "MATJavaBridge", "[%s] getOpenLogIdMethod matId = %s\n", __FUNCTION__, openLogId);
+        return openLogId;
+    }
 
     // iOS only functions that do nothing on Android
 
@@ -478,4 +512,11 @@ extern "C"
         return;
     }
 
+
+    JNIEXPORT void JNICALL Java_com_mobileapptracker_gaidwrapper_UnityGAIDInterface_nativeRetrievedGAID(JNIEnv *env, jobject obj, jstring gaid, jboolean isLimitAdTrackingEnabled)
+    {
+        jstring localstr_gaid = (jstring)(env->NewLocalRef(gaid));
+        env->CallVoidMethod(MobileAppTracker, setGoogleAdvertisingIdMethod, localstr_gaid, isLimitAdTrackingEnabled);
+        env->DeleteLocalRef(localstr_gaid);
+    }
 } // extern "C"

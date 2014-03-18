@@ -2,7 +2,7 @@
 //  MobileAppTracker.h
 //  MobileAppTracker
 //
-//  Created by HasOffers on 02/10/14.
+//  Created by HasOffers on 03/10/14.
 //  Copyright (c) 2013 HasOffers. All rights reserved.
 //
 
@@ -10,17 +10,20 @@
 #import <UIKit/UIKit.h>
 #import "MATEventItem.h"
 
-#define MATVERSION @"3.0.3"
+#define MATVERSION @"3.1.1"
 
 
 #pragma mark - enumerated types
 
-/** @name Results for tracking actions */
+/** @name Error codes */
 typedef enum {
-    MATActionResultFailure = -1,
-    MATActionResultRequestSent = 1,
-    MATActionResultAlreadyInstalled
-} MATActionResult;
+    MATNoAdvertiserIDProvided = 1101,
+    MATNoConversionKeyProvided = 1102,
+    MATInvalidConversionKey = 1103,
+    MATTrackingWithoutInitializing = 1132,
+    MATInvalidEventClose = 1131,
+    MATServerErrorResponse = 1111
+} MATErrorCode;
 
 /** @name Gender type constants */
 typedef enum {
@@ -48,9 +51,8 @@ typedef enum {
  Starts Mobile App Tracker with MAT Advertiser Id and MAT Conversion Key. Both values are required.
  @param aid the MAT Advertiser Id provided in Mobile App Tracking.
  @param key the MAT Conversion Key provided in Mobile App Tracking.
- @return YES if error occurs, NO otherwise.
  */
-+ (BOOL)startTrackerWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key;
++ (void)initializeWithMATAdvertiserId:(NSString *)aid MATConversionKey:(NSString *)key;
 
 
 #pragma mark - Delegate
@@ -86,7 +88,7 @@ typedef enum {
 + (void)setAllowDuplicateRequests:(BOOL)yesorno;
 
 
-#pragma mark - Data Parameters
+#pragma mark - Data Setters
 
 /** @name Setter Methods */
 
@@ -267,6 +269,36 @@ typedef enum {
 + (void)setEventAttribute5:(NSString*)value;
 
 
+/*!
+ Set whether the user is generating revenue for the app or not.
+ If measureAction is called with a non-zero revenue, this is automatically set to YES.
+ @param isPayingUser YES if the user is revenue-generating, NO if not
+ */
++(void) setPayingUser:(BOOL)isPayingUser;
+
+
+#pragma mark - Data Getters
+
+/** @name Getter Methods */
+
+/*!
+ Get the MAT ID for this installation (mat_id).
+ @return MAT ID
+ */
++ (NSString*)matId;
+
+/*!
+ Get the MAT log ID for the first app open (open_log_id).
+ @return open log ID
+ */
++ (NSString*)openLogId;
+
+/*!
+ Get whether the user is revenue-generating.
+ @return YES if the user has produced revenue, NO if not
+ */
++ (BOOL)isPayingUser;
+
 #pragma mark - Show iAd advertising
 
 /** @name iAd advertising */
@@ -276,122 +308,120 @@ typedef enum {
  when an iAd is received or failed to display. The MobileAppTracker's delegate
  object will receive notifications when this happens.
  */
-- (void) displayiAdInView:(UIView *)view;
++ (void)displayiAdInView:(UIView *)view;
 
 /*!
  Removes the currently displayed iAd, if any.
  */
-- (void) removeiAd;
++ (void)removeiAd;
 
 
-#pragma mark - Track Install/Update Methods
+#pragma mark - Measuring Sessions
 
-/** @name Track Installs */
+/** @name Measuring Sessions */
 
 /*!
  To be called when an app opens; typically in the didFinishLaunching event.
  */
-+ (MATActionResult)trackSession;
++ (void)measureSession;
 
 /*!
  To be called when an app opens; typically in the didFinishLaunching event.
  @param refId A reference id used to track an install and/or update, corresponds to advertiser_ref_id on the website.
  */
-+ (MATActionResult)trackSessionWithReferenceId:(NSString *)refId;
++ (void)measureSessionWithReferenceId:(NSString *)refId;
 
 
-#pragma mark - Track Actions
+#pragma mark - Measuring Actions
 
-/** @name Track Actions */
+/** @name Measuring Actions */
 
 /*!
- Record a Track Action for an Event Id or Name.
+ Record an Action for an Event Id or Name.
  @param eventIdOrName The event name or event id.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName;
++ (void)measureAction:(NSString *)eventIdOrName;
 
 /*!
- Record a Track Action for an Event Id or Name and reference id.
+ Record an Action for an Event Id or Name and reference id.
  @param eventIdOrName The event name or event id.
  @param refId The referencId for an event, corresponds to advertiser_ref_id on the website.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                        referenceId:(NSString *)refId;
++ (void)measureAction:(NSString *)eventIdOrName referenceId:(NSString *)refId;
 
 
 /*!
- Record a Track Action for an Event Id or Name, revenue and currency.
+ Record an Action for an Event Id or Name, revenue and currency.
  @param eventIdOrName The event name or event id.
  @param revenueAmount The revenue amount for the event.
  @param currencyCode The currency code override for the event. Blank defaults to sdk setting.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
++ (void)measureAction:(NSString *)eventIdOrName
+        revenueAmount:(float)revenueAmount
+         currencyCode:(NSString *)currencyCode;
 
 /*!
- Record a Track Action for an Event Id or Name and reference id, revenue and currency.
+ Record an Action for an Event Id or Name and reference id, revenue and currency.
  @param eventIdOrName The event name or event id.
  @param refId The referencId for an event, corresponds to advertiser_ref_id on the website.
  @param revenueAmount The revenue amount for the event.
  @param currencyCode The currency code override for the event. Blank defaults to sdk setting.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
++ (void)measureAction:(NSString *)eventIdOrName
+          referenceId:(NSString *)refId
+        revenueAmount:(float)revenueAmount
+         currencyCode:(NSString *)currencyCode;
 
 
-#pragma mark - Track Actions With Event Items
+#pragma mark - Measuring Actions With Event Items
 
-/** @name Track Actions With Event Items */
+/** @name Measuring Actions With Event Items */
 
 /*!
- Record a Track Action for an Event Id or Name and a list of event items.
+ Record an Action for an Event Id or Name and a list of event items.
  @param eventIdOrName The event name or event id.
  @param eventItems An array of MATEventItem objects
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                         eventItems:(NSArray *)eventItems;
++ (void)measureAction:(NSString *)eventIdOrName eventItems:(NSArray *)eventItems;
 
 /*!
- Record a Track Action for an Event Name or Id.
+ Record an Action for an Event Name or Id.
  @param eventIdOrName The event name or event id.
  @param eventItems An array of MATEventItem objects
  @param refId The referencId for an event, corresponds to advertiser_ref_id on the website.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId;
++ (void)measureAction:(NSString *)eventIdOrName
+           eventItems:(NSArray *)eventItems
+          referenceId:(NSString *)refId;
 
 /*!
- Record a Track Action for an Event Name or Id.
+ Record an Action for an Event Name or Id.
  @param eventIdOrName The event name or event id.
  @param eventItems An array of MATEventItem objects
  @param revenueAmount The revenue amount for the event.
  @param currencyCode The currency code override for the event. Blank defaults to sdk setting.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
++ (void)measureAction:(NSString *)eventIdOrName
+           eventItems:(NSArray *)eventItems
+        revenueAmount:(float)revenueAmount
+         currencyCode:(NSString *)currencyCode;
 
 /*!
- Record a Track Action for an Event Name or Id.
+ Record an Action for an Event Name or Id.
  @param eventIdOrName The event name or event id.
  @param eventItems An array of MATEventItem objects
  @param refId The referencId for an event, corresponds to advertiser_ref_id on the website.
  @param revenueAmount The revenue amount for the event.
  @param currencyCode The currency code override for the event. Blank defaults to sdk setting.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode;
++ (void)measureAction:(NSString *)eventIdOrName
+           eventItems:(NSArray *)eventItems
+          referenceId:(NSString *)refId
+        revenueAmount:(float)revenueAmount
+         currencyCode:(NSString *)currencyCode;
 
 /*!
- Record a Track Action for an Event Name or Id.
+ Record an Action for an Event Name or Id.
  @param eventIdOrName The event name or event id.
  @param eventItems An array of MATEventItem objects
  @param refId The referencId for an event, corresponds to advertiser_ref_id on the website.
@@ -399,15 +429,15 @@ typedef enum {
  @param currencyCode The currency code override for the event. Blank defaults to sdk setting.
  @param transactionState The in-app purchase transaction SKPaymentTransactionState as received from the iTunes store.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState;
++ (void)measureAction:(NSString *)eventIdOrName
+           eventItems:(NSArray *)eventItems
+          referenceId:(NSString *)refId
+        revenueAmount:(float)revenueAmount
+         currencyCode:(NSString *)currencyCode
+     transactionState:(NSInteger)transactionState;
 
 /*!
- Record a Track Action for an Event Name or Id.
+ Record an Action for an Event Name or Id.
  @param eventIdOrName The event name or event id.
  @param eventItems An array of MATEventItem objects
  @param refId The referencId for an event, corresponds to advertiser_ref_id on the website.
@@ -416,13 +446,13 @@ typedef enum {
  @param transactionState The in-app purchase transaction SKPaymentTransactionState as received from the iTunes store.
  @param receipt The in-app purchase transaction receipt as received from the iTunes store.
  */
-+ (void)trackActionForEventIdOrName:(NSString *)eventIdOrName
-                         eventItems:(NSArray *)eventItems
-                        referenceId:(NSString *)refId
-                      revenueAmount:(float)revenueAmount
-                       currencyCode:(NSString *)currencyCode
-                   transactionState:(NSInteger)transactionState
-                            receipt:(NSData *)receipt;
++ (void)measureAction:(NSString *)eventIdOrName
+           eventItems:(NSArray *)eventItems
+          referenceId:(NSString *)refId
+        revenueAmount:(float)revenueAmount
+         currencyCode:(NSString *)currencyCode
+     transactionState:(NSInteger)transactionState
+              receipt:(NSData *)receipt;
 
 
 #pragma mark - Cookie Tracking
@@ -457,11 +487,11 @@ typedef enum {
  @param shouldRedirect Should redirect to the download url if the tracking session was 
    successfully created. See setRedirectUrl:.
  */
-+ (void)setTracking:(NSString *)targetAppPackageName
-       advertiserId:(NSString *)targetAppAdvertiserId
-            offerId:(NSString *)targetAdvertiserOfferId
-        publisherId:(NSString *)targetAdvertiserPublisherId
-           redirect:(BOOL)shouldRedirect;
++ (void)startAppToAppTracking:(NSString *)targetAppPackageName
+                 advertiserId:(NSString *)targetAppAdvertiserId
+                      offerId:(NSString *)targetAdvertiserOfferId
+                  publisherId:(NSString *)targetAdvertiserPublisherId
+                     redirect:(BOOL)shouldRedirect;
 
 
 #pragma mark - Re-Engagement Method
@@ -488,20 +518,25 @@ typedef enum {
 /*!
  Protocol that allows for callbacks from the MobileAppTracker methods.
  To use, set your class as the delegate for MAT and implement these methods.
+ Delegate methods are called on an arbitrary thread.
  */
 @protocol MobileAppTrackerDelegate <NSObject>
 @optional
 
 /*!
- Delegate method called when a track action succeeds.
- @param tracker The MobileAppTracker instance.
+ Delegate method called when an action is enqueued.
+ @param referenceId The reference ID of the enqueue action.
+ */
+- (void)mobileAppTrackerEnqueuedActionWithReferenceId:(NSString *)referenceId;
+
+/*!
+ Delegate method called when an action succeeds.
  @param data The success data returned by the MobileAppTracker.
  */
 - (void)mobileAppTrackerDidSucceedWithData:(NSData *)data;
 
 /*!
- Delegate method called when a track action fails.
- @param tracker The MobileAppTracker instance.
+ Delegate method called when an action fails.
  @param error Error object returned by the MobileAppTracker.
  */
 - (void)mobileAppTrackerDidFailWithError:(NSError *)error;

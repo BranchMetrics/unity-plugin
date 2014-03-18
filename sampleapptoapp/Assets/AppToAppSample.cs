@@ -31,16 +31,12 @@ public class AppToAppSample : MonoBehaviour {
 	private static extern void startAppToAppTracking(string targetAppId, string advertiserId, string offerId, string publisherId, bool shouldRedirect);
 
 	[DllImport ("mobileapptracker")]
-	private static extern void trackAction(string action, bool isId, double revenue, string currencyCode);
+	private static extern void measureAction(string action, bool isId, double revenue, string currencyCode);
 
 	[DllImport ("mobileapptracker")]
-	private static extern int trackInstall();
-	[DllImport ("mobileapptracker")]
-	private static extern int trackUpdate();
+	private static extern int measureSession();
 	[DllImport ("mobileapptracker")]	
-	private static extern void trackInstallWithReferenceId(string refId);
-	[DllImport ("mobileapptracker")]
-	private static extern void trackUpdateWithReferenceId(string refId);
+	private static extern void measureSessionWithReferenceId(string refId);
 
 	// iOS-only functions that are imported for cross-platform coding convenience
 	[DllImport ("mobileapptracker")]
@@ -104,12 +100,12 @@ public class AppToAppSample : MonoBehaviour {
 	private static extern void startAppToAppTracking(string targetAppId, string advertiserId, string offerId, string publisherId, bool shouldRedirect);
 	
 	[DllImport ("__Internal")]
-	private static extern void trackAction(string action, bool isId, double revenue, string  currencyCode);
+	private static extern void measureAction(string action, bool isId, double revenue, string  currencyCode);
 		
 	[DllImport ("__Internal")]
-	private static extern void trackInstall();
-	[DllImport ("__Internal")]
-	private static extern void trackUpdate();
+	private static extern void measureSession();
+	[DllImport ("__Internal")]	
+	private static extern void measureSessionWithReferenceId(string refId);
 	
 	#endif
 	
