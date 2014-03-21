@@ -8,17 +8,17 @@ public class MATDelegateScript : MonoBehaviour
 {
     public void trackerDidSucceed (string data)
     {
-		print ("MATDelegateScript trackerDidSucceed: " + DecodeFrom64 (data));
+        print ("MATDelegateScript trackerDidSucceed: " + DecodeFrom64 (data));
     }
 
-    private void trackerDidFail (string error)
+    public void trackerDidFail (string error)
     {
-		print ("MATDelegateScript trackerDidFail: " + error);
+        print ("MATDelegateScript trackerDidFail: " + error);
     }
     
-    private void trackerDidEnqueueRequest (string refId)
+    public void trackerDidEnqueueRequest (string refId)
     {
-		print ("MATDelegateScript trackerDidEnqueueRequest: " + refId);
+        print ("MATDelegateScript trackerDidEnqueueRequest: " + refId);
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ public class MATDelegateScript : MonoBehaviour
     /// <returns>A decoded string.</returns>
     public static string DecodeFrom64 (string encodedString)
     {
-		print ("MATDelegateScript.DecodeFrom64(string)");
+        print ("MATDelegateScript.DecodeFrom64(string)");
         return System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
     }
 }

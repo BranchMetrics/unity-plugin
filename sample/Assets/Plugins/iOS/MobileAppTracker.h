@@ -2,7 +2,7 @@
 //  MobileAppTracker.h
 //  MobileAppTracker
 //
-//  Created by HasOffers on 03/10/14.
+//  Created by HasOffers on 03/20/14.
 //  Copyright (c) 2013 HasOffers. All rights reserved.
 //
 
@@ -10,7 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "MATEventItem.h"
 
-#define MATVERSION @"3.1.1"
+#define MATVERSION @"3.1.2"
 
 
 #pragma mark - enumerated types
@@ -274,7 +274,7 @@ typedef enum {
  If measureAction is called with a non-zero revenue, this is automatically set to YES.
  @param isPayingUser YES if the user is revenue-generating, NO if not
  */
-+(void) setPayingUser:(BOOL)isPayingUser;
++ (void)setPayingUser:(BOOL)isPayingUser;
 
 
 #pragma mark - Data Getters
