@@ -35,8 +35,6 @@ public class AppToAppSample : MonoBehaviour {
 
 	[DllImport ("mobileapptracker")]
 	private static extern int measureSession();
-	[DllImport ("mobileapptracker")]	
-	private static extern void measureSessionWithReferenceId(string refId);
 
 	// iOS-only functions that are imported for cross-platform coding convenience
 	[DllImport ("mobileapptracker")]
@@ -104,8 +102,6 @@ public class AppToAppSample : MonoBehaviour {
 		
 	[DllImport ("__Internal")]
 	private static extern void measureSession();
-	[DllImport ("__Internal")]	
-	private static extern void measureSessionWithReferenceId(string refId);
 	
 	#endif
 	

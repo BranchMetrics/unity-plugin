@@ -54,7 +54,7 @@ const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
 {
     NSLog(@"Native: MATSDKDelegate: enqueued request");
     
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_ENQUEUED, [referenceId UTF8String]);
+    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_ENQUEUED, nil != referenceId ? [referenceId UTF8String] : "");
 }
 
 @end
@@ -343,13 +343,6 @@ extern "C" {
         NSLog(@"Native: measureSession");
         
         [MobileAppTracker measureSession];
-    }
-    
-	void measureSessionWithReferenceId(const char *refId)
-    {
-        NSLog(@"Native: measureSessionWithReferenceId: refId = %s", refId);
-        
-        [MobileAppTracker measureSessionWithReferenceId:refId ? MATCreateNSString(refId) : nil];
     }
     
     void measureAction(const char* eventName, double revenue, const char*  currency, const char* refId)

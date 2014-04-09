@@ -203,8 +203,6 @@ public class MATSampleScript : MonoBehaviour
         // Methods to track install, update events
         [DllImport ("__Internal")]
         private static extern void measureSession();
-        [DllImport ("__Internal")]
-        private static extern void measureSessionWithReferenceId(string refId);
 
         [DllImport ("__Internal")]
         private static extern string getMatId();
