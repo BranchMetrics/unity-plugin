@@ -7,9 +7,9 @@
 typedef struct MATItem
 {
     const char* name;
-	double 		unitPrice;
-	int         quantity;
-	double		revenue;
+    double         unitPrice;
+    int         quantity;
+    double        revenue;
     const char* attribute1;
     const char* attribute2;
     const char* attribute3;

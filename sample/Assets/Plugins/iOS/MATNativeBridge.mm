@@ -76,6 +76,52 @@ char* MATAutonomousStringCopy (const char* string)
 	return res;
 }
 
+void measureActionInternal(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData)
+{
+    // reformat the items array as an nsarray of dictionary
+    NSMutableArray *arrEventItems = nil;
+    
+    if(eventItemCount > 0)
+    {
+        for (uint i = 0; i < eventItemCount; i++)
+        {
+            MATItem item = eventItems[i];
+            
+            NSString *name = MATCreateNSString(item.name);
+            float unitPrice = (float)item.unitPrice;
+            int quantity = item.quantity;
+            float revenue = (float)item.revenue;
+            
+            NSString *attr1 = MATCreateNSString(item.attribute1);
+            NSString *attr2 = MATCreateNSString(item.attribute2);
+            NSString *attr3 = MATCreateNSString(item.attribute3);
+            NSString *attr4 = MATCreateNSString(item.attribute4);
+            NSString *attr5 = MATCreateNSString(item.attribute5);
+            
+            // convert from MATItem struct to MATEventItem object
+            MATEventItem *eventItem = [MATEventItem eventItemWithName:name unitPrice:unitPrice quantity:quantity revenue:revenue
+                                                           attribute1:attr1
+                                                           attribute2:attr2
+                                                           attribute3:attr3
+                                                           attribute4:attr4
+                                                           attribute5:attr5];
+            
+            [arrEventItems addObject:eventItem];
+        }
+    }
+    
+    NSString *strReceipt = MATCreateNSString(receiptData);
+    NSData *receipt = [strReceipt dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [MobileAppTracker measureAction:MATCreateNSString(eventName)
+                         eventItems:arrEventItems
+                        referenceId:MATCreateNSString(refId)
+                      revenueAmount:revenue
+                       currencyCode:MATCreateNSString(currency)
+                   transactionState:(NSInteger)transactionState
+                            receipt:receipt];
+}
+
 MATSDKDelegate *matDelegate;
 
 // When native code plugin is implemented in .mm / .cpp file, then functions
@@ -161,6 +207,13 @@ extern "C" {
         NSLog(@"Native: setExistingUser = %d", isExisting);
         
         [MobileAppTracker setExistingUser:isExisting];
+    }
+    
+    void setPayingUser(bool isPaying)
+    {
+        NSLog(@"Native: setPayingUser = %d", isPaying);
+        
+        [MobileAppTracker setPayingUser:isPaying];
     }
     
     void setJailbroken(bool isJailbroken)
@@ -324,6 +377,74 @@ extern "C" {
         [MobileAppTracker setEventAttribute5:MATCreateNSString(value)];
     }
     
+    void setEventContentType(const char* value)
+    {
+        NSLog(@"Native: setEventContentType: %s", value);
+        
+        [MobileAppTracker setEventContentType:MATCreateNSString(value)];
+    }
+    
+    void setEventContentId(const char* value)
+    {
+        NSLog(@"Native: setEventContentId: %s", value);
+        
+        [MobileAppTracker setEventContentId:MATCreateNSString(value)];
+    }
+    
+    void setEventDate1(const char* value)
+    {
+        NSLog(@"Native: setEventDate1: %s", value);
+        
+        NSString *strMillis = MATCreateNSString(value);
+        
+        double millis = [strMillis doubleValue];
+        
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:millis / 1000];
+        
+        [MobileAppTracker setEventDate1:date];
+    }
+    
+    void setEventDate2(const char* value)
+    {
+        NSLog(@"Native: setEventDate2: %s", value);
+        
+        NSString *strMillis = MATCreateNSString(value);
+        
+        double millis = [strMillis doubleValue];
+        
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:millis / 1000];
+        
+        [MobileAppTracker setEventDate2:date];
+    }
+    
+    void setEventLevel(int level)
+    {
+        NSLog(@"Native: setEventLevel: %d", level);
+        
+        [MobileAppTracker setEventLevel:level];
+    }
+    
+    void setEventQuantity(int quantity)
+    {
+        NSLog(@"Native: setEventQuantity: %d", quantity);
+        
+        [MobileAppTracker setEventQuantity:quantity];
+    }
+    
+    void setEventRating(float rating)
+    {
+        NSLog(@"Native: setEventRating: %f", rating);
+        
+        [MobileAppTracker setEventRating:rating];
+    }
+    
+    void setEventSearchString(const char* value)
+    {
+        NSLog(@"Native: setEventSearchString: %s", value);
+        
+        [MobileAppTracker setEventSearchString:MATCreateNSString(value)];
+    }
+    
     void setGender(MATGender gender)
     {
         NSLog(@"Native: setGender = %d", gender);
@@ -345,58 +466,39 @@ extern "C" {
         [MobileAppTracker measureSession];
     }
     
-    void measureAction(const char* eventName, double revenue, const char*  currency, const char* refId)
+    void measureAction(const char* eventName)
     {
         NSLog(@"Native: measureAction");
         
-        [MobileAppTracker measureAction:MATCreateNSString(eventName)
-                            referenceId:MATCreateNSString(refId)
-                          revenueAmount:revenue
-                           currencyCode:MATCreateNSString(currency)];
+        measureActionInternal(eventName, NULL, -1, NULL, 0, NULL, 0, NULL);
+    }
+
+    void measureActionWithRefId(const char* eventName, const char* refId)
+    {
+        NSLog(@"Native: measureActionWithRefId");
+        
+        measureActionInternal(eventName, NULL, -1, refId, 0, NULL, 0, NULL);
     }
     
-    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData, const char* receiptSignature)
+    void measureActionWithRevenue(const char* eventName, double revenue, const char*  currency, const char* refId)
+    {
+        NSLog(@"Native: measureActionWithRevenue");
+        
+        measureActionInternal(eventName, NULL, -1, refId, revenue, currency, 0, NULL);
+    }
+    
+    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency)
     {
         NSLog(@"Native: measureActionWithEventItems");
         
-        // reformat the items array as an nsarray of dictionary
-        NSMutableArray *arrEventItems = [NSMutableArray array];
-        for (uint i = 0; i < eventItemCount; i++)
-        {
-            MATItem item = eventItems[i];
-            
-            NSString *name = MATCreateNSString(item.name);
-            float unitPrice = (float)item.unitPrice;
-            int quantity = item.quantity;
-            float revenue = (float)item.revenue;
-            
-            NSString *attr1 = MATCreateNSString(item.attribute1);
-            NSString *attr2 = MATCreateNSString(item.attribute2);
-            NSString *attr3 = MATCreateNSString(item.attribute3);
-            NSString *attr4 = MATCreateNSString(item.attribute4);
-            NSString *attr5 = MATCreateNSString(item.attribute5);
-            
-            // convert from MATItem struct to MATEventItem object
-            MATEventItem *eventItem = [MATEventItem eventItemWithName:name unitPrice:unitPrice quantity:quantity revenue:revenue
-                                                           attribute1:attr1
-                                                           attribute2:attr2
-                                                           attribute3:attr3
-                                                           attribute4:attr4
-                                                           attribute5:attr5];
-            
-            [arrEventItems addObject:eventItem];
-        }
+        measureActionInternal(eventName, eventItems, eventItemCount, refId, revenue, currency, 0, NULL);
+    }
+    
+    void measureActionWithReceipt(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData, const char* receiptSignature)
+    {
+        NSLog(@"Native: measureActionWithReceipt");
         
-        NSString *strReceipt = MATCreateNSString(receiptData);
-        NSData *receipt = [strReceipt dataUsingEncoding:NSUTF8StringEncoding];
-        
-        [MobileAppTracker measureAction:MATCreateNSString(eventName)
-                             eventItems:arrEventItems
-                            referenceId:MATCreateNSString(refId)
-                          revenueAmount:revenue
-                           currencyCode:MATCreateNSString(currency)
-                       transactionState:(NSInteger)transactionState
-                                receipt:receipt];
+        measureActionInternal(eventName, eventItems, eventItemCount, refId, revenue, currency, transactionState, receiptData);
     }
     
     const char* setGoogleAdvertisingId(const char* advertisingId, bool limitAdTracking)

@@ -10,7 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "MATEventItem.h"
 
-#define MATVERSION @"3.1.3"
+#define MATVERSION @"3.2"
 
 
 #pragma mark - enumerated types
@@ -237,44 +237,107 @@ typedef enum {
  */
 + (void)setPluginName:(NSString *)pluginName;
 
-
-/*!
- Set the first attribute to be included in the next track call.
- @param value
- */
-+ (void)setEventAttribute1:(NSString*)value;
-
-/*!
- Set the second attribute to be included in the next track call.
- @param value
- */
-+ (void)setEventAttribute2:(NSString*)value;
-
-/*!
- Set the third attribute to be included in the next track call.
- @param value
- */
-+ (void)setEventAttribute3:(NSString*)value;
-
-/*!
- Set the fourth attribute to be included in the next track call.
- @param value
- */
-+ (void)setEventAttribute4:(NSString*)value;
-
-/*!
- Set the fifth attribute to be included in the next track call.
- @param value
- */
-+ (void)setEventAttribute5:(NSString*)value;
-
-
 /*!
  Set whether the user is generating revenue for the app or not.
  If measureAction is called with a non-zero revenue, this is automatically set to YES.
  @param isPayingUser YES if the user is revenue-generating, NO if not
  */
 + (void)setPayingUser:(BOOL)isPayingUser;
+
+
+#pragma mark - Event-specific setters
+
+/*!
+ Set the content type associated with the next action (e.g., @"shoes").
+ Will be cleared after the next measurement call.
+ @param content type
+ */
++ (void)setEventContentType:(NSString*)contentType;
+
+/*!
+ Set the content ID associated with the next action (International Article Number
+ (EAN) when applicable, or other product or content identifier).
+ Will be cleared after the next measurement call.
+ @param content ID
+ */
++ (void)setEventContentId:(NSString*)contentId;
+
+/*!
+ Set the level associated with the next action (e.g., for a game).
+ Will be cleared after the next measurement call.
+ @param level
+ */
++ (void)setEventLevel:(NSInteger)level;
+
+/*!
+ Set the quantity associated with the next action (e.g., number of items).
+ Will be cleared after the next measurement call.
+ @param quantity
+ */
++ (void)setEventQuantity:(NSInteger)quantity;
+
+/*!
+ Set the search string associated with the next action.
+ Will be cleared after the next measurement call.
+ @param search string
+ */
++ (void)setEventSearchString:(NSString*)searchString;
+
+/*!
+ Set the rating associated with the next action (e.g., a user rating an item).
+ Will be cleared after the next measurement call.
+ @param rating
+ */
++ (void)setEventRating:(CGFloat)rating;
+
+/*!
+ Set the first date associated with the next action (e.g., user's check-in time).
+ Will be cleared after the next measurement call.
+ @param date
+ */
++ (void)setEventDate1:(NSDate*)date;
+
+/*!
+ Set the second date associated with the next action (e.g., user's check-out time).
+ Will be cleared after the next measurement call.
+ @param date
+ */
++ (void)setEventDate2:(NSDate*)date;
+
+/*!
+ Set the first attribute to be included in the next action.
+ Will be cleared after the next measurement call.
+ @param value
+ */
++ (void)setEventAttribute1:(NSString*)value;
+
+/*!
+ Set the second attribute to be included in the next action.
+ Will be cleared after the next measurement call.
+ @param value
+ */
++ (void)setEventAttribute2:(NSString*)value;
+
+/*!
+ Set the third attribute to be included in the next action.
+ Will be cleared after the next measurement call.
+ @param value
+ */
++ (void)setEventAttribute3:(NSString*)value;
+
+/*!
+ Set the fourth attribute to be included in the next action.
+ Will be cleared after the next measurement call.
+ @param value
+ */
++ (void)setEventAttribute4:(NSString*)value;
+
+/*!
+ Set the fifth attribute to be included in the next action.
+ Will be cleared after the next measurement call.
+ @param value
+ */
++ (void)setEventAttribute5:(NSString*)value;
 
 
 #pragma mark - Data Getters
@@ -324,12 +387,6 @@ typedef enum {
  To be called when an app opens; typically in the didFinishLaunching event.
  */
 + (void)measureSession;
-
-/*!
- To be called when an app opens; typically in the didFinishLaunching event.
- @param refId A reference id used to track an install and/or update, corresponds to advertiser_ref_id on the website.
- */
-+ (void)measureSessionWithReferenceId:(NSString *)refId;
 
 
 #pragma mark - Measuring Actions
