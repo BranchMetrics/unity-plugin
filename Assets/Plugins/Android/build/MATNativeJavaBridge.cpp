@@ -68,12 +68,7 @@ extern "C"
     jmethodID   setTwitterUserIdMethod;
     jmethodID   setGoogleUserIdMethod;
     jmethodID   startAppToAppTrackingMethod;
-    
-    const void measureAction(char* eventName);
-    const void measureActionWithRefId(char* eventName, char* refId);
-    const void measureActionWithRevenue(char* eventName, double revenue, char* currencyCode, char* refId);
-    const void measureActionWithEventItems(char* eventName, MATItem items[], int eventItemCount, char* refId, double revenue, char* currency, int transactionState, char* receiptData, char* receiptSignature);
-    
+
     jint JNI_OnLoad(JavaVM* vm, void* reserved)
     {
         // Use __android_log_print for logcat debugging
@@ -204,16 +199,6 @@ extern "C"
         return;
     }
 
-    const void measureAction(char* eventName)
-    {
-        measureActionWithRefId(eventName, NULL);
-    }
-    
-    const void measureActionWithRefId(char* eventName, char* refId)
-    {
-        measureActionWithRevenue(eventName, 0, NULL, refId);
-    }
-
     const void measureActionWithRevenue(char* eventName, double revenue, char* currencyCode, char* refId)
     {
         jstring eventNameUTF = jni_env->NewStringUTF(eventName);
@@ -227,6 +212,16 @@ extern "C"
         jni_env->DeleteLocalRef(refIdUTF);
         
         return;
+    }
+
+    const void measureActionWithRefId(char* eventName, char* refId)
+    {
+        measureActionWithRevenue(eventName, 0, NULL, refId);
+    }
+
+    const void measureAction(char* eventName)
+    {
+        measureActionWithRefId(eventName, NULL);
     }
     
     const void measureActionWithEventItems(char* eventName, MATItem items[], int eventItemCount, char* refId, double revenue, char* currency, int transactionState, char* receiptData, char* receiptSignature)
