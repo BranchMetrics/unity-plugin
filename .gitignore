@@ -2,4 +2,7 @@ sample/Library
 sample/ProjectSettings
 sampleapptoapp/Library
 sampleapptoapp/ProjectSettings
-*.meta
+**/*.meta
+
+# OS X
+.DS_Store

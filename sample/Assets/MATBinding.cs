@@ -17,9 +17,9 @@ public class MATBinding
     /// </para>
     /// <param name="advertiserId">the MAT advertiser ID for the app</param>
     /// <param name="conversionKey">the MAT advertiser key for the app</param>
-    public static void Init(string advertiserId, string conversionKey) 
+    public static void Init(string advertiserId, string conversionKey)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             initNativeCode(advertiserId, conversionKey);
@@ -31,9 +31,9 @@ public class MATBinding
     /// Enables acceptance of duplicate installs from this device.
     /// </para>
     /// <param name="allow">whether to allow duplicate installs from device</param>
-    public static void SetAllowDuplicates(bool allow) 
+    public static void SetAllowDuplicates(bool allow)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setAllowDuplicates(allow);
@@ -46,9 +46,9 @@ public class MATBinding
     /// Sets the ISO 4217 currency code.
     /// </para>
     /// <param name="currency_code"> the currency code</param>
-    public static void SetCurrencyCode(string currency_code) 
+    public static void SetCurrencyCode(string currency_code)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setCurrencyCode(currency_code);
@@ -61,9 +61,9 @@ public class MATBinding
     /// Turns debug mode on or off, under tag "MobileAppTracker".
     /// </para>
     /// <param name="debug">whether to enable debug output</param>
-    public static void SetDebugMode(bool debug) 
+    public static void SetDebugMode(bool debug)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setDebugMode(debug);
@@ -75,9 +75,9 @@ public class MATBinding
     /// Sets the name of the package.
     /// </para>
     /// <param name="package_name">Package name</param>
-    public static void SetPackageName(string package_name) 
+    public static void SetPackageName(string package_name)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setPackageName(package_name);
@@ -90,9 +90,9 @@ public class MATBinding
     /// Sets the MAT site ID to specify which app to attribute to.
     /// </para>
     /// <param name="site_id"> MAT site ID to attribute to</param>
-    public static void SetSiteId(string site_id) 
+    public static void SetSiteId(string site_id)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setSiteId(site_id);
@@ -105,9 +105,9 @@ public class MATBinding
     /// Sets the TRUSTe ID, should generate via their SDK.
     /// </para>
     /// <param name="tpid">TRUSTe ID</param>
-    public static void SetTRUSTeId(string tpid) 
+    public static void SetTRUSTeId(string tpid)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setTRUSTeId(tpid);
@@ -120,9 +120,9 @@ public class MATBinding
     /// Sets the custom user ID.
     /// </para>
     /// <param name="user_id">the new user ID</param>
-    public static void SetUserId(string user_id) 
+    public static void SetUserId(string user_id)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setUserId(user_id);
@@ -139,9 +139,9 @@ public class MATBinding
     /// <param name="publisherId">The MAT publisher ID of the target app</param>
     /// <param name="shouldRedirect">Should redirect to the download url if the tracking session was 
     ///  successfully created</param>
-    public static void StartAppToAppTracking(string targetAppId, string advertiserId, string offerId, string publisherId, bool shouldRedirect) 
+    public static void StartAppToAppTracking(string targetAppId, string advertiserId, string offerId, string publisherId, bool shouldRedirect)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             startAppToAppTracking(targetAppId, advertiserId, offerId, publisherId, shouldRedirect);
@@ -154,9 +154,9 @@ public class MATBinding
     /// Sets whether app-level ad tracking is enabled.
     /// </para>
     /// <param name="adTrackingEnabled">true if user has opted out of ad tracking at the app-level, false if not</param>
-    public static void SetAppAdTracking(bool adTrackingEnabled) 
+    public static void SetAppAdTracking(bool adTrackingEnabled)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setAppAdTracking(adTrackingEnabled);
@@ -169,9 +169,9 @@ public class MATBinding
     /// Does nothing if not iOS device.
     /// </para>
     /// <param name="enable">If set to true enable delegate</param>
-    public static void SetDelegate(bool enable) 
+    public static void SetDelegate(bool enable)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setDelegate(enable);
@@ -185,9 +185,9 @@ public class MATBinding
     /// used in conjunction with the setTracking:advertiserId:offerId:publisherId:redirect: method.
     /// </para>
     /// <param name="redirect_url">The string name for the url</param>
-    public static void SetRedirectUrl(string redirectUrl) 
+    public static void SetRedirectUrl(string redirectUrl)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setRedirectUrl(redirectUrl);
@@ -201,9 +201,9 @@ public class MATBinding
      /// Sets the user's age.
      /// </para>
      /// <param name="age">User age to track in MAT</param>
-     public static void SetAge(int age) 
+     public static void SetAge(int age)
      {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setAge(age);
@@ -216,9 +216,9 @@ public class MATBinding
     /// Sets the user gender.
     /// </para>
     /// <param name="gender">use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE</param>
-    public static void SetGender(int gender) 
+    public static void SetGender(int gender)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setGender(gender);
@@ -233,9 +233,9 @@ public class MATBinding
     /// <param name="latitude">user's latitude</param>
     /// <param name="longitude">user's longitude</param>
     /// <param name="altitude">user's altitude</param>
-    public static void SetLocation(double latitude, double longitude, double altitude) 
+    public static void SetLocation(double latitude, double longitude, double altitude)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setLocation(latitude, longitude, altitude);
@@ -248,9 +248,9 @@ public class MATBinding
     /// Does nothing if not iOS device.
     /// </para>
     /// <param name="shouldAutoGenerate">True if yes, false if no.</param>
-    public static void SetShouldAutoGenerateVendorIdentifier(bool shouldAutoGenerate) 
+    public static void SetShouldAutoGenerateVendorIdentifier(bool shouldAutoGenerate)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setShouldAutoGenerateAppleVendorIdentifier(shouldAutoGenerate);
@@ -263,9 +263,9 @@ public class MATBinding
     /// Does nothing if not an iOS device.
     /// </para>
     /// <param name="useCookieTracking">True if yes, false if no.</param>
-    public static void SetUseCookieTracking(bool useCookieTracking) 
+    public static void SetUseCookieTracking(bool useCookieTracking)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setUseCookieTracking(useCookieTracking);
@@ -278,9 +278,9 @@ public class MATBinding
     /// Does nothing if not an iOS device.
     /// </para>
     /// <param name="vendorIdentifier">Apple Vendor Identifier</param>
-    public static void SetVendorIdentifier(string vendorIdentifier) 
+    public static void SetAppleVendorIdentifier(string vendorIdentifier)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setAppleVendorIdentifier(vendorIdentifier);
@@ -293,9 +293,9 @@ public class MATBinding
     /// Sets the custom user email.
     /// </para>
     /// <param name="user_email">User's email address</param>
-    public static void SetUserEmail(string user_email) 
+    public static void SetUserEmail(string user_email)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setUserEmail(user_email);
@@ -308,9 +308,9 @@ public class MATBinding
     /// Sets the custom user name.
     /// </para>
     /// <param name="user_name">User name</param>
-    public static void SetUserName(string user_name) 
+    public static void SetUserName(string user_name)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setUserName(user_name);
@@ -323,9 +323,9 @@ public class MATBinding
     /// Sets the user ID to associate with Facebook.
     /// </para>
     /// <param name="fb_user_id">Facebook User ID</param>
-    public static void SetFacebookUserId(string fb_user_id) 
+    public static void SetFacebookUserId(string fb_user_id)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setFacebookUserId(fb_user_id);
@@ -338,9 +338,9 @@ public class MATBinding
     /// Sets the user ID to associate with Twitter.
     /// </para>
     /// <param name="twitter_user_id">Twitter user ID</param>
-    public static void SetTwitterUserId(string twitter_user_id) 
+    public static void SetTwitterUserId(string twitter_user_id)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setTwitterUserId(twitter_user_id);
@@ -351,9 +351,9 @@ public class MATBinding
     /// Sets the user ID to associate with Google.
     /// </para>
     /// <param name="google_user_id">Google user ID</param>
-    public static void SetGoogleUserId(string google_user_id) 
+    public static void SetGoogleUserId(string google_user_id)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setGoogleUserId(google_user_id);
@@ -366,9 +366,9 @@ public class MATBinding
     /// <param name="isExistingUser">
     /// true if this user already had the app installed prior to updating to MAT version
     /// </param>
-    public static void SetExistingUser(bool isExistingUser) 
+    public static void SetExistingUser(bool isExistingUser)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setExistingUser(isExistingUser);
@@ -381,9 +381,9 @@ public class MATBinding
     /// If measureAction is called with a non-zero revenue, this is automatically set to true.
     /// </para>
     /// <param name="isPayingUser">true if the user is revenue-generating, false if not</param>
-    public static void SetPayingUser(bool isPayingUser) 
+    public static void SetPayingUser(bool isPayingUser)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setPayingUser(isPayingUser);
@@ -396,9 +396,9 @@ public class MATBinding
     /// Does nothing if not an iOS device.
     /// </para>
     /// <param name="isJailbroken">The jailbroken device flag</param>
-    public static void SetJailbroken(bool isJailbroken) 
+    public static void SetJailbroken(bool isJailbroken)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setJailbroken(isJailbroken);
@@ -413,9 +413,9 @@ public class MATBinding
     /// <param name="isAutoDetectJailbroken">
     /// Will detect if the device is jailbroken if set to true. Defaults to true.
     /// </param>
-    public static void SetShouldAutoDetectJailbroken(bool isAutoDetectJailbroken) 
+    public static void SetShouldAutoDetectJailbroken(bool isAutoDetectJailbroken)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setShouldAutoDetectJailbroken(isAutoDetectJailbroken);
@@ -427,9 +427,9 @@ public class MATBinding
     /// Sets the first attribute associated with an app event.
     /// </para>
     /// <param name="eventAttribute">the attribute</param>
-    public static void SetEventAttribute1(string eventAttribute) 
+    public static void SetEventAttribute1(string eventAttribute)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventAttribute1(eventAttribute);
@@ -441,9 +441,9 @@ public class MATBinding
     /// Sets the second attribute associated with an app event.
     /// </para>
     /// <param name="eventAttribute">the attribute</param>
-    public static void SetEventAttribute2(string eventAttribute) 
+    public static void SetEventAttribute2(string eventAttribute)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventAttribute2(eventAttribute);
@@ -455,9 +455,9 @@ public class MATBinding
     /// Sets the third attribute associated with an app event.
     /// </para>
     /// <param name="eventAttribute">the attribute</param>
-    public static void SetEventAttribute3(string eventAttribute) 
+    public static void SetEventAttribute3(string eventAttribute)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventAttribute3(eventAttribute);
@@ -469,9 +469,9 @@ public class MATBinding
     /// Sets the fourth attribute associated with an app event.
     /// </para>
     /// <param name="eventAttribute">the attribute</param>
-    public static void SetEventAttribute4(string eventAttribute) 
+    public static void SetEventAttribute4(string eventAttribute)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventAttribute4(eventAttribute);
@@ -483,9 +483,9 @@ public class MATBinding
     /// Sets the fifth attribute associated with an app event.
     /// </para>
     /// <param name="eventAttribute">the attribute</param>
-    public static void SetEventAttribute5(string eventAttribute) 
+    public static void SetEventAttribute5(string eventAttribute)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventAttribute5(eventAttribute);
@@ -497,9 +497,9 @@ public class MATBinding
     /// Sets the content type associated with an app event.
     /// </para>
     /// <param name="eventContentType">the content type</param>
-    public static void SetEventContentType(string eventContentType) 
+    public static void SetEventContentType(string eventContentType)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventContentType(eventContentType);
@@ -511,9 +511,9 @@ public class MATBinding
     /// Sets the content ID associated with an app event.
     /// </para>
     /// <param name="eventContentId">the content ID</param>
-    public static void SetEventContentId(string eventContentId) 
+    public static void SetEventContentId(string eventContentId)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventContentId(eventContentId);
@@ -525,9 +525,9 @@ public class MATBinding
     /// Sets the level associated with an app event.
     /// </para>
     /// <param name="eventLevel">the level</param>
-    public static void SetEventLevel(int eventLevel) 
+    public static void SetEventLevel(int eventLevel)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventLevel(eventLevel);
@@ -539,9 +539,9 @@ public class MATBinding
     /// Sets the quantity associated with an app event.
     /// </para>
     /// <param name="eventQuantity">the quantity</param>
-    public static void SetEventQuantity(int eventQuantity) 
+    public static void SetEventQuantity(int eventQuantity)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventQuantity(eventQuantity);
@@ -553,9 +553,9 @@ public class MATBinding
     /// Sets the rating associated with an app event.
     /// </para>
     /// <param name="eventRating">the rating</param>
-    public static void SetEventRating(float eventRating) 
+    public static void SetEventRating(float eventRating)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventRating(eventRating);
@@ -567,9 +567,9 @@ public class MATBinding
     /// Sets the search string associated with an app event.
     /// </para>
     /// <param name="eventSearchString">the search string</param>
-    public static void SetEventSearchString(string eventSearchString) 
+    public static void SetEventSearchString(string eventSearchString)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventSearchString(eventSearchString);
@@ -581,9 +581,9 @@ public class MATBinding
     /// Event measurement function, by event ID or name.
     /// </para>
     /// <param name="action">event name or event ID in MAT system</param>
-    public static void MeasureAction(string action) 
+    public static void MeasureAction(string action)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             measureAction(action);
@@ -597,9 +597,9 @@ public class MATBinding
     /// </para>
     /// <param name="action">Action</param>
     /// <param name="refId">Reference ID</param>
-    public static void MeasureActionWithRefId(string action, string refId) 
+    public static void MeasureActionWithRefId(string action, string refId)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             measureActionWithRefId(action, refId);
@@ -614,9 +614,9 @@ public class MATBinding
     /// <param name="revenue">Revenue</param>
     /// <param name="currencyCode">Currency code</param>
     /// <param name="refId">Reference ID</param>
-    public static void MeasureActionWithRevenue(string action, double revenue, string currencyCode, string refId) 
+    public static void MeasureActionWithRevenue(string action, double revenue, string currencyCode, string refId)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             measureActionWithRevenue(action, revenue, currencyCode, refId);
@@ -636,9 +636,9 @@ public class MATBinding
     /// <param name="transactionState">Transaction state</param>
     /// <param name="receipt">Receipt</param>
     /// <param name="receiptSignature">Receipt signature</param>
-    public static void MeasureActionWithEventItems(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature) 
+    public static void MeasureActionWithEventItems(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             measureActionWithEventItems(action, items, eventItemCount, refId, revenue, currency, transactionState, receipt, receiptSignature);
@@ -649,9 +649,9 @@ public class MATBinding
     /// <para>
     /// Main session measurement function; this function should be called at every app open.    
     /// </para>
-    public static void MeasureSession() 
+    public static void MeasureSession()
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_IPHONE
             setAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
@@ -671,9 +671,9 @@ public class MATBinding
     /// <param name="isLATEnabled">
     /// whether user has requested to limit use of the Google ad ID
     /// </param>
-    public static void SetGoogleAdvertisingId(string adId, bool isLATEnabled) 
+    public static void SetGoogleAdvertisingId(string adId, bool isLATEnabled)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if UNITY_ANDROID
             setGoogleAdvertisingId(adId, isLATEnabled);
@@ -682,12 +682,30 @@ public class MATBinding
     }
 
     /// <para>
+    /// Sets the Apple Identifier For Advertising -- IDFA.
+    /// Does nothing if not an iOS device.
+    /// </para>
+    /// <param name="advertiserIdentifier">Apple Identifier For Advertising -- IDFA</param>
+    /// <param name="trackingEnabled">
+    /// A Boolean value that indicates whether the user has limited ad tracking
+    /// </param>
+    public static void SetAppleAdvertisingIdentifier(string advertiserIdentifier, bool trackingEnabled)
+    {
+        if(!Application.isEditor)
+        {
+            #if UNITY_IPHONE
+            setAppleAdvertisingIdentifier(advertiserIdentifier, trackingEnabled);
+            #endif
+        }
+    }
+
+    /// <para>
     /// Sets the first date associated with an app event.
     /// </para>
     /// <param name="eventDate">the date</param>
-    public static void SetEventDate1(string eventDate) 
+    public static void SetEventDate1(string eventDate)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventDate1(eventDate);
@@ -699,9 +717,9 @@ public class MATBinding
     /// Sets the second date associated with an app event.
     /// </para>
     /// <param name="eventDate">the date</param>
-    public static void SetEventDate2(string eventDate) 
+    public static void SetEventDate2(string eventDate)
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventDate2(eventDate);
@@ -713,9 +731,9 @@ public class MATBinding
     /// Gets whether the user is revenue-generating or not.
     /// </para>
     /// <returns>true if the user has produced revenue, false if not</returns>
-    public static bool GetIsPayingUser() 
+    public static bool GetIsPayingUser()
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             return getIsPayingUser();
@@ -728,9 +746,9 @@ public class MATBinding
     /// Gets the MAT ID generated on install.
     /// </para>
     /// <returns>MAT ID</returns>
-    public static string GetMATId() 
+    public static string GetMATId()
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             return getMatId();
@@ -744,9 +762,9 @@ public class MATBinding
     /// Gets the first MAT open log ID.
     /// </para>
     /// <returns>first MAT open log ID</returns>
-    public static string GetOpenLogId() 
+    public static string GetOpenLogId()
     {
-        if(!Application.isEditor) 
+        if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             return getOpenLogId();

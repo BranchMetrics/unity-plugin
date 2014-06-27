@@ -8,9 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
+
 #import "MATEventItem.h"
 
-#define MATVERSION @"3.2"
+#define MATVERSION @"3.2.5"
 
 
 #pragma mark - enumerated types
@@ -59,8 +61,8 @@ typedef enum {
 
 /** @name MAT SDK Callback Delegate */
 /*!
- [MobileAppTrackerDelegate](MobileAppTrackerDelegate) : A Delegate used by MobileAppTracker to post
- success and failure callbacks from the MAT SDK.
+ [MobileAppTrackerDelegate](MobileAppTrackerDelegate) : A delegate used by the MobileAppTracker
+ to post success and failure callbacks from the MAT servers.
  */
 + (void)setDelegate:(id <MobileAppTrackerDelegate>)delegate;
 
@@ -384,7 +386,7 @@ typedef enum {
 /** @name Measuring Sessions */
 
 /*!
- To be called when an app opens; typically in the didFinishLaunching event.
+ To be called when an app opens; typically in the applicationDidBecomeActive event.
  */
 + (void)measureSession;
 
@@ -615,3 +617,4 @@ typedef enum {
 - (void)mobileAppTrackerFailedToReceiveiAdWithError:(NSError *)error;
 
 @end
+

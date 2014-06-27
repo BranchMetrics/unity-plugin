@@ -48,7 +48,7 @@ public class MATSampleScript : MonoBehaviour {
 			MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
 
 			#if UNITY_IPHONE
-			setAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+			MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
 			#endif
 			#endif
 		}
@@ -70,7 +70,6 @@ public class MATSampleScript : MonoBehaviour {
 			//     OR 
 			//     remove the setDebugMode and setAllowDuplicates calls for Production builds !!!
 			MATBinding.SetDebugMode(true);
-			//MATBinding.in
 			#endif
 		}
 		
@@ -139,7 +138,7 @@ public class MATSampleScript : MonoBehaviour {
 			receiptData = getSampleiTunesIAPReceipt();
 			#endif
 			
-			MATBinding.MeasureActionWithEventItems("event7WithReceipt", arr, arr.Length, "ref222", 10, null, 1, receiptData, receiptSignature);
+			MATBinding.MeasureActionWithEventItems("event7WithReceipt", arr, arr.Length, "ref222", 10, null, transactionState, receiptData, receiptSignature);
 			#endif
 		}
 		
@@ -151,8 +150,8 @@ public class MATSampleScript : MonoBehaviour {
 			MATBinding.SetAllowDuplicates(true);
 			MATBinding.SetAppAdTracking(true);
 			#if UNITY_IPHONE
-			setAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
-			setAppleVendorIdentifier("87654321-4321-4321-4321-210987654321");
+			MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+			MATBinding.SetAppleVendorIdentifier("87654321-4321-4321-4321-210987654321");
 			#endif
 			MATBinding.SetCurrencyCode("CAD");
 			MATBinding.SetDebugMode(true);
