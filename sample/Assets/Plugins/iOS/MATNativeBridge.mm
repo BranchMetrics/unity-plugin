@@ -237,13 +237,6 @@ extern "C" {
         [MobileAppTracker setCurrencyCode:MATCreateNSString(currencyCode)];
     }
     
-    void setRedirectUrl(const char* redirectUrl)
-    {
-        NSLog(@"Native: setRedirectUrl = %s", redirectUrl);
-        
-        [MobileAppTracker setRedirectUrl:MATCreateNSString(redirectUrl)];
-    }
-    
     void setDebugMode(bool enable)
     {
         NSLog(@"Native: setDebugMode = %d", enable);
@@ -326,13 +319,6 @@ extern "C" {
         NSLog(@"Native: setAppleVendorIdentifier: %s", appleVendorId);
         
         [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:MATCreateNSString(appleVendorId)] ];
-    }
-    
-    void startAppToAppTracking(const char *targetAppId, const char *advertiserId, const char *offerId, const char *publisherId, bool shouldRedirect)
-    {
-        NSLog(@"Native: startAppToAppTracking: %s, %s, %s, %s, %d", targetAppId, advertiserId, offerId, publisherId, shouldRedirect);
-        
-        [MobileAppTracker startAppToAppTracking:MATCreateNSString(targetAppId) advertiserId:MATCreateNSString(advertiserId) offerId:MATCreateNSString(offerId) publisherId:MATCreateNSString(publisherId) redirect:shouldRedirect];
     }
     
     void setAge(int age)

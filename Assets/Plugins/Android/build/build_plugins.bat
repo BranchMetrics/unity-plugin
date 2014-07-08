@@ -1,1 +1,0 @@
-(if exist ..\libmobileapptracker.so del ..\libmobileapptracker.so) & ndk-build NDK_PROJECT_PATH=. NDK_APPLICATION_MK=Application.mk && move libs\armeabi\libmobileapptracker.so .. && (rd /s /q libs & rd /s /q obj)
