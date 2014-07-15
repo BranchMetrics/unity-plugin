@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 using System.IO;
 using System.Collections;
@@ -1217,7 +1217,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="appName">App name</param>
     public static void SetAppName(string appName)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.AppName = appName;
+        #endif
     }
 
 
@@ -1228,7 +1230,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="appVersion">App version</param>
     public static void SetAppVersion(string appVersion)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.AppVersion = appVersion;
+        #endif
     }
 
     /// <para>
@@ -1238,7 +1242,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceBrand">Device brand</param>
     public static void SetDeviceBrand(string deviceBrand)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.DeviceBrand = deviceBrand;
+        #endif
     }
 
     /// <para>
@@ -1248,7 +1254,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceCarrier">Device carrier</param>
     public static void SetDeviceCarrier(string deviceCarrier)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.DeviceCarrier = deviceCarrier;
+        #endif
     }
 
     /// <para>
@@ -1258,7 +1266,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceModel">Device model</param>
     public static void SetDeviceModel(string deviceModel)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.DeviceModel = deviceModel;
+        #endif
     }
 
     /// <para>
@@ -1268,7 +1278,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceUniqueId">Device unique ID</param>
     public static void SetDeviceUniqueId(string deviceUniqueId)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.DeviceUniqueId = deviceUniqueId;
+        #endif
     }
 
     /// <para>
@@ -1278,7 +1290,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="lastOpenLogId">Last open log ID</param>
     public static void SetLastOpenLogId(string lastOpenLogId)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.LastOpenLogId = lastOpenLogId;
+        #endif
     }
 
     /// <para>
@@ -1288,7 +1302,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="matResponse">MAT response</param>
     public static void SetMATResponse(MATWP8.MATResponse matResponse)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.SetMATResponse (matResponse);
+        #endif
     }
         
     /// <para>
@@ -1298,7 +1314,9 @@ public class MATBinding : MonoBehaviour
     /// <param name="osVersion">OS version</param>
     public static void SetOSVersion(string osVersion)
     {
+        #if UNITY_WP8
         MATWP8.MobileAppTracker.Instance.OSVersion = osVersion;
+        #endif
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -1321,24 +1339,6 @@ public class MATBinding : MonoBehaviour
             #endif
         }
     }
-
-    /// <para>
-    /// Sets a url to be used with app-to-app tracking so that
-    /// the sdk can open the download (redirect) url. This is
-    /// used in conjunction with the setTracking:advertiserId:offerId:publisherId:redirect: method.
-    /// Does nothing if not Android or iOS device.
-    /// </para>
-    /// <param name="redirect_url">The string name for the url.</param>
-    public static void SetRedirectUrl(string redirectUrl)
-    {
-        if(!Application.isEditor)
-        {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
-            setRedirectUrl(redirectUrl);
-            #endif
-        }
-    }
-    
     
     /// <para>
     /// Sets the MAT site ID to specify which app to attribute to.
@@ -1521,8 +1521,6 @@ public class MATBinding : MonoBehaviour
     private static extern void setDelegate(bool enable);
     [DllImport ("mobileapptracker")]
     private static extern void setJailbroken(bool isJailbroken);
-    [DllImport ("mobileapptracker")]
-    private static extern void setRedirectUrl(string redirectUrl);
     [DllImport ("mobileapptracker")]
     private static extern void setShouldAutoDetectJailbroken(bool shouldAutoDetect);
     [DllImport ("mobileapptracker")]

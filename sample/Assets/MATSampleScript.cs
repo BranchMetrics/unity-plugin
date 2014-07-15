@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 /// <para>
-/// This class demonstrates the basic features of the Unity SDK and 
+/// This class demonstrates the basic features of the MAT Unity Plugin and
 /// its ability to have one project work with Android, iOS, and Windows Phone 8.
 /// </para>
 public class MATSampleScript : MonoBehaviour {
@@ -13,7 +13,7 @@ public class MATSampleScript : MonoBehaviour {
     #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
     string MAT_ADVERTISER_ID = null;
     string MAT_CONVERSION_KEY = null;
-    //string MAT_PACKAGE_NAME = "com.hasoffers.unitytestapp";
+    string MAT_PACKAGE_NAME = null;
     //string MAT_SITE_ID = null;
     #endif
 
@@ -22,6 +22,8 @@ public class MATSampleScript : MonoBehaviour {
         #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
         MAT_ADVERTISER_ID = "877";
         MAT_CONVERSION_KEY = "8c14d6bbe466b65211e781d62e301eec";
+        MAT_PACKAGE_NAME = "com.hasoffers.unitytestapp";
+
         #if UNITY_ANDROID
         //MAT_SITE_ID = "52048";
         #elif UNITY_IPHONE
@@ -29,6 +31,7 @@ public class MATSampleScript : MonoBehaviour {
         #elif UNITY_WP8
         //MAT_SITE_ID = "52144";
         #endif
+
         print ("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);// + ", " + MAT_SITE_ID);
         #endif
 
@@ -43,23 +46,26 @@ public class MATSampleScript : MonoBehaviour {
         headingLabelStyle.alignment = TextAnchor.MiddleCenter;
         headingLabelStyle.normal.textColor = Color.white;
         
-        GUI.Label(new Rect(10, 5, Screen.width - 20, 90), "MAT Unity Test App", headingLabelStyle);
+        GUI.Label(new Rect(10, 5, Screen.width - 20, Screen.height/10), "MAT Unity Test App", headingLabelStyle);
         
         GUI.skin.button.fontSize = 40;
         
-        if (GUI.Button (new Rect (10, 60, Screen.width - 20, 90), "Start MAT"))
+        if (GUI.Button (new Rect (10, Screen.height/10, Screen.width - 20, Screen.height/10), "Start MAT"))
         {
             print ("Start MAT clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
-            MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
             
-            #if UNITY_IPHONE
-            MATBinding.setAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
-            #endif
+                MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
+                MATBinding.SetPackageName(MAT_PACKAGE_NAME);
+
+                #if UNITY_IPHONE
+                    MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+                #endif
+                
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 120, Screen.width - 20, 90), "Set Delegate"))
+        else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
         {
             print ("Set Delegate clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
@@ -67,7 +73,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 180, Screen.width - 20, 90), "Enable Debug Mode"))
+        else if (GUI.Button (new Rect (10, 3*Screen.height/10, Screen.width - 20, Screen.height/10), "Enable Debug Mode"))
         {
             print ("Enable Debug Mode clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
@@ -80,7 +86,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 240, Screen.width - 20, 90), "Allow Duplicates"))
+        else if (GUI.Button (new Rect (10, 4*Screen.height/10, Screen.width - 20, Screen.height/10), "Allow Duplicates"))
         {
             print ("Allow Duplicates clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
@@ -92,7 +98,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 300, Screen.width - 20, 90), "Measure Session"))
+        else if (GUI.Button (new Rect (10, 5*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Session"))
         {
             print ("Measure Session clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
@@ -100,7 +106,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 360, Screen.width - 20, 90), "Measure Action"))
+        else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Action"))
         {
             print ("Measure Action clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
@@ -110,7 +116,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 420, Screen.width - 20, 90), "Measure Action With Event Items"))
+        else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Action With Event Items"))
         {
             print ("Measure Action With Event Items clicked");
             
@@ -149,7 +155,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 480, Screen.width - 20, 90), "Test Setter Methods"))
+        else if (GUI.Button (new Rect (10, 8*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Setter Methods"))
         {
             print ("Test Setter Methods clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
@@ -183,10 +189,10 @@ public class MATSampleScript : MonoBehaviour {
             MATBinding.SetUserEmail("tempuser@tempcompany.com");
             //iOS-specific Features
             #if UNITY_IPHONE
-            MATBinding.setAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
-            MATBinding.setAppleVendorIdentifier("87654321-4321-4321-4321-210987654321");
+            MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+            MATBinding.SetAppleVendorIdentifier("87654321-4321-4321-4321-210987654321");
             MATBinding.SetDelegate(true);
-            MATBinding.SetJailbroken(false); 
+            MATBinding.SetJailbroken(false);
             MATBinding.SetShouldAutoDetectJailbroken(true);
             MATBinding.SetShouldAutoGenerateVendorIdentifier(true);
             MATBinding.SetUseCookieTracking(false);
@@ -240,7 +246,7 @@ public class MATSampleScript : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 540, Screen.width - 20, 90), "Test Getter Methods"))
+        else if (GUI.Button (new Rect (10, 9*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Getter Methods"))
         {
             print ("Test Getter Methods clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)

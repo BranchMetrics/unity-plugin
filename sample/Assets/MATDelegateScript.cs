@@ -30,6 +30,8 @@ public class MATDelegateScript : MonoBehaviour
     /// <returns>A decoded string.</returns>
     public static string DecodeFrom64 (string encodedString)
     {
+        string decodedString = null;
+
         #if !(UNITY_WP8)
         print ("MATDelegateScript.DecodeFrom64(string)");
 
@@ -37,10 +39,10 @@ public class MATDelegateScript : MonoBehaviour
         //Error building Player: Exception: Error: method `System.String System.Text.Encoding::GetString(System.Byte[])` doesn't exist in target framework. It is referenced from Assembly-CSharp.dll at System.String MATDelegateScript::DecodeFrom64(System.String).
         //Because of this, I'm currently choosing to disable it when Windows 8 phones are used. I'll see if I can find 
         //something better later. Until then, I'll probably use an else branch to take care of the UNITY_WP8 case.
-        return System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
+        decodedString = System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
         #endif
 
-        return null;
+        return decodedString;
     }
 
 }
