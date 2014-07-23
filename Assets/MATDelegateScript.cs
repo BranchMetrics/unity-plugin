@@ -4,12 +4,46 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+/* Attach this script to an empty object to retrieve information about the server request.
+ * iOS and Android builds are designed to send messages to this script. For Windows Phone 8, 
+ * create the class shown below and pass an instance of it into MATBinding.SetMATResponse
+ * 
+public class SampleMATResponse : MATWP8.MATResponse
+{
+    //Make sure to attach MATDelegateScript to the empty "MobileAppTracker" object
+    MATDelegateScript message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegateScript>();
 
+    public void DidSucceedWithData(string response)
+    {
+        if(message_receiver != null)
+            message_receiver.trackerDidSucceed("" + response);
+    }
+    
+    public void DidFailWithError(string error)
+    {
+        if(message_receiver != null)
+            message_receiver.trackerDidFail("" + error);
+    }
+    
+    public void EnqueuedActionWithRefId(string refId)
+    {
+        if(message_receiver != null)
+            message_receiver.trackerDidEnqueueRequest("" + refId);
+    }
+}
+
+ */
 public class MATDelegateScript : MonoBehaviour
 {
+
     public void trackerDidSucceed (string data)
     {
+        #if UNITY_IPHONE
         print ("MATDelegateScript trackerDidSucceed: " + DecodeFrom64 (data));
+        #endif
+        #if (UNITY_ANDROID || UNITY_WP8)
+        print ("MATDelegateScript trackerDidSucceed: " + data);
+        #endif
     }
 
     public void trackerDidFail (string error)

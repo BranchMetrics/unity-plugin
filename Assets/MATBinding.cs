@@ -352,9 +352,8 @@ public class MATBinding : MonoBehaviour
             
             #if UNITY_WP8
             TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
-            //Update to modern time for c#
+            //Update to current time for c#
             datetime = datetime.Add(timeFrom1970);
-            print("Event date is " + datetime.ToString());
             MATWP8.MobileAppTracker.Instance.EventDate1 = datetime;
             #endif
         }
@@ -379,9 +378,8 @@ public class MATBinding : MonoBehaviour
             
             #if UNITY_WP8
             TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
-            //Update to modern time for c#
+            //Update to current time for c#
             datetime = datetime.Add(timeFrom1970);
-            print("Event date is " + datetime.ToString());
             MATWP8.MobileAppTracker.Instance.EventDate2 = datetime;
             #endif
         }
@@ -754,21 +752,6 @@ public class MATBinding : MonoBehaviour
         {
             #if UNITY_IPHONE
             setAppleVendorIdentifier(vendorIdentifier);
-            #endif
-        }
-    }
-        
-    /// <para> 
-    /// Sets delegate used by MobileAppTracker to post success and failure callbacks from the MAT SDK.
-    /// Does nothing if not an iOS device.
-    /// </para>
-    /// <param name="enable">If set to true enable delegate.</param>
-    public static void SetDelegate(bool enable)
-    {
-        if(!Application.isEditor)
-        {
-            #if (UNITY_IPHONE)
-            setDelegate(enable);
             #endif
         }
     }
@@ -1339,7 +1322,25 @@ public class MATBinding : MonoBehaviour
             #endif
         }
     }
-    
+
+    /// <para> 
+    /// Sets delegate used by MobileAppTracker to post success and failure callbacks from the MAT SDK.
+    /// Does nothing if not an Android or iOS device.
+    /// </para>
+    /// <param name="enable">If set to true enable delegate.</param>
+    public static void SetDelegate(bool enable)
+    {
+        if(!Application.isEditor)
+        {
+            #if (UNITY_IPHONE)
+            setDelegate(enable);
+            #endif
+            #if UNITY_ANDROID
+            setMATResponse();
+            #endif
+        }
+    }
+
     /// <para>
     /// Sets the MAT site ID to specify which app to attribute to.
     /// Does nothing if not Android or iOS device.
@@ -1388,6 +1389,8 @@ public class MATBinding : MonoBehaviour
     private static extern void setAllowDuplicates(bool allowDups);
     [DllImport ("mobileapptracker")]
     private static extern void setDebugMode(bool enable);
+    [DllImport ("mobileapptracker")]
+    private static extern void setMATResponse();
     
     [DllImport ("mobileapptracker")]
     private static extern void setAge(int age);

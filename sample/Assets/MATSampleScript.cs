@@ -59,7 +59,7 @@ public class MATSampleScript : MonoBehaviour {
                 MATBinding.SetPackageName(MAT_PACKAGE_NAME);
 
                 #if UNITY_IPHONE
-                    MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+                MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
                 #endif
                 
             #endif
@@ -68,8 +68,11 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
         {
             print ("Set Delegate clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE)
             MATBinding.SetDelegate(true);
+            #endif
+            #if UNITY_WP8
+            MATBinding.SetMATResponse(new SampleMATResponse());
             #endif
         }
 
@@ -233,7 +236,6 @@ public class MATSampleScript : MonoBehaviour {
             MATBinding.SetDeviceModel("testWP8_DeviceModel");
             MATBinding.SetDeviceUniqueId("testWP8_DeviceUniqueId");
             MATBinding.SetLastOpenLogId("testWP8_LastOpenLogId");
-            MATBinding.SetMATResponse(new SampleMATResponse()); 
             MATBinding.SetOSVersion("testWP8_OS");
             #endif
             //Android and iOS-specific Features
@@ -266,18 +268,24 @@ public class MATSampleScript : MonoBehaviour {
 //Used to test MATResponse functionality
 public class SampleMATResponse : MATWP8.MATResponse
 {
-    public void DidSucceedWithData(string response)
-    {
-        Debug.Log("We got server response " + response);
-    }
-    
-    public void DidFailWithError(string error)
-    {
-        Debug.Log("We got MAT failure " + error);
-    }
-    
-    public void EnqueuedActionWithRefId(string refId)
-    {
-        Debug.Log("Enqueued request with ref id " + refId);
-    }
+	//Make sure to attach MATDelegateScript to the empty "MobileAppTracker" object
+	MATDelegateScript message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegateScript>();
+
+	public void DidSucceedWithData(string response)
+	{
+		if(message_receiver != null)
+			message_receiver.trackerDidSucceed("" + response);
+	}
+	
+	public void DidFailWithError(string error)
+	{
+		if(message_receiver != null)
+			message_receiver.trackerDidFail("" + error);
+	}
+	
+	public void EnqueuedActionWithRefId(string refId)
+	{
+		if(message_receiver != null)
+			message_receiver.trackerDidEnqueueRequest("" + refId);
+	}
 }

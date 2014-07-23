@@ -5,6 +5,7 @@
 
 extern "C"
 {
+
     typedef struct
     {
         char * item;
@@ -70,6 +71,8 @@ extern "C"
     jmethodID   setFacebookUserIdMethod;
     jmethodID   setTwitterUserIdMethod;
     jmethodID   setGoogleUserIdMethod;
+
+    jmethodID   setMATResponseMethod;
 
     jmethodID   setPublisherIdMethod;
     jmethodID   setOfferIdMethod;
@@ -196,6 +199,8 @@ extern "C"
         setUserEmailMethod           = jni_env->GetMethodID(cls_MobileAppTracker, "setUserEmail", "(Ljava/lang/String;)V");
         setUserIdMethod              = jni_env->GetMethodID(cls_MobileAppTracker, "setUserId", "(Ljava/lang/String;)V");
         setUserNameMethod            = jni_env->GetMethodID(cls_MobileAppTracker, "setUserName", "(Ljava/lang/String;)V");
+
+        setMATResponseMethod         = jni_env->GetMethodID(cls_MobileAppTracker, "setMATResponse", "(Lcom/mobileapptracker/MATResponse;)V");
 
         // Pre-loaded app setters
         setPublisherIdMethod             = jni_env->GetMethodID(cls_MobileAppTracker, "setPublisherId", "(Ljava/lang/String;)V");
@@ -568,6 +573,16 @@ extern "C"
         jstring macAddressUTF = jni_env->NewStringUTF(macAddress);
         jni_env->CallVoidMethod(MobileAppTracker, setMacAddressMethod, macAddressUTF);
         jni_env->DeleteLocalRef(macAddressUTF);
+        return;
+    }
+
+    const void setMATResponse( )
+    {
+        jclass   matUnityResponseClass          = jni_env->FindClass("com/matunityresponse/MATUnityResponse");
+        jmethodID   matUnityResponseConstructor    = jni_env->GetMethodID(matUnityResponseClass, "<init>", "()V");
+        jobject  matUnityResponseObject         = jni_env->NewObject(matUnityResponseClass, matUnityResponseConstructor);
+
+        jni_env->CallVoidMethod(MobileAppTracker, setMATResponseMethod, matUnityResponseObject);
         return;
     }
 
