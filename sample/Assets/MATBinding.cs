@@ -341,6 +341,7 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
             double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
             //datetime starts in 1970
             DateTime datetime = new DateTime(1970, 1, 1);
@@ -356,6 +357,8 @@ public class MATBinding : MonoBehaviour
             datetime = datetime.Add(timeFrom1970);
             MATWP8.MobileAppTracker.Instance.EventDate1 = datetime;
             #endif
+
+            #endif
         }
     }
 
@@ -367,6 +370,7 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
             double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
             //datetime starts in 1970
             DateTime datetime = new DateTime(1970, 1, 1);
@@ -381,6 +385,8 @@ public class MATBinding : MonoBehaviour
             //Update to current time for c#
             datetime = datetime.Add(timeFrom1970);
             MATWP8.MobileAppTracker.Instance.EventDate2 = datetime;
+            #endif
+
             #endif
         }
     }

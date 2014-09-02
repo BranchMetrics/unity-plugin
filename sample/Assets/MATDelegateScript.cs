@@ -35,7 +35,6 @@ public class SampleMATResponse : MATWP8.MATResponse
  */
 public class MATDelegateScript : MonoBehaviour
 {
-
     public void trackerDidSucceed (string data)
     {
         #if UNITY_IPHONE
