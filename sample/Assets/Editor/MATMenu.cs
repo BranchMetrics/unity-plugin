@@ -4,7 +4,7 @@ using System;
 
 public class MATMenu : EditorWindow 
 {
-    [MenuItem ("MobileAppTracker/Create MATDelegate Object")] //Create MATDelegate
+    [MenuItem ("MobileAppTracker/Create MATDelegate Object", false, 100)] //Create MATDelegate
     static void InitMATDelegate () 
     {
         if(GameObject.Find("MobileAppTracker") == null)
@@ -14,10 +14,15 @@ public class MATMenu : EditorWindow
         }
     }
 
-    [MenuItem ("MobileAppTracker/Configure Android")] //Open menu for Android configuration
+    [MenuItem ("MobileAppTracker/Configure Android", false, 101)] //Open menu for Android configuration
     static void InitConfigForAndroid () 
     {
-        var window = EditorWindow.GetWindow (typeof (MATAndroidConfigMenu));
-        window.position = new Rect(100,40,250,200);
+        EditorWindow.GetWindow (typeof (MATAndroidConfigMenu));
+    }
+
+    [MenuItem ("MobileAppTracker/Plugin Guide", false, 200)] //Open menu for Android configuration
+    static void InitPluginGuide () 
+    {
+        Application.OpenURL("https://developers.mobileapptracking.com/unity-plugin/");
     }
 }

@@ -5,32 +5,26 @@ using UnityEditor;
 
 public class MATAndroidConfigMenu : EditorWindow 
 {
-
     string google_play_services_path = "";
     string google_play_services_folder_name = "";
-
 
     void OnGUI()
     {
         GUI.skin.label.wordWrap = true;
         GUI.skin.button.wordWrap = true;
 
-        GUILayout.Label("\nA reference to your google-play-services_lib folder is required for Android builds that use the MAT Plugin. \n\nRead more at https://developers.mobileapptracking.com/unity-plugin/ \n");
-        
+        GUILayout.Label("\nA reference to your google-play-services_lib folder is required for Android builds that use the MAT Plugin."); 
         if(GUILayout.Button("import google-play-services_lib"))
         {
-            google_play_services_path = EditorUtility.OpenFolderPanel(
-                "select google-play-services_lib folder",
-                "",
-                "");
+            google_play_services_path = EditorUtility.OpenFolderPanel("select google-play-services_lib folder","","");
             google_play_services_path = google_play_services_path.Replace('/', '\\');
             string[] folders = google_play_services_path.Split(new char[] {'\\'});
+
             if(folders.Length > 0)
                 google_play_services_folder_name = folders[folders.Length - 1]; 
             
             if(google_play_services_path.Length > 0 && File.Exists(google_play_services_path + "\\libs\\google-play-services.jar"))
-            { //File selected, import to Plugins/android
-
+            { 
                 if(Directory.Exists(Application.dataPath + "\\Plugins\\Android"))
                 {
                     FileUtil.CopyFileOrDirectory(
@@ -51,5 +45,3 @@ public class MATAndroidConfigMenu : EditorWindow
         }
     }
 }
-
-
