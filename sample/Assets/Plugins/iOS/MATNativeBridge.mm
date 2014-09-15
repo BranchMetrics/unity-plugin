@@ -62,24 +62,24 @@ const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
 // Converts C style string to NSString
 NSString* MATCreateNSString (const char* string)
 {
-	return [NSString stringWithUTF8String:string ? string : ""];
+    return [NSString stringWithUTF8String:string ? string : ""];
 }
 
 // Ref: http://answers.unity3d.com/questions/364779/passing-nsdictionary-from-obj-c-to-c.html
 char* MATAutonomousStringCopy (const char* string)
 {
-	if (string == NULL)
-		return NULL;
-	
-	char* res = (char*)malloc(strlen(string) + 1);
-	strcpy(res, string);
-	return res;
+    if (string == NULL)
+        return NULL;
+    
+    char* res = (char*)malloc(strlen(string) + 1);
+    strcpy(res, string);
+    return res;
 }
 
 void measureActionInternal(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData)
 {
     // reformat the items array as an nsarray of dictionary
-    NSMutableArray *arrEventItems = nil;
+    NSMutableArray *arrEventItems = [NSMutableArray array];
     
     if(eventItemCount > 0)
     {
@@ -473,14 +473,7 @@ extern "C" {
         measureActionInternal(eventName, NULL, -1, refId, revenue, currency, 0, NULL);
     }
     
-    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency)
-    {
-        NSLog(@"Native: measureActionWithEventItems");
-        
-        measureActionInternal(eventName, eventItems, eventItemCount, refId, revenue, currency, 0, NULL);
-    }
-    
-    void measureActionWithReceipt(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData, const char* receiptSignature)
+    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData, const char* receiptSignature)
     {
         NSLog(@"Native: measureActionWithReceipt");
         
