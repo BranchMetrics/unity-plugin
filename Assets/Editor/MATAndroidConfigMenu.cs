@@ -32,6 +32,7 @@ public class MATAndroidConfigMenu : EditorWindow
                         Application.dataPath + "\\Plugins\\Android\\" + google_play_services_folder_name);
 
                     AssetDatabase.Refresh();
+                    this.Close();
                 }
                 else
                 {

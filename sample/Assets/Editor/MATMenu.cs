@@ -7,11 +7,11 @@ public class MATMenu : EditorWindow
     [MenuItem ("MobileAppTracker/Create MATDelegate Object", false, 100)] //Create MATDelegate
     static void InitMATDelegate () 
     {
-        if(GameObject.Find("MobileAppTracker") == null)
-        {
-            var obj = new GameObject("MobileAppTracker");
-            obj.AddComponent("MATDelegateScript");
-        }
+        EditorWindow window = EditorWindow.GetWindow (typeof (MATDelegateMenu));
+        int winWidth, winHeight;
+        winWidth = 450;
+        winHeight = 350;
+        window.minSize = new Vector2(winWidth, winHeight);
     }
 
     [MenuItem ("MobileAppTracker/Configure Android", false, 101)] //Open menu for Android configuration

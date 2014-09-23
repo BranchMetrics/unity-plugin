@@ -99,6 +99,10 @@ public class MATBinding : MonoBehaviour
             #if (UNITY_ANDROID || UNITY_IPHONE)
             measureActionWithRefId(action, refId);
             #endif
+
+            #if (UNITY_WP8)
+            MATWP8.MeasureActionWithRefId(action, refId);
+            #endif
         }
     }
 
@@ -115,6 +119,10 @@ public class MATBinding : MonoBehaviour
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             measureActionWithRevenue(action, revenue, currencyCode, refId);
+            #endif
+
+            #if (UNITY_WP8)
+            MATWP8.MeasureActionWithRevenue(action, revenue, currencyCode, refId);
             #endif
         }
     }
