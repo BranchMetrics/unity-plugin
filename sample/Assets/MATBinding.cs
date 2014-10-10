@@ -101,7 +101,7 @@ public class MATBinding : MonoBehaviour
             #endif
 
             #if (UNITY_WP8)
-            MATWP8.MeasureActionWithRefId(action, refId);
+            MATWP8.MobileAppTracker.Instance.MeasureAction(action, 0.0, null, refId, null);
             #endif
         }
     }
@@ -122,7 +122,7 @@ public class MATBinding : MonoBehaviour
             #endif
 
             #if (UNITY_WP8)
-            MATWP8.MeasureActionWithRevenue(action, revenue, currencyCode, refId);
+            MATWP8.MobileAppTracker.Instance.MeasureAction(action, revenue, currencyCode, refId, null);
             #endif
         }
     }
