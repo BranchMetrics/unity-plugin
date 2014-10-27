@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 /* Attach this script to an empty object to retrieve information about the server request.
  * iOS and Android builds are designed to send messages to this script. For Windows Phone 8, 
@@ -35,7 +34,6 @@ public class SampleMATResponse : MATWP8.MATResponse
  */
 public class MATDelegateScript : MonoBehaviour
 {
-
     public void trackerDidSucceed (string data)
     {
         #if UNITY_IPHONE
@@ -66,7 +64,7 @@ public class MATDelegateScript : MonoBehaviour
     {
         string decodedString = null;
 
-        #if !(UNITY_WP8)
+        #if !(UNITY_WP8) && !(UNITY_METRO)
         print ("MATDelegateScript.DecodeFrom64(string)");
 
         //this line causes the following error when building for Windows 8 phones:

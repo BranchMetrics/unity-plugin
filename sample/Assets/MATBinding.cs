@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Linq; //for ToList function
 
 /// <para>
@@ -29,6 +28,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.initializeValues(advertiserId, conversionKey);
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.InitializeValues(advertiserId, conversionKey);
+            #endif
         }
     }
 
@@ -45,6 +47,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.MeasureAction(action);
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.MeasureAction(action);
             #endif
         }
     }
@@ -84,6 +89,19 @@ public class MATBinding : MonoBehaviour
             List<MATWP8.MATEventItem> list =  newarr.ToList();
             MATWP8.MobileAppTracker.Instance.MeasureAction(action, revenue, currency, refId, list);
             #endif
+
+            #if UNITY_METRO
+            MATWinStore.MATEventItem[] newarr = new MATWinStore.MATEventItem[items.Length];
+            for(int i = 0; i < items.Length; i++)
+            {
+                newarr[i] = new MATWinStore.MATEventItem(items[i].name, items[i].quantity, items[i].unitPrice, 
+                                                      items[i].revenue, items[i].attribute1, items[i].attribute2,
+                                                      items[i].attribute3, items[i].attribute4, items[i].attribute5);
+            }
+            
+            List<MATWinStore.MATEventItem> list =  newarr.ToList();
+            MATWinStore.MobileAppTracker.Instance.MeasureAction(action, revenue, currency, refId, list);
+            #endif
         }
     }
 
@@ -100,8 +118,12 @@ public class MATBinding : MonoBehaviour
             measureActionWithRefId(action, refId);
             #endif
 
-            #if (UNITY_WP8)
+            #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.MeasureAction(action, 0.0, null, refId, null);
+            #endif
+
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.MeasureAction(action, 0.0, null, refId, null);
             #endif
         }
     }
@@ -121,8 +143,12 @@ public class MATBinding : MonoBehaviour
             measureActionWithRevenue(action, revenue, currencyCode, refId);
             #endif
 
-            #if (UNITY_WP8)
+            #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.MeasureAction(action, revenue, currencyCode, refId, null);
+            #endif
+
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.MeasureAction(action, revenue, currencyCode, refId, null);
             #endif
         }
     }
@@ -144,6 +170,10 @@ public class MATBinding : MonoBehaviour
             
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.MeasureSession();
+            #endif
+
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.MeasureSession();
             #endif
         }
     }
@@ -169,6 +199,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.Age = age;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetAge(age);
+            #endif
         }
     }
 
@@ -186,6 +219,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8 
             MATWP8.MobileAppTracker.Instance.AllowDuplicates = allow;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetAllowDuplicates(allow);
+            #endif
         }
     }
 
@@ -200,6 +236,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.AppAdTracking = adTrackingEnabled;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetAppAdTracking(adTrackingEnabled);
             #endif
         }
     }
@@ -218,6 +257,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.DebugMode = debug;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetDebugMode(debug);
+            #endif
         }
     }
 
@@ -234,6 +276,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventAttribute1 = eventAttribute;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventAttribute1(eventAttribute);
             #endif
         }
     }
@@ -252,6 +297,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventAttribute2 = eventAttribute;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventAttribute2(eventAttribute);
+            #endif
         }
     }
 
@@ -268,6 +316,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventAttribute3 = eventAttribute;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventAttribute3(eventAttribute);
             #endif
         }
     }
@@ -286,6 +337,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventAttribute4 = eventAttribute;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventAttribute4(eventAttribute);
+            #endif
         }
     }
 
@@ -302,6 +356,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventAttribute5 = eventAttribute;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventAttribute5(eventAttribute);
             #endif
         }
     }
@@ -320,6 +377,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventContentId = eventContentId;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventContentId(eventContentId);
+            #endif
         }
     }
 
@@ -337,6 +397,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventContentType = eventContentType;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventContentType(eventContentType);
+            #endif
         }
     }
 
@@ -349,7 +412,7 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
             //datetime starts in 1970
             DateTime datetime = new DateTime(1970, 1, 1);
@@ -359,11 +422,19 @@ public class MATBinding : MonoBehaviour
             setEventDate1(millisecondsFrom1970.ToString());
             #endif
             
-            #if UNITY_WP8
+            #if (UNITY_WP8 || UNITY_METRO)
             TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
             //Update to current time for c#
             datetime = datetime.Add(timeFrom1970);
+
+            #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventDate1 = datetime;
+            #endif
+
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventDate1(datetime);
+            #endif
+
             #endif
 
             #endif
@@ -378,7 +449,7 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
             //datetime starts in 1970
             DateTime datetime = new DateTime(1970, 1, 1);
@@ -387,12 +458,20 @@ public class MATBinding : MonoBehaviour
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setEventDate2(millisecondsFrom1970.ToString());
             #endif
-            
-            #if UNITY_WP8
+
+            #if (UNITY_WP8 || UNITY_METRO)
             TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
             //Update to current time for c#
             datetime = datetime.Add(timeFrom1970);
+
+            #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventDate2 = datetime;
+            #endif
+
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventDate2(datetime);
+            #endif
+
             #endif
 
             #endif
@@ -413,6 +492,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventLevel = eventLevel;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventLevel(eventLevel);
+            #endif
         }
     }
 
@@ -429,6 +511,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventQuantity = eventQuantity;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventQuantity(eventQuantity);
             #endif
         }
     }
@@ -447,6 +532,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventRating = eventRating;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventRating(eventRating);
+            #endif
         }
     }
 
@@ -463,6 +551,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.EventSearchString = eventSearchString;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetEventSearchString(eventSearchString);
             #endif
         }
     }
@@ -483,22 +574,28 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.ExistingUser = isExistingUser;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetExistingUser(isExistingUser);
+            #endif
         }
     }
 
     ///<para>
     ///Sets the user ID to associate with Facebook.
     ///</para>
-    ///<param name="fb_user_id">Facebook User ID</param>
-    public static void SetFacebookUserId(string fb_user_id)
+    ///<param name="fbUserId">Facebook User ID</param>
+    public static void SetFacebookUserId(string fbUserId)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setFacebookUserId(fb_user_id);
+            setFacebookUserId(fbUserId);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.FacebookUserId = fb_user_id;
+            MATWP8.MobileAppTracker.Instance.FacebookUserId = fbUserId;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetFacebookUserId(fbUserId);
             #endif
         }
     }
@@ -514,6 +611,7 @@ public class MATBinding : MonoBehaviour
             #if (UNITY_ANDROID || UNITY_IPHONE)
             setGender(gender);
             #endif
+
             #if UNITY_WP8
             MATWP8.MATGender gender_temp;
             if(gender == 0)
@@ -525,22 +623,37 @@ public class MATBinding : MonoBehaviour
             
             MATWP8.MobileAppTracker.Instance.Gender = gender_temp;
             #endif
+
+            #if UNITY_METRO
+            MATWinStore.MATGender gender_temp;
+            if(gender == 0)
+                gender_temp = MATWinStore.MATGender.MALE;
+            else if (gender == 1)
+                gender_temp = MATWinStore.MATGender.FEMALE;
+            else
+                gender_temp = MATWinStore.MATGender.NONE;
+            
+            MATWinStore.MobileAppTracker.Instance.SetGender(gender_temp);
+            #endif
         }
     }
 
     /// <para>
     /// Sets the user ID to associate with Google.
     /// </para>
-    /// <param name="google_user_id">Google user ID.</param>
-    public static void SetGoogleUserId(string google_user_id)
+    /// <param name="googleUserId">Google user ID.</param>
+    public static void SetGoogleUserId(string googleUserId)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setGoogleUserId(google_user_id);
+            setGoogleUserId(googleUserId);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.GoogleUserId = google_user_id;
+            MATWP8.MobileAppTracker.Instance.GoogleUserId = googleUserId;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetGoogleUserId(googleUserId);
             #endif
         }
     }
@@ -563,22 +676,30 @@ public class MATBinding : MonoBehaviour
             MATWP8.MobileAppTracker.Instance.Longitude = longitude;
             MATWP8.MobileAppTracker.Instance.Altitude = altitude;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetLatitude(latitude);
+            MATWinStore.MobileAppTracker.Instance.SetLongitude(longitude);
+            MATWinStore.MobileAppTracker.Instance.SetAltitude(altitude);
+            #endif
         }
     }
 
     /// <para>
     /// Sets the name of the package.
     /// </para>
-    /// <param name="package_name">Package name</param>
-    public static void SetPackageName(string package_name)
+    /// <param name="packageName">Package name</param>
+    public static void SetPackageName(string packageName)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setPackageName(package_name);
+            setPackageName(packageName);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.PackageName = package_name;
+            MATWP8.MobileAppTracker.Instance.PackageName = packageName;
+            #endif
+            #if UNITY_WP8
+            MATWinStore.MobileAppTracker.Instance.SetPackageName(packageName);
             #endif
         }
     }
@@ -598,22 +719,28 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.IsPayingUser = isPayingUser;
             #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
+            #endif
         }
     }
 
     ///<para>
     ///Sets the user ID to associate with Twitter.
     ///</para>
-    ///<param name="twitter_user_id">Twitter user ID</param>
-    public static void SetTwitterUserId(string twitter_user_id)
+    ///<param name="twitterUserId">Twitter user ID</param>
+    public static void SetTwitterUserId(string twitterUserId)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setTwitterUserId(twitter_user_id);
+            setTwitterUserId(twitterUserId);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.TwitterUserId = twitter_user_id;
+            MATWP8.MobileAppTracker.Instance.TwitterUserId = twitterUserId;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetTwitterUserId(twitterUserId);
             #endif
         }
     }
@@ -621,16 +748,19 @@ public class MATBinding : MonoBehaviour
     ///<para>
     ///Sets the custom user email.
     ///</para>
-    ///<param name="user_email">User's email address</param>
-    public static void SetUserEmail(string user_email)
+    ///<param name="userEmail">User's email address</param>
+    public static void SetUserEmail(string userEmail)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setUserEmail(user_email);
+            setUserEmail(userEmail);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.UserEmail = user_email;
+            MATWP8.MobileAppTracker.Instance.UserEmail = userEmail;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetUserEmail(userEmail);
             #endif
         }
     }
@@ -638,16 +768,19 @@ public class MATBinding : MonoBehaviour
     /// <para>
     /// Sets the custom user ID.
     /// </para>
-    /// <param name="user_id">the new user ID</param>
-    public static void SetUserId(string user_id)
+    /// <param name="userId">the new user ID</param>
+    public static void SetUserId(string userId)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setUserId(user_id);
+            setUserId(userId);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.UserId = user_id;
+            MATWP8.MobileAppTracker.Instance.UserId = userId;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetUserId(userId);
             #endif
         }
     }
@@ -655,16 +788,19 @@ public class MATBinding : MonoBehaviour
     ///<para>
     ///Sets the custom user name.
     ///</para>
-    ///<param name="user_name">User name</param>
-    public static void SetUserName(string user_name)
+    ///<param name="userName">User name</param>
+    public static void SetUserName(string userName)
     {
         if(!Application.isEditor)
         {
             #if (UNITY_ANDROID || UNITY_IPHONE)
-            setUserName(user_name);
+            setUserName(userName);
             #endif
             #if UNITY_WP8
-            MATWP8.MobileAppTracker.Instance.UserName = user_name;
+            MATWP8.MobileAppTracker.Instance.UserName = userName;
+            #endif
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetUserName(userName);
             #endif
         }
     }
@@ -689,6 +825,9 @@ public class MATBinding : MonoBehaviour
             #if UNITY_WP8
             return MATWP8.MobileAppTracker.Instance.IsPayingUser;
             #endif
+            #if UNITY_METRO
+            return MATWinStore.MobileAppTracker.Instance.GetIsPayingUser();
+            #endif
         }
         return true;
     }
@@ -706,6 +845,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             return MATWP8.MobileAppTracker.Instance.MatId;
+            #endif
+            #if UNITY_METRO
+            return MATWinStore.MobileAppTracker.Instance.GetMatId();
             #endif
         }
         
@@ -725,6 +867,9 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_WP8
             return MATWP8.MobileAppTracker.Instance.OpenLogId;
+            #endif
+            #if UNITY_METRO
+            return MATWinStore.MobileAppTracker.Instance.GetOpenLogId();
             #endif
         }
         
