@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 /// </para>
 public class MATSampleScript : MonoBehaviour {
 
-    #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+    #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
     string MAT_ADVERTISER_ID = null;
     string MAT_CONVERSION_KEY = null;
     string MAT_PACKAGE_NAME = null;
@@ -19,7 +19,7 @@ public class MATSampleScript : MonoBehaviour {
 
     void Awake ()
     {
-        #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+        #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
         MAT_ADVERTISER_ID = "877";
         MAT_CONVERSION_KEY = "8c14d6bbe466b65211e781d62e301eec";
         MAT_PACKAGE_NAME = "com.hasoffers.unitytestapp";
@@ -53,7 +53,7 @@ public class MATSampleScript : MonoBehaviour {
         if (GUI.Button (new Rect (10, Screen.height/10, Screen.width - 20, Screen.height/10), "Start MAT"))
         {
             print ("Start MAT clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             
                 MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
                 MATBinding.SetPackageName(MAT_PACKAGE_NAME);
@@ -68,7 +68,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
         {
             print ("Set Delegate clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_METRO)
             MATBinding.SetDelegate(true);
             #endif
             #if UNITY_WP8
@@ -79,7 +79,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 3*Screen.height/10, Screen.width - 20, Screen.height/10), "Enable Debug Mode"))
         {
             print ("Enable Debug Mode clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             // NOTE: !!! ONLY FOR DEBUG !!!
             // !!! Make sure you set to false 
             //     OR 
@@ -92,7 +92,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 4*Screen.height/10, Screen.width - 20, Screen.height/10), "Allow Duplicates"))
         {
             print ("Allow Duplicates clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             // NOTE: !!! ONLY FOR DEBUG !!!
             // !!! Make sure you set to false 
             //     OR 
@@ -104,7 +104,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 5*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Session"))
         {
             print ("Measure Session clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATBinding.MeasureSession();
             #endif
         }
@@ -112,7 +112,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Action"))
         {
             print ("Measure Action clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATBinding.MeasureAction("evt11");
             MATBinding.MeasureActionWithRefId("evt12", "ref111");
             MATBinding.MeasureActionWithRevenue("evt13", 0.35, "CAD", "ref111");
@@ -123,7 +123,7 @@ public class MATSampleScript : MonoBehaviour {
         {
             print ("Measure Action With Event Items clicked");
             
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATItem item1 = new MATItem();
             item1.name = "subitem1";
             item1.unitPrice = 5;
@@ -161,7 +161,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 8*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Setter Methods"))
         {
             print ("Test Setter Methods clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATBinding.SetAge(34);
             MATBinding.SetAllowDuplicates(true);
             MATBinding.SetAppAdTracking(true);
@@ -251,7 +251,7 @@ public class MATSampleScript : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 9*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Getter Methods"))
         {
             print ("Test Getter Methods clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             print ("isPayingUser = " + MATBinding.GetIsPayingUser());
             print ("matId     = " + MATBinding.GetMATId());
             print ("openLogId = " + MATBinding.GetOpenLogId());

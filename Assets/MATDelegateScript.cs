@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 /* Attach this script to an empty object to retrieve information about the server request.
  * iOS and Android builds are designed to send messages to this script. For Windows Phone 8, 
