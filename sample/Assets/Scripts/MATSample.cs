@@ -3,18 +3,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using com.mobileapptracking;
 
 /// <para>
 /// This class demonstrates the basic features of the MAT Unity Plugin and
 /// its ability to have one project work with Android, iOS, and Windows Phone 8.
 /// </para>
-public class MATSampleScript : MonoBehaviour {
+public class MATSample : MonoBehaviour {
 
     #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
     string MAT_ADVERTISER_ID = null;
     string MAT_CONVERSION_KEY = null;
     string MAT_PACKAGE_NAME = null;
-    //string MAT_SITE_ID = null;
     #endif
 
     void Awake ()
@@ -24,15 +24,7 @@ public class MATSampleScript : MonoBehaviour {
         MAT_CONVERSION_KEY = "8c14d6bbe466b65211e781d62e301eec";
         MAT_PACKAGE_NAME = "com.hasoffers.unitytestapp";
 
-        #if UNITY_ANDROID
-        //MAT_SITE_ID = "52048";
-        #elif UNITY_IPHONE
-        //MAT_SITE_ID = "52096";
-        #elif UNITY_WP8
-        //MAT_SITE_ID = "52144";
-        #endif
-
-        print ("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);// + ", " + MAT_SITE_ID);
+        print ("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);
         #endif
 
         return;
@@ -54,25 +46,22 @@ public class MATSampleScript : MonoBehaviour {
         {
             print ("Start MAT clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
-            
                 MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
                 MATBinding.SetPackageName(MAT_PACKAGE_NAME);
-
-                #if UNITY_IPHONE
-                MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
-                #endif
-                
             #endif
         }
 
         else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
         {
             print ("Set Delegate clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_METRO)
+            #if (UNITY_ANDROID || UNITY_IPHONE)
             MATBinding.SetDelegate(true);
             #endif
             #if UNITY_WP8
-            MATBinding.SetMATResponse(new SampleMATResponse());
+            MATBinding.SetMATResponse(new SampleWP8MATResponse());
+            #endif
+            #if UNITY_METRO
+            MATBinding.SetMATResponse(new SampleWinStoreMATResponse());
             #endif
         }
 
@@ -154,7 +143,7 @@ public class MATSampleScript : MonoBehaviour {
             receiptData = getSampleiTunesIAPReceipt();
             #endif
             
-            MATBinding.MeasureActionWithEventItems("event7WithReceipt", arr, arr.Length, "ref222", 10, null, 1, receiptData, receiptSignature);
+            MATBinding.MeasureActionWithEventItems("event7WithReceipt", arr, arr.Length, 10, null, "ref222", 1, receiptData, receiptSignature);
             #endif
         }
 
@@ -241,7 +230,6 @@ public class MATSampleScript : MonoBehaviour {
             //Android and iOS-specific Features
             #if (UNITY_ANDROID || UNITY_IPHONE)
             MATBinding.SetCurrencyCode("CAD");
-            //MATBinding.SetSiteId(MAT_SITE_ID);
             MATBinding.SetTRUSTeId("1234567890");
             #endif
 
@@ -265,27 +253,52 @@ public class MATSampleScript : MonoBehaviour {
     }
 }
 
-//Used to test MATResponse functionality
-public class SampleMATResponse : MATWP8.MATResponse
+// Used to test MATResponse functionality
+public class SampleWP8MATResponse : MATWP8.MATResponse
 {
-	//Make sure to attach MATDelegateScript to the empty "MobileAppTracker" object
-	MATDelegateScript message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegateScript>();
+    // Make sure to attach MATDelegate.cs to the empty "MobileAppTracker" object
+    MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegate>();
 
-	public void DidSucceedWithData(string response)
-	{
-		if(message_receiver != null)
-			message_receiver.trackerDidSucceed("" + response);
-	}
-	
-	public void DidFailWithError(string error)
-	{
-		if(message_receiver != null)
-			message_receiver.trackerDidFail("" + error);
-	}
-	
-	public void EnqueuedActionWithRefId(string refId)
-	{
-		if(message_receiver != null)
-			message_receiver.trackerDidEnqueueRequest("" + refId);
-	}
+    public void DidSucceedWithData(string response)
+    {
+        if (message_receiver != null)
+            message_receiver.trackerDidSucceed("" + response);
+    }
+
+    public void DidFailWithError(string error)
+    {
+        if (message_receiver != null)
+            message_receiver.trackerDidFail("" + error);
+    }
+
+    public void EnqueuedActionWithRefId(string refId)
+    {
+        if (message_receiver != null)
+            message_receiver.trackerDidEnqueueRequest("" + refId);
+    }
+}
+
+// Used to test MATResponse functionality
+public class SampleWinStoreMATResponse : MATWinStore.MATResponse
+{
+    // Make sure to attach MATDelegate.cs to the empty "MobileAppTracker" object
+    MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegate>();
+
+    public void DidSucceedWithData(string response)
+    {
+        if (message_receiver != null)
+            message_receiver.trackerDidSucceed("" + response);
+    }
+
+    public void DidFailWithError(string error)
+    {
+        if (message_receiver != null)
+            message_receiver.trackerDidFail("" + error);
+    }
+
+    public void EnqueuedActionWithRefId(string refId)
+    {
+        if (message_receiver != null)
+            message_receiver.trackerDidEnqueueRequest("" + refId);
+    }
 }

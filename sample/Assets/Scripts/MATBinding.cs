@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Linq; //for ToList function
+using com.mobileapptracking;
 
 /// <para>
 /// MATBinding wraps Android, iOS, and Windows Phone 8 MobileAppTracking SDK 
@@ -13,6 +14,19 @@ using System.Linq; //for ToList function
 /// </para>
 public class MATBinding : MonoBehaviour
 {
+    public void ReceivedGAID(string gaidAndLAT)
+    {
+        #if UNITY_ANDROID
+        char[] delimiters = { ',' };
+        string[] splitStr = gaidAndLAT.Split(delimiters);
+        string gaid = splitStr[0];
+        bool isLAT;
+        if (Boolean.TryParse(splitStr[1], out isLAT)) {
+            MATAndroid.Instance.SetGoogleAdvertisingId(gaid, isLAT);
+        }
+        #endif
+    }
+
     /// <para>
     /// Initializes relevant information about the advertiser and 
     /// conversion key on startup of Unity game.
@@ -23,8 +37,12 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.Init(advertiserId, conversionKey);
+            #endif
+            #if UNITY_IPHONE
             initNativeCode(advertiserId, conversionKey);
+            setAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.initializeValues(advertiserId, conversionKey);
@@ -43,7 +61,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.MeasureAction(action);
+            #endif
+            #if UNITY_IPHONE
             measureAction(action);
             #endif
             #if UNITY_WP8
@@ -61,17 +82,20 @@ public class MATBinding : MonoBehaviour
     /// <param name="action">Action</param>
     /// <param name="items">Items</param>
     /// <param name="eventItemCount">Event item count</param>
-    /// <param name="refId">Reference identifier</param>
     /// <param name="revenue">Revenue</param>
     /// <param name="currency">Currency</param>
+    /// <param name="refId">Reference identifier</param>
     /// <param name="transactionState">Transaction state</param>
     /// <param name="receipt">Receipt</param>
     /// <param name="receiptSignature">Receipt signature</param>
-    public static void MeasureActionWithEventItems(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature)
+    public static void MeasureActionWithEventItems(string action, MATItem[] items, int eventItemCount, double revenue, string currency, string refId, int transactionState, string receipt, string receiptSignature)
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.MeasureActionWithEventItems(action, items, eventItemCount, revenue, currency, refId, transactionState, receipt, receiptSignature);
+            #endif
+            #if UNITY_IPHONE
             measureActionWithEventItems(action, items, eventItemCount, refId, revenue, currency, transactionState, receipt, receiptSignature);
             #endif
             
@@ -115,7 +139,11 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.MeasureActionWithRefId(action, refId);
+            #endif
+
+            #if UNITY_IPHONE
             measureActionWithRefId(action, refId);
             #endif
 
@@ -140,7 +168,11 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.MeasureActionWithRevenue(action, revenue, currencyCode, refId);
+            #endif
+
+            #if UNITY_IPHONE
             measureActionWithRevenue(action, revenue, currencyCode, refId);
             #endif
 
@@ -161,14 +193,14 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if UNITY_IPHONE
-            setAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
+            #if UNITY_ANDROID
+            MATAndroid.Instance.MeasureSession();
             #endif
-            
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+
+            #if UNITY_IPHONE
             measureSession();
             #endif
-            
+
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.MeasureSession();
             #endif
@@ -185,7 +217,6 @@ public class MATBinding : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
 
-
     /// <para>
     /// Sets the user's age.
     /// </para>
@@ -194,7 +225,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetAge(age);
+            #endif
+            #if UNITY_IPHONE
             setAge(age);
             #endif
             #if UNITY_WP8
@@ -214,7 +248,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetAllowDuplicates(allow);
+            #endif
+            #if UNITY_IPHONE
             setAllowDuplicates(allow);
             #endif
             #if UNITY_WP8 
@@ -232,7 +269,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetAppAdTracking(adTrackingEnabled);
+            #endif
+            #if UNITY_IPHONE
             setAppAdTracking(adTrackingEnabled);
             #endif
             #if UNITY_WP8
@@ -252,7 +292,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetDebugMode(debug);
+            #endif
+            #if UNITY_IPHONE
             setDebugMode(debug);
             #endif
             #if UNITY_WP8
@@ -272,7 +315,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventAttribute1(eventAttribute);
+            #endif
+            #if UNITY_IPHONE
             setEventAttribute1(eventAttribute);
             #endif
             #if UNITY_WP8
@@ -292,7 +338,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventAttribute2(eventAttribute);
+            #endif
+            #if UNITY_IPHONE
             setEventAttribute2(eventAttribute);
             #endif
             #if UNITY_WP8
@@ -312,7 +361,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventAttribute3(eventAttribute);
+            #endif
+            #if UNITY_IPHONE
             setEventAttribute3(eventAttribute);
             #endif
             #if UNITY_WP8
@@ -332,7 +384,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventAttribute4(eventAttribute);
+            #endif
+            #if UNITY_IPHONE
             setEventAttribute4(eventAttribute);
             #endif
             #if UNITY_WP8
@@ -352,7 +407,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventAttribute5(eventAttribute);
+            #endif
+            #if UNITY_IPHONE
             setEventAttribute5(eventAttribute);
             #endif
             #if UNITY_WP8
@@ -372,7 +430,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventContentId(eventContentId);
+            #endif
+            #if UNITY_IPHONE
             setEventContentId(eventContentId);
             #endif
             #if UNITY_WP8
@@ -392,7 +453,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventContentType(eventContentType);
+            #endif
+            #if UNITY_IPHONE
             setEventContentType(eventContentType);
             #endif
             #if UNITY_WP8
@@ -419,7 +483,10 @@ public class MATBinding : MonoBehaviour
             DateTime datetime = new DateTime(1970, 1, 1);
             double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
 
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventDate1(millisecondsFrom1970.ToString());
+            #endif
+            #if UNITY_IPHONE
             setEventDate1(millisecondsFrom1970.ToString());
             #endif
             
@@ -456,7 +523,10 @@ public class MATBinding : MonoBehaviour
             DateTime datetime = new DateTime(1970, 1, 1);
             double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
             
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventDate2(millisecondsFrom1970.ToString());
+            #endif
+            #if UNITY_IPHONE
             setEventDate2(millisecondsFrom1970.ToString());
             #endif
 
@@ -487,7 +557,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventLevel(eventLevel);
+            #endif
+            #if UNITY_IPHONE
             setEventLevel(eventLevel);
             #endif
             #if UNITY_WP8
@@ -507,7 +580,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventQuantity(eventQuantity);
+            #endif
+            #if UNITY_IPHONE
             setEventQuantity(eventQuantity);
             #endif
             #if UNITY_WP8
@@ -527,7 +603,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventRating(eventRating);
+            #endif
+            #if UNITY_IPHONE
             setEventRating(eventRating);
             #endif
             #if UNITY_WP8
@@ -547,7 +626,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEventSearchString(eventSearchString);
+            #endif
+            #if UNITY_IPHONE
             setEventSearchString(eventSearchString);
             #endif
             #if UNITY_WP8
@@ -569,7 +651,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetExistingUser(isExistingUser);
+            #endif
+            #if UNITY_IPHONE
             setExistingUser(isExistingUser);
             #endif
             #if UNITY_WP8
@@ -589,7 +674,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetFacebookUserId(fbUserId);
+            #endif
+            #if UNITY_IPHONE
             setFacebookUserId(fbUserId);
             #endif
             #if UNITY_WP8
@@ -609,7 +697,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetGender(gender);
+            #endif
+            #if UNITY_IPHONE
             setGender(gender);
             #endif
 
@@ -647,7 +738,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetGoogleUserId(googleUserId);
+            #endif
+            #if UNITY_IPHONE
             setGoogleUserId(googleUserId);
             #endif
             #if UNITY_WP8
@@ -669,7 +763,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetLocation(latitude, longitude, altitude);
+            #endif
+            #if UNITY_IPHONE
             setLocation(latitude, longitude, altitude);
             #endif
             #if UNITY_WP8
@@ -693,13 +790,16 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetPackageName(packageName);
+            #endif
+            #if UNITY_IPHONE
             setPackageName(packageName);
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.PackageName = packageName;
             #endif
-            #if UNITY_WP8
+            #if UNITY_METRO
             MATWinStore.MobileAppTracker.Instance.SetPackageName(packageName);
             #endif
         }
@@ -714,7 +814,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetPayingUser(isPayingUser);
+            #endif
+            #if UNITY_IPHONE
             setPayingUser(isPayingUser);
             #endif
             #if UNITY_WP8
@@ -734,7 +837,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetTwitterUserId(twitterUserId);
+            #endif
+            #if UNITY_IPHONE
             setTwitterUserId(twitterUserId);
             #endif
             #if UNITY_WP8
@@ -754,7 +860,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetUserEmail(userEmail);
+            #endif
+            #if UNITY_IPHONE
             setUserEmail(userEmail);
             #endif
             #if UNITY_WP8
@@ -774,7 +883,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetUserId(userId);
+            #endif
+            #if UNITY_IPHONE
             setUserId(userId);
             #endif
             #if UNITY_WP8
@@ -794,7 +906,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetUserName(userName);
+            #endif
+            #if UNITY_IPHONE
             setUserName(userName);
             #endif
             #if UNITY_WP8
@@ -820,7 +935,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            return MATAndroid.Instance.GetIsPayingUser();
+            #endif
+            #if UNITY_IPHONE
             return getIsPayingUser();
             #endif
             #if UNITY_WP8
@@ -841,7 +959,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            return MATAndroid.Instance.GetMatId();
+            #endif
+            #if UNITY_IPHONE
             return getMatId();
             #endif
             #if UNITY_WP8
@@ -863,7 +984,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            return MATAndroid.Instance.GetOpenLogId();
+            #endif
+            #if UNITY_IPHONE
             return getOpenLogId();
             #endif
             #if UNITY_WP8
@@ -957,7 +1081,7 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_IPHONE
             setShouldAutoGenerateAppleVendorIdentifier(shouldAutoGenerate);
             #endif
         }
@@ -972,7 +1096,7 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_IPHONE
             setUseCookieTracking(useCookieTracking);
             #endif
         }
@@ -994,7 +1118,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAndroidId(androidId);
+            MATAndroid.Instance.SetAndroidId(androidId);
             #endif
         }
     }
@@ -1009,7 +1133,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setDeviceId(deviceId);
+            MATAndroid.Instance.SetDeviceId(deviceId);
             #endif
         }
     }
@@ -1024,7 +1148,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setMacAddress(macAddress);
+            MATAndroid.Instance.SetMacAddress(macAddress);
             #endif
         }
     }
@@ -1042,7 +1166,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setGoogleAdvertisingId(adId, isLATEnabled);
+            MATAndroid.Instance.SetGoogleAdvertisingId(adId, isLATEnabled);
             #endif
         }
     }
@@ -1057,7 +1181,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherId(publisherId);
+            MATAndroid.Instance.SetPublisherId(publisherId);
             #endif
         }
     }
@@ -1072,7 +1196,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setOfferId(offerId);
+            MATAndroid.Instance.SetOfferId(offerId);
             #endif
         }
     }
@@ -1087,7 +1211,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherReferenceId(refId);
+            MATAndroid.Instance.SetPublisherReferenceId(refId);
             #endif
         }
     }
@@ -1102,7 +1226,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSub1(sub1);
+            MATAndroid.Instance.SetPublisherSub1(sub1);
             #endif
         }
     }
@@ -1117,7 +1241,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSub2(sub2);
+            MATAndroid.Instance.SetPublisherSub2(sub2);
             #endif
         }
     }
@@ -1132,7 +1256,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSub3(sub3);
+            MATAndroid.Instance.SetPublisherSub3(sub3);
             #endif
         }
     }
@@ -1147,7 +1271,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSub4(sub4);
+            MATAndroid.Instance.SetPublisherSub4(sub4);
             #endif
         }
     }
@@ -1162,7 +1286,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSub5(sub5);
+            MATAndroid.Instance.SetPublisherSub5(sub5);
             #endif
         }
     }
@@ -1177,7 +1301,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSubAd(subAd);
+            MATAndroid.Instance.SetPublisherSubAd(subAd);
             #endif
         }
     }
@@ -1192,7 +1316,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSubAdgroup(subAdgroup);
+            MATAndroid.Instance.SetPublisherSubAdgroup(subAdgroup);
             #endif
         }
     }
@@ -1207,7 +1331,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSubCampaign(subCampaign);
+            MATAndroid.Instance.SetPublisherSubCampaign(subCampaign);
             #endif
         }
     }
@@ -1222,7 +1346,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSubKeyword(subKeyword);
+            MATAndroid.Instance.SetPublisherSubKeyword(subKeyword);
             #endif
         }
     }
@@ -1237,7 +1361,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSubPublisher(subPublisher);
+            MATAndroid.Instance.SetPublisherSubPublisher(subPublisher);
             #endif
         }
     }
@@ -1252,7 +1376,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setPublisherSubSite(subSite);
+            MATAndroid.Instance.SetPublisherSubSite(subSite);
             #endif
         }
     }
@@ -1267,7 +1391,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAdvertiserSubAd(subAd);
+            MATAndroid.Instance.SetAdvertiserSubAd(subAd);
             #endif
         }
     }
@@ -1282,7 +1406,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAdvertiserSubAdgroup(subAdgroup);
+            MATAndroid.Instance.SetAdvertiserSubAdgroup(subAdgroup);
             #endif
         }
     }
@@ -1297,7 +1421,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAdvertiserSubCampaign(subCampaign);
+            MATAndroid.Instance.SetAdvertiserSubCampaign(subCampaign);
             #endif
         }
     }
@@ -1312,7 +1436,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAdvertiserSubKeyword(subKeyword);
+            MATAndroid.Instance.SetAdvertiserSubKeyword(subKeyword);
             #endif
         }
     }
@@ -1327,7 +1451,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAdvertiserSubPublisher(subPublisher);
+            MATAndroid.Instance.SetAdvertiserSubPublisher(subPublisher);
             #endif
         }
     }
@@ -1342,7 +1466,7 @@ public class MATBinding : MonoBehaviour
         if(!Application.isEditor)
         {
             #if UNITY_ANDROID
-            setAdvertiserSubSite(subSite);
+            MATAndroid.Instance.SetAdvertiserSubSite(subSite);
             #endif
         }
     }
@@ -1360,9 +1484,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="appName">App name</param>
     public static void SetAppName(string appName)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.AppName = appName;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.AppName = appName;
+            #endif
+        }
     }
 
 
@@ -1373,9 +1500,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="appVersion">App version</param>
     public static void SetAppVersion(string appVersion)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.AppVersion = appVersion;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.AppVersion = appVersion;
+            #endif
+        }
     }
 
     /// <para>
@@ -1385,9 +1515,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceBrand">Device brand</param>
     public static void SetDeviceBrand(string deviceBrand)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.DeviceBrand = deviceBrand;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.DeviceBrand = deviceBrand;
+            #endif
+        }
     }
 
     /// <para>
@@ -1397,9 +1530,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceCarrier">Device carrier</param>
     public static void SetDeviceCarrier(string deviceCarrier)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.DeviceCarrier = deviceCarrier;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.DeviceCarrier = deviceCarrier;
+            #endif
+        }
     }
 
     /// <para>
@@ -1409,9 +1545,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceModel">Device model</param>
     public static void SetDeviceModel(string deviceModel)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.DeviceModel = deviceModel;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.DeviceModel = deviceModel;
+            #endif
+        }
     }
 
     /// <para>
@@ -1421,9 +1560,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="deviceUniqueId">Device unique ID</param>
     public static void SetDeviceUniqueId(string deviceUniqueId)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.DeviceUniqueId = deviceUniqueId;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.DeviceUniqueId = deviceUniqueId;
+            #endif
+        }
     }
 
     /// <para>
@@ -1433,9 +1575,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="lastOpenLogId">Last open log ID</param>
     public static void SetLastOpenLogId(string lastOpenLogId)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.LastOpenLogId = lastOpenLogId;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.LastOpenLogId = lastOpenLogId;
+            #endif
+        }
     }
 
     /// <para>
@@ -1445,11 +1590,24 @@ public class MATBinding : MonoBehaviour
     /// <param name="matResponse">MAT response</param>
     public static void SetMATResponse(MATWP8.MATResponse matResponse)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.SetMATResponse (matResponse);
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.SetMATResponse (matResponse);
+            #endif
+        }
     }
-        
+
+    public static void SetMATResponse(MATWinStore.MATResponse matResponse)
+    {
+        if(!Application.isEditor)
+        {
+            #if UNITY_METRO
+            MATWinStore.MobileAppTracker.Instance.SetMATResponse(matResponse);
+            #endif
+        }
+    }
+    
     /// <para>
     /// Sets the OS version.
     /// Does nothing if not a Windows Phone 8 device.
@@ -1457,9 +1615,12 @@ public class MATBinding : MonoBehaviour
     /// <param name="osVersion">OS version</param>
     public static void SetOSVersion(string osVersion)
     {
-        #if UNITY_WP8
-        MATWP8.MobileAppTracker.Instance.OSVersion = osVersion;
-        #endif
+        if(!Application.isEditor)
+        {
+            #if UNITY_WP8
+            MATWP8.MobileAppTracker.Instance.OSVersion = osVersion;
+            #endif
+        }
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -1472,13 +1633,16 @@ public class MATBinding : MonoBehaviour
     /// Sets the ISO 4217 currency code. 
     /// Does nothing if not Android or iOS.
     /// </para>
-    /// <param name="currency_code">the currency code</param>
-    public static void SetCurrencyCode(string currency_code)
+    /// <param name="currencyCode">the currency code</param>
+    public static void SetCurrencyCode(string currencyCode)
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
-            setCurrencyCode(currency_code);
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetCurrencyCode(currencyCode);
+            #endif
+            #if UNITY_IPHONE
+            setCurrencyCode(currencyCode);
             #endif
         }
     }
@@ -1492,12 +1656,13 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetDelegate(enable);
+            #endif
             #if (UNITY_IPHONE)
             setDelegate(enable);
             #endif
-            #if UNITY_ANDROID
-            setMATResponse();
-            #endif
+            
         }
     }
 
@@ -1505,13 +1670,16 @@ public class MATBinding : MonoBehaviour
     /// Sets the MAT site ID to specify which app to attribute to.
     /// Does nothing if not Android or iOS device.
     /// </para>
-    /// <param name="site_id"> MAT site ID to attribute to</param>
-    public static void SetSiteId(string site_id)
+    /// <param name="siteId"> MAT site ID to attribute to</param>
+    public static void SetSiteId(string siteId)
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
-            setSiteId(site_id);
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetSiteId(siteId);
+            #endif
+            #if UNITY_IPHONE
+            setSiteId(siteId);
             #endif
         }
     }
@@ -1525,7 +1693,10 @@ public class MATBinding : MonoBehaviour
     {
         if(!Application.isEditor)
         {
-            #if (UNITY_ANDROID || UNITY_IPHONE)
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetTRUSTeId(tpid);
+            #endif
+            #if UNITY_IPHONE
             setTRUSTeId(tpid);
             #endif
         }
@@ -1537,169 +1708,6 @@ public class MATBinding : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////
 
-    #if UNITY_ANDROID
-    // Pass the name of the plugin's dynamic library.
-    // Import any functions we will be using from the MAT lib.
-    // (I've listed them all here)
-    [DllImport ("mobileapptracker")]
-    private static extern void initNativeCode(string advertiserId, string conversionKey);
-    
-    // Methods to help debugging and testing
-    [DllImport ("mobileapptracker")]
-    private static extern void setAllowDuplicates(bool allowDups);
-    [DllImport ("mobileapptracker")]
-    private static extern void setDebugMode(bool enable);
-    [DllImport ("mobileapptracker")]
-    private static extern void setMATResponse();
-    
-    [DllImport ("mobileapptracker")]
-    private static extern void setAge(int age);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAndroidId(string androidId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAppAdTracking(bool enable);
-    [DllImport ("mobileapptracker")]
-    private static extern void setCurrencyCode(string currencyCode);
-    [DllImport ("mobileapptracker")]
-    private static extern void setDeviceId(string deviceId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventAttribute1(string value);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventAttribute2(string value);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventAttribute3(string value);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventAttribute4(string value);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventAttribute5(string value);
-    
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventContentType(string contentType);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventContentId(string contentId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventDate1(string dateString);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventDate2(string dateString);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventLevel(int level);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventQuantity(int quantity);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventRating(float rating);
-    [DllImport ("mobileapptracker")]
-    private static extern void setEventSearchString(string searchString);
-    
-    [DllImport ("mobileapptracker")]
-    private static extern void setExistingUser(bool isExisting);
-    [DllImport ("mobileapptracker")]
-    private static extern void setFacebookUserId(string facebookUserId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setGender(int gender);
-    [DllImport ("mobileapptracker")]
-    private static extern void setGoogleAdvertisingId(string advertisingId, bool limitAdTracking);
-    [DllImport ("mobileapptracker")]
-    private static extern void setGoogleUserId(string googleUserId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setLocation(double latitude, double longitude, double altitude);
-    [DllImport ("mobileapptracker")]
-    private static extern void setMacAddress(string macAddress);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPackageName(string packageName);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPayingUser(bool isPaying);
-    [DllImport ("mobileapptracker")]
-    private static extern void setSiteId(string siteId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setTRUSTeId(string trusteId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setTwitterUserId(string twitterUserId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setUserEmail(string userEmail);
-    [DllImport ("mobileapptracker")]
-    private static extern void setUserId(string userId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setUserName(string userName);
-    
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherId(string publisherId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setOfferId(string offerId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherReferenceId(string publisherRefId);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSub1(string sub1);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSub2(string sub2);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSub3(string sub3);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSub4(string sub4);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSub5(string sub5);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSubAd(string subAd);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSubAdgroup(string subAdgroup);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSubCampaign(string subCampaign);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSubKeyword(string subKeyword);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSubPublisher(string subPublisher);
-    [DllImport ("mobileapptracker")]
-    private static extern void setPublisherSubSite(string subSite);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAdvertiserSubAd(string subAd);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAdvertiserSubAdgroup(string subAdgroup);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAdvertiserSubCampaign(string subCampaign);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAdvertiserSubKeyword(string subKeyword);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAdvertiserSubPublisher(string subPublisher);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAdvertiserSubSite(string subSite);
-
-    // Tracking functions
-    [DllImport ("mobileapptracker")]
-    private static extern void measureAction(string action);
-    [DllImport ("mobileapptracker")]
-    private static extern void measureActionWithRefId(string action, string refId);
-    [DllImport ("mobileapptracker")]
-    private static extern void measureActionWithRevenue(string action, double revenue, string currencyCode, string refId);
-    [DllImport ("mobileapptracker")]
-    private static extern void measureActionWithEventItems(string action, MATItem[] items, int eventItemCount, string refId, double revenue, string currency, int transactionState, string receipt, string receiptSignature);
-    
-    [DllImport ("mobileapptracker")]
-    private static extern int measureSession();
-    
-    // iOS-only functions that are imported for cross-platform coding convenience
-    [DllImport ("mobileapptracker")]
-    private static extern void setAppleAdvertisingIdentifier(string advertiserIdentifier, bool trackingEnabled);
-    [DllImport ("mobileapptracker")]
-    private static extern void setAppleVendorIdentifier(string vendorIdentifier);
-    [DllImport ("mobileapptracker")]
-    private static extern void setDelegate(bool enable);
-    [DllImport ("mobileapptracker")]
-    private static extern void setJailbroken(bool isJailbroken);
-    [DllImport ("mobileapptracker")]
-    private static extern void setShouldAutoDetectJailbroken(bool shouldAutoDetect);
-    [DllImport ("mobileapptracker")]
-    private static extern void setShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate);
-    [DllImport ("mobileapptracker")]
-    private static extern void setUseCookieTracking(bool useCookieTracking);
-    
-    [DllImport ("mobileapptracker")]
-    private static extern bool getIsPayingUser();
-    [DllImport ("mobileapptracker")]
-    private static extern string getMatId();
-    [DllImport ("mobileapptracker")]
-    private static extern string getOpenLogId();
-    
-    #endif
-    
     #if UNITY_IPHONE
     // Main initializer method for MAT
     [DllImport ("__Internal")]
@@ -1818,20 +1826,4 @@ public class MATBinding : MonoBehaviour
     private static extern void setGoogleAdvertisingId(string advertisingId, bool limitAdTracking);
     
     #endif
-}
-
-/// <para>
-/// Struct used for storing MAT information.
-/// </para>
-public struct MATItem
-{
-    public string   name;
-    public double   unitPrice;
-    public int      quantity;
-    public double   revenue;
-    public string   attribute1;
-    public string   attribute2;
-    public string   attribute3;
-    public string   attribute4;
-    public string   attribute5;
 }

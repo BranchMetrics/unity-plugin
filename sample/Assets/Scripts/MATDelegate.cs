@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 public class SampleMATResponse : MATWP8.MATResponse
 {
     //Make sure to attach MATDelegateScript to the empty "MobileAppTracker" object
-    MATDelegateScript message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegateScript>();
+    MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegateScript>();
 
     public void DidSucceedWithData(string response)
     {
@@ -33,26 +33,26 @@ public class SampleMATResponse : MATWP8.MATResponse
 }
 
  */
-public class MATDelegateScript : MonoBehaviour
+public class MATDelegate : MonoBehaviour
 {
     public void trackerDidSucceed (string data)
     {
         #if UNITY_IPHONE
-        print ("MATDelegateScript trackerDidSucceed: " + DecodeFrom64 (data));
+        print ("MATDelegate trackerDidSucceed: " + DecodeFrom64 (data));
         #endif
         #if (UNITY_ANDROID || UNITY_WP8)
-        print ("MATDelegateScript trackerDidSucceed: " + data);
+        print ("MATDelegate trackerDidSucceed: " + data);
         #endif
     }
 
     public void trackerDidFail (string error)
     {
-        print ("MATDelegateScript trackerDidFail: " + error);
+        print ("MATDelegate trackerDidFail: " + error);
     }
     
     public void trackerDidEnqueueRequest (string refId)
     {
-        print ("MATDelegateScript trackerDidEnqueueRequest: " + refId);
+        print ("MATDelegate trackerDidEnqueueRequest: " + refId);
     }
 
 
@@ -66,7 +66,7 @@ public class MATDelegateScript : MonoBehaviour
         string decodedString = null;
 
         #if !(UNITY_WP8) && !(UNITY_METRO)
-        print ("MATDelegateScript.DecodeFrom64(string)");
+        print ("MATDelegate.DecodeFrom64(string)");
 
         //this line causes the following error when building for Windows 8 phones:
         //Error building Player: Exception: Error: method `System.String System.Text.Encoding::GetString(System.Byte[])` doesn't exist in target framework. It is referenced from Assembly-CSharp.dll at System.String MATDelegateScript::DecodeFrom64(System.String).
