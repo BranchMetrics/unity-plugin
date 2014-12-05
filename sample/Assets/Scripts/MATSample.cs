@@ -74,7 +74,6 @@ public class MATSample : MonoBehaviour {
             //     OR 
             //     remove the setDebugMode and setAllowDuplicates calls for Production builds !!!
             MATBinding.SetDebugMode(true);
-            //MATBinding.in
             #endif
         }
 

@@ -92,7 +92,24 @@ namespace com.mobileapptracking
 
         public void MeasureActionWithEventItems(string eventName, MATItem[] items, int eventItemCount, double revenue, string currency, string refId, int transactionState, string receipt, string receiptSignature)
         {
-            ajcInstance.Call("measureAction", eventName, items, revenue, currency, refId, receipt, receiptSignature);
+            // Convert MATItem to MATEventItem
+            AndroidJavaObject objArrayList = new AndroidJavaObject("java.util.ArrayList");
+            foreach (MATItem item in items)
+            {
+                AndroidJavaObject objEventItem = new AndroidJavaObject("com.mobileapptracker.MATEventItem",
+                    item.name,
+                    item.quantity,
+                    item.unitPrice,
+                    item.revenue,
+                    item.attribute1,
+                    item.attribute2,
+                    item.attribute3,
+                    item.attribute4,
+                    item.attribute5);
+
+                objArrayList.Call<bool>("add", objEventItem);
+            }
+            ajcInstance.Call("measureAction", eventName, objArrayList, revenue, currency, refId, receipt, receiptSignature);
         }
 
         public bool GetIsPayingUser()
