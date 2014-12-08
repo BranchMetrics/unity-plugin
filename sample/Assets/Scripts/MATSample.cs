@@ -219,10 +219,6 @@ public class MATSample : MonoBehaviour {
             #if UNITY_WP8
             MATBinding.SetAppName("testWP8_AppName");
             MATBinding.SetAppVersion("testWP8_AppVersion");
-            MATBinding.SetDeviceBrand("testWP8_DeviceBrand");
-            MATBinding.SetDeviceCarrier("testWP8_DeviceCarrier");
-            MATBinding.SetDeviceModel("testWP8_DeviceModel");
-            MATBinding.SetDeviceUniqueId("testWP8_DeviceUniqueId");
             MATBinding.SetLastOpenLogId("testWP8_LastOpenLogId");
             MATBinding.SetOSVersion("testWP8_OS");
             #endif
