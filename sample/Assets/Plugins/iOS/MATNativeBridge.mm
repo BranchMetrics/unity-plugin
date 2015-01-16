@@ -1,5 +1,4 @@
 #import "MATNativeBridge.h"
-#import "NSData+MATBase64.h"
 
 // corresponds to GameObject named MobileAppTracker in the Unity Project
 const char * UNITY_SENDMESSAGE_CALLBACK_RECEIVER = "MobileAppTracker";
@@ -24,7 +23,7 @@ const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
     
     NSLog(@"Native: MATSDKDelegate: success");
     
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_SUCCESS, [[data base64EncodedString] UTF8String]);
+    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_SUCCESS, [[self base64String:data] UTF8String]);
 }
 
 - (void)mobileAppTrackerDidFailWithError:(NSError *)error
@@ -55,6 +54,25 @@ const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
     NSLog(@"Native: MATSDKDelegate: enqueued request");
     
     UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_ENQUEUED, nil != referenceId ? [referenceId UTF8String] : "");
+}
+
+
+- (NSString *)base64String:(NSData *)data
+{
+    // Get NSString from NSData object in Base64
+    NSString *encodedString = nil;
+
+    // if iOS 7+
+    if([NSData instancesRespondToSelector:@selector(base64EncodedStringWithOptions:)])
+    {
+        encodedString = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+    }
+    else
+    {
+        encodedString = [data base64Encoding];
+    }
+    
+    return encodedString;
 }
 
 @end

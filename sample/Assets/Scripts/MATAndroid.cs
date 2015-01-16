@@ -64,7 +64,7 @@ namespace com.mobileapptracking
                 ajcInstance.Call("setReferralSources", ajcCurrentActivity);
 
                 // Start GAID fetch
-                AndroidJavaObject objGAIDFetcher = new AndroidJavaObject("com.mobileapptracker.gaidwrapper.GAIDFetcher");
+                AndroidJavaObject objGAIDFetcher = new AndroidJavaObject("com.matunityutils.GAIDFetcher");
                 objGAIDFetcher.Call("useUnityFetcherInterface");
                 objGAIDFetcher.Call("fetchGAID", ajcCurrentActivity);
             }
@@ -142,6 +142,21 @@ namespace com.mobileapptracking
             ajcInstance.Call("setAndroidId", androidId);
         }
 
+        public void SetAndroidIdMd5(string androidIdMd5)
+        {
+            ajcInstance.Call("setAndroidIdMd5", androidIdMd5);
+        }
+
+        public void SetAndroidIdSha1(string androidIdSha1)
+        {
+            ajcInstance.Call("setAndroidIdSha1", androidIdSha1);
+        }
+
+        public void SetAndroidIdSha256(string androidIdSha256)
+        {
+            ajcInstance.Call("setAndroidIdSha256", androidIdSha256);
+        }
+
         public void SetAppAdTracking(bool adTrackingEnabled)
         {
             ajcInstance.Call("setAppAdTracking", adTrackingEnabled);
@@ -167,9 +182,14 @@ namespace com.mobileapptracking
             if (enable)
             {
                 // Get the predefined Unity MAT response and set it
-                AndroidJavaObject objResponse = new AndroidJavaObject("com.matunityresponse.MATUnityResponse");
+                AndroidJavaObject objResponse = new AndroidJavaObject("com.matunityutils.MATUnityResponse");
                 ajcInstance.Call("setMATResponse", objResponse);
             }
+        }
+
+        public void SetEmailCollection(bool collectEmail)
+        {
+            ajcInstance.Call("setEmailCollection", collectEmail);
         }
 
         public void SetEventAttribute1(string eventAttribute)

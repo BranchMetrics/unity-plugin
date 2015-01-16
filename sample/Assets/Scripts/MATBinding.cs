@@ -27,6 +27,13 @@ public class MATBinding : MonoBehaviour
         #endif
     }
 
+    public void ReceivedAndroidID(string androidId)
+    {
+        #if UNITY_ANDROID
+        MATAndroid.Instance.SetAndroidId(androidId);
+        #endif
+    }
+
     /// <para>
     /// Initializes relevant information about the advertiser and 
     /// conversion key on startup of Unity game.
@@ -1124,6 +1131,51 @@ public class MATBinding : MonoBehaviour
     }
 
     /// <para>
+    /// Sets the ANDROID_ID MD5 hash.
+    /// Does nothing if not an Android device.
+    /// </para>
+    /// <param name="androidIdMd5">Device ANDROID_ID MD5 hash</param>
+    public static void SetAndroidIdMd5(string androidIdMd5)
+    {
+        if(!Application.isEditor)
+        {
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetAndroidIdMd5(androidIdMd5);
+            #endif
+        }
+    }
+
+    /// <para>
+    /// Sets the ANDROID_ID SHA-1 hash.
+    /// Does nothing if not an Android device.
+    /// </para>
+    /// <param name="androidIdSha1">Device ANDROID_ID SHA-1 hash</param>
+    public static void SetAndroidIdSha1(string androidIdSha1)
+    {
+        if(!Application.isEditor)
+        {
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetAndroidIdSha1(androidIdSha1);
+            #endif
+        }
+    }
+
+    /// <para>
+    /// Sets the ANDROID_ID SHA-256 hash.
+    /// Does nothing if not an Android device.
+    /// </para>
+    /// <param name="androidIdSha256">Device ANDROID_ID SHA-256 hash</param>
+    public static void SetAndroidIdSha256(string androidIdSha256)
+    {
+        if(!Application.isEditor)
+        {
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetAndroidIdSha256(androidIdSha256);
+            #endif
+        }
+    }
+
+    /// <para>
     /// Sets the device IMEI/MEID.
     /// Does nothing if not an Android device.
     /// </para>
@@ -1134,6 +1186,22 @@ public class MATBinding : MonoBehaviour
         {
             #if UNITY_ANDROID
             MATAndroid.Instance.SetDeviceId(deviceId);
+            #endif
+        }
+    }
+
+    /// <para>
+    /// Enables or disables primary Gmail address collection.
+    /// Requires GET_ACCOUNTS permission.
+    /// Does nothing if not an Android device.
+    /// </para>
+    /// <param name="collectEmail">Whether to collect device email address</param>
+    public static void SetEmailCollection(bool collectEmail)
+    {
+        if(!Application.isEditor)
+        {
+            #if UNITY_ANDROID
+            MATAndroid.Instance.SetEmailCollection(collectEmail);
             #endif
         }
     }
