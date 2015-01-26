@@ -268,6 +268,11 @@ namespace com.mobileapptracking
             ajcInstance.Call("setExistingUser", isExistingUser);
         }
 
+        /*public void SetFacebookEventLogging(bool fbEventLogging)
+        {
+            ajcInstance.Call("setFacebookEventLogging", fbEventLogging);
+        }*/
+
         public void SetFacebookUserId(string facebookUserId)
         {
             ajcInstance.Call("setFacebookUserId", facebookUserId);
@@ -439,6 +444,11 @@ namespace com.mobileapptracking
         public void SetAdvertiserSubSite(string subSite)
         {
             ajcInstance.Call("setAdvertiserSubSite", subSite);
+        }
+
+        public string CheckForDeferredDeeplink(int timeoutInMillis)
+        {
+            return ajcInstance.Call<string>("checkForDeferredDeeplink", timeoutInMillis);
         }
     }
     #endif

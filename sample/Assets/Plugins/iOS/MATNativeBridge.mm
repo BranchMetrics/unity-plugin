@@ -7,6 +7,7 @@ const char * UNITY_SENDMESSAGE_CALLBACK_RECEIVER = "MobileAppTracker";
 const char * UNITY_SENDMESSAGE_CALLBACK_SUCCESS  = "trackerDidSucceed";
 const char * UNITY_SENDMESSAGE_CALLBACK_FAILURE  = "trackerDidFail";
 const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
+const char * UNITY_SENDMESSAGE_CALLBACK_DEEPLINK = "trackerDidReceiveDeepLink";
 
 @interface MATSDKDelegate : NSObject<MobileAppTrackerDelegate>
 
@@ -61,7 +62,7 @@ const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
 {
     // Get NSString from NSData object in Base64
     NSString *encodedString = nil;
-
+    
     // if iOS 7+
     if([NSData instancesRespondToSelector:@selector(base64EncodedStringWithOptions:)])
     {
@@ -73,6 +74,59 @@ const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
     }
     
     return encodedString;
+}
+
+@end
+
+@interface MATAppDelegateListener : NSObject<AppDelegateListener>
+
++(MATAppDelegateListener *)sharedInstance;
+
+@end
+
+
+static MATAppDelegateListener *_instance = [MATAppDelegateListener sharedInstance];
+
+@implementation MATAppDelegateListener
+
++(MATAppDelegateListener *)sharedInstance {
+    return _instance;
+}
+
++ (void)initialize {
+    if(!_instance) {
+        _instance = [[MATAppDelegateListener alloc] init];
+    }
+}
+
+- (id)init {
+    if(_instance != nil) {
+        return _instance;
+    }
+    
+    self = [super init];
+    if(!self)
+        return nil;
+    
+    _instance = self;
+    
+    UnityRegisterAppDelegateListener(self);
+    
+    return self;
+}
+
+#pragma mark - Unity AppDelegateListener Callback Methods
+
+- (void)onOpenURL:(NSNotification*)notification {
+    
+    NSURL *url = [notification.userInfo objectForKey:@"url"];
+    NSString *strSource = [notification.userInfo objectForKey:@"sourceApplication"];
+    NSString *appBundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleIdentifierKey];
+    
+    if([strSource isEqualToString:appBundleId])
+    {
+        UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_DEEPLINK, [[url absoluteString] UTF8String]);
+    }
 }
 
 @end
@@ -148,11 +202,20 @@ extern "C" {
     
     void initNativeCode (const char* advertiserId, const char* conversionKey)
     {
-        printf("Native: initNativeCode = %s, %s", advertiserId, conversionKey);
+        NSLog(@"Native: initNativeCode = %s, %s", advertiserId, conversionKey);
         
         [MobileAppTracker initializeWithMATAdvertiserId:MATCreateNSString(advertiserId)
                                        MATConversionKey:MATCreateNSString(conversionKey)];
         [MobileAppTracker setPluginName:@"unity"];
+    }
+    
+    void checkForDeferredDeeplinkWithTimeout(double timeoutMillis)
+    {
+        NSTimeInterval timeoutSeconds = timeoutMillis / 1000.0f;
+        
+        NSLog(@"Native: checkForDeferredDeeplinkWithTimeout: millis = %f, seconds = %f", timeoutMillis, timeoutSeconds);
+        
+        [MobileAppTracker checkForDeferredDeeplinkWithTimeout:timeoutSeconds];
     }
     
     const char* getMatId()
@@ -302,6 +365,13 @@ extern "C" {
         NSLog(@"Native: setUserName: %s", userName);
         
         [MobileAppTracker setUserName:MATCreateNSString(userName)];
+    }
+    
+    void setFacebookEventLogging(bool enable, bool limitEventAndDataUsage)
+    {
+        NSLog(@"Native: setFacebookEventLogging: enable = %d, limit = %d", enable, limitEventAndDataUsage);
+        
+        [MobileAppTracker setFacebookEventLogging:enable limitEventAndDataUsage:limitEventAndDataUsage];
     }
     
     void setFacebookUserId(const char* userId)
@@ -476,7 +546,7 @@ extern "C" {
         
         measureActionInternal(eventName, NULL, -1, NULL, 0, NULL, 0, NULL);
     }
-
+    
     void measureActionWithRefId(const char* eventName, const char* refId)
     {
         NSLog(@"Native: measureActionWithRefId");

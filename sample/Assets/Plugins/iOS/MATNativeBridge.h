@@ -3,6 +3,7 @@
 #import <map>
 
 #import "MobileAppTracker.h"
+#import "AppDelegateListener.h"
 
 typedef struct MATItem
 {

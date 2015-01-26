@@ -55,6 +55,11 @@ public class MATDelegate : MonoBehaviour
         print ("MATDelegate trackerDidEnqueueRequest: " + refId);
     }
 
+    public void trackerDidReceiveDeepLink (string url)
+    {
+        print ("MATDelegate trackerDidReceiveDeepLink: " + url);
+    }
+
 
     /// <summary>
     /// The method to decode base64 strings.

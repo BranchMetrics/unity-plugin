@@ -15,7 +15,7 @@
 #import <CoreLocation/CoreLocation.h>
 #endif
 
-#define MATVERSION @"3.5.3"
+#define MATVERSION @"3.7"
 
 
 #pragma mark - enumerated types
@@ -105,6 +105,22 @@ typedef NS_ENUM(NSInteger, MATGender)
  @param yesorno defaults to NO.
  */
 + (void)setAllowDuplicateRequests:(BOOL)yesorno;
+
+
+#pragma mark - Behavior Flags
+/** @name Behavior Flags */
+
+/*!
+ Check for a deferred deeplink entry point upon app installation.
+ This is safe to call at every app launch, since the function does nothing
+ unless this is the first launch.
+ 
+ The timeout parameter should be set in keeping with the normal first-launch
+ time and user experience of your app.
+ 
+ @param timeout If the deeplink value is not received within this timeout duration, then the deeplink will not be opened.
+ */
++ (void)checkForDeferredDeeplinkWithTimeout:(NSTimeInterval)timeout;
 
 
 #pragma mark - Data Setters
@@ -358,6 +374,13 @@ typedef NS_ENUM(NSInteger, MATGender)
  */
 + (void)setEventAttribute5:(NSString*)value;
 
+/*!
+ * Set whether the MAT events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
+ * @param logging Whether to send MAT events to FB as well
+ * @param limit Whether data such as that generated through FBAppEvents and sent to Facebook should be restricted from being used for other than analytics and conversions.  Defaults to NO.  This value is stored on the device and persists across app launches.
+ */
++ (void)setFacebookEventLogging:(BOOL)logging limitEventAndDataUsage:(BOOL)limit;
+
 
 #pragma mark - Data Getters
 
@@ -382,6 +405,8 @@ typedef NS_ENUM(NSInteger, MATGender)
 + (BOOL)isPayingUser;
 
 
+#if USE_IAD
+
 #pragma mark - Show iAd advertising
 
 /** @name iAd advertising */
@@ -398,6 +423,7 @@ typedef NS_ENUM(NSInteger, MATGender)
  */
 + (void)removeiAd;
 
+#endif
 
 #pragma mark - Measuring Sessions
 

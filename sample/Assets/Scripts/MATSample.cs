@@ -1,8 +1,8 @@
-﻿using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using UnityEngine;
 using com.mobileapptracking;
 
 /// <para>
@@ -48,6 +48,11 @@ public class MATSample : MonoBehaviour {
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
                 MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
                 MATBinding.SetPackageName(MAT_PACKAGE_NAME);
+                MATBinding.SetFacebookEventLogging(true, false);
+            #endif
+            #if UNITY_IPHONE
+                MATBinding.SetAppleAdvertisingIdentifier(iPhone.advertisingIdentifier, iPhone.advertisingTrackingEnabled);
+                MATBinding.CheckForDeferredDeeplinkWithTimeout(750); // 750 ms
             #endif
         }
 
@@ -56,6 +61,7 @@ public class MATSample : MonoBehaviour {
             print ("Set Delegate clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE)
             MATBinding.SetDelegate(true);
+
             #endif
             #if UNITY_WP8
             MATBinding.SetMATResponse(new SampleWP8MATResponse());
@@ -137,7 +143,7 @@ public class MATSample : MonoBehaviour {
             
             string receiptData = null;
             string receiptSignature = null;
-            
+
             #if UNITY_IPHONE
             receiptData = getSampleiTunesIAPReceipt();
             #endif
