@@ -167,10 +167,23 @@ namespace UnityEditor.MATEditor
 
                 foreach (string line in lines)
                 {
+                    //////////////////////////////
+                    //  STEP 1 : Build Options  //
+                    //////////////////////////////
+                    
+                    if (section == "XCBuildConfiguration"
+                        && line.StartsWith("\t\t\t\tOTHER_CFLAGS"))
+                    {
+                        Debug.Log("OnPostProcessBuild - Adding FRAMEWORK_SEARCH_PATHS");
+                        
+                        // Add "." to the framework search path
+                        fCurrentXcodeProjFile.Write("\t\t\t\tFRAMEWORK_SEARCH_PATHS = (\n\t\t\t\t\t\"$(inherited)\",\n\t\t\t\t\t\"\\\"$(SRCROOT)/" + "." + "\\\"\",\n\t\t\t\t);\n");
+                    }
+
                     fCurrentXcodeProjFile.WriteLine(line);
 
                     //////////////////////////////////
-                    //  STEP 1 : Include Frameworks  //
+                    //  STEP 2 : Include Frameworks  //
                     //////////////////////////////////
 
                     // Each section starts with a comment such as : /* Begin PBXBuildFile section */'
@@ -246,18 +259,6 @@ namespace UnityEditor.MATEditor
                         }
                     }
 
-                    //////////////////////////////
-                    //  STEP 2 : Build Options  //
-                    //////////////////////////////
-                    
-                    if (section == "XCBuildConfiguration" 
-                        && line.StartsWith("\t\t\t\tOTHER_CFLAGS"))
-                    {
-                        Debug.Log("OnPostProcessBuild - Adding FRAMEWORK_SEARCH_PATHS");
-                        
-                        // Add "." to the framework search path
-                        fCurrentXcodeProjFile.Write("\t\t\t\tFRAMEWORK_SEARCH_PATHS = (\n\t\t\t\t\t\"$(inherited)\",\n\t\t\t\t\t\"\\\"$(SRCROOT)/" + "." + "\\\"\",\n\t\t\t\t);\n");
-                    }
                     ++i;
                 }
 
