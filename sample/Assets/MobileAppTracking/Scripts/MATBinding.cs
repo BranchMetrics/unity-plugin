@@ -338,7 +338,7 @@ public class MATBinding : MonoBehaviour
             MATAndroid.Instance.SetDebugMode(debug);
             #endif
             #if UNITY_IPHONE
-            MATExterns.setDebugMode(debug);
+            MATExterns.tuneSetDebugMode(debug);
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.SetDebugMode(debug);

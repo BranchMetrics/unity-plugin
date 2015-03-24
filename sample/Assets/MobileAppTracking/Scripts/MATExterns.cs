@@ -22,7 +22,7 @@ namespace com.mobileapptracking
 
         // Methods to help debugging and testing
         [DllImport ("__Internal")]
-        internal static extern void setDebugMode(bool enable);
+        internal static extern void tuneSetDebugMode(bool enable);
         [DllImport ("__Internal")]
         internal static extern void setAllowDuplicates(bool allowDuplicateRequests);
 

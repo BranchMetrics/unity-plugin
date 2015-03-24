@@ -318,7 +318,7 @@ extern "C" {
         [MobileAppTracker setCurrencyCode:MATCreateNSString(currencyCode)];
     }
     
-    void setDebugMode(bool enable)
+    void tuneSetDebugMode(bool enable)
     {
         NSLog(@"Native: setDebugMode = %d", enable);
         
