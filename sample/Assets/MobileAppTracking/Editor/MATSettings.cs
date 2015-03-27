@@ -14,13 +14,13 @@ namespace MATSDK {
     public class MATSettings : ScriptableObject
     {
         [MenuItem ("MobileAppTracking/Setup", false, 100)] //Open menu for Android configuration
-        static void Setup() 
+        static void Setup()
         {
             Selection.activeObject = Instance;
         }
 
         [MenuItem ("MobileAppTracking/Plugin Guide", false, 200)] //Open menu for Android configuration
-        static void OpenPluginGuide() 
+        static void OpenPluginGuide()
         {
             Application.OpenURL("https://developers.mobileapptracking.com/unity-plugin/");
         }

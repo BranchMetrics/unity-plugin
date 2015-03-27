@@ -3,7 +3,7 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
- 
+
 namespace UnityEditor.MATEditor
 {
     public static class MATPostBuildTrigger
@@ -226,9 +226,9 @@ namespace UnityEditor.MATEditor
                     // first target is always 'Unity-iPhone' as the name of the target itself is
                     // not listed in project.pbxproj
 
-                    if (section == "PBXFrameworksBuildPhase" 
-                        && line.Trim().Length > 4 
-                        && string.Compare(line.Trim().Substring(0, 5) , "files") == 0 
+                    if (section == "PBXFrameworksBuildPhase"
+                        && line.Trim().Length > 4
+                        && string.Compare(line.Trim().Substring(0, 5) , "files") == 0
                         && !bFrameworks_build_added)
                     {
                         // Add one entry for each framework to the PBXFrameworksBuildPhase section
@@ -243,10 +243,10 @@ namespace UnityEditor.MATEditor
                     }
 
                     // The PBXGroup is the section that appears in XCode as 'Copy Bundle Resources'.
-                    if (section == "PBXGroup" 
-                        && line.Trim().Length > 7 
-                        && string.Compare(line.Trim().Substring(0, 8) , "children") == 0 
-                        && lines[i-2].Trim().Split(' ').Length > 0 
+                    if (section == "PBXGroup"
+                        && line.Trim().Length > 7
+                        && string.Compare(line.Trim().Substring(0, 8) , "children") == 0
+                        && lines[i-2].Trim().Split(' ').Length > 0
                         && string.Compare(lines[i-2].Trim().Split(' ')[2] , "CustomTemplate" ) == 0 )
                     {
                         Debug.Log("Adding frameworks in PBXGroup");

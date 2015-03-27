@@ -137,6 +137,18 @@ NSString* MATCreateNSString (const char* string)
     return [NSString stringWithUTF8String:string ? string : ""];
 }
 
+NSData* MATCreateNSData (Byte bytes[], NSUInteger length)
+{
+    if(bytes)
+    {
+        return [NSData dataWithBytes:bytes length:length];
+    }
+    else
+    {
+        return [NSData data];
+    }
+}
+
 // Ref: http://answers.unity3d.com/questions/364779/passing-nsdictionary-from-obj-c-to-c.html
 char* MATAutonomousStringCopy (const char* string)
 {
@@ -148,7 +160,7 @@ char* MATAutonomousStringCopy (const char* string)
     return res;
 }
 
-void measureActionInternal(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData)
+NSArray *arrayFromItems(MATItem eventItems[], int eventItemCount)
 {
     // reformat the items array as an nsarray of dictionary
     NSMutableArray *arrEventItems = [NSMutableArray array];
@@ -182,8 +194,27 @@ void measureActionInternal(const char* eventName, MATItem eventItems[], int even
         }
     }
     
-    NSString *strReceipt = MATCreateNSString(receiptData);
-    NSData *receipt = [strReceipt dataUsingEncoding:NSUTF8StringEncoding];
+    return arrEventItems;
+}
+
+void measureActionInternal(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency)
+{
+    // reformat the items array as an nsarray of dictionary
+    NSArray *arrEventItems = arrayFromItems(eventItems, eventItemCount);
+    
+    [MobileAppTracker measureAction:MATCreateNSString(eventName)
+                         eventItems:arrEventItems
+                        referenceId:MATCreateNSString(refId)
+                      revenueAmount:revenue
+                       currencyCode:MATCreateNSString(currency)];
+}
+
+void measureActionInternalWithReceiptData(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, Byte receiptData[], int byteCount)
+{
+    // reformat the items array as an nsarray of dictionary
+    NSArray *arrEventItems = arrayFromItems(eventItems, eventItemCount);
+    
+    NSData *receipt = MATCreateNSData(receiptData, byteCount);
     
     [MobileAppTracker measureAction:MATCreateNSString(eventName)
                          eventItems:arrEventItems
@@ -544,28 +575,28 @@ extern "C" {
     {
         NSLog(@"Native: measureAction");
         
-        measureActionInternal(eventName, NULL, -1, NULL, 0, NULL, 0, NULL);
+        measureActionInternal(eventName, NULL, -1, NULL, 0, NULL);
     }
     
     void measureActionWithRefId(const char* eventName, const char* refId)
     {
         NSLog(@"Native: measureActionWithRefId");
         
-        measureActionInternal(eventName, NULL, -1, refId, 0, NULL, 0, NULL);
+        measureActionInternal(eventName, NULL, -1, refId, 0, NULL);
     }
     
     void measureActionWithRevenue(const char* eventName, double revenue, const char*  currency, const char* refId)
     {
         NSLog(@"Native: measureActionWithRevenue");
         
-        measureActionInternal(eventName, NULL, -1, refId, revenue, currency, 0, NULL);
+        measureActionInternal(eventName, NULL, -1, refId, revenue, currency);
     }
     
-    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, const char* receiptData, const char* receiptSignature)
+    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, Byte receiptData[], int byteCount)
     {
-        NSLog(@"Native: measureActionWithReceipt");
+        NSLog(@"Native: measureActionWithEventItems");
         
-        measureActionInternal(eventName, eventItems, eventItemCount, refId, revenue, currency, transactionState, receiptData);
+        measureActionInternalWithReceiptData(eventName, eventItems, eventItemCount, refId, revenue, currency, transactionState, receiptData, byteCount);
     }
     
     const char* setGoogleAdvertisingId(const char* advertisingId, bool limitAdTracking)

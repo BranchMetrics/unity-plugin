@@ -8,8 +8,8 @@ using System.Linq;
 using com.mobileapptracking;
 
 /// <para>
-/// MATBinding wraps Android, iOS, and Windows Phone 8 MobileAppTracking SDK 
-/// functions to be used within Unity. The functions can be called within any 
+/// MATBinding wraps Android, iOS, and Windows Phone 8 MobileAppTracking SDK
+/// functions to be used within Unity. The functions can be called within any
 /// C# script by typing MATBinding.*.
 /// </para>
 public class MATBinding : MonoBehaviour
@@ -45,7 +45,7 @@ public class MATBinding : MonoBehaviour
     }
 
     /// <para>
-    /// Initializes relevant information about the advertiser and 
+    /// Initializes relevant information about the advertiser and
     /// conversion key on startup of Unity game.
     /// </para>
     /// <param name="advertiserId">the MAT advertiser ID for the app</param>
@@ -60,7 +60,13 @@ public class MATBinding : MonoBehaviour
             #endif
             #if UNITY_IPHONE
             MATExterns.initNativeCode(advertiserId, conversionKey);
+
+            #if UNITY_5_0
+            MATExterns.setAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
+            #else
             MATExterns.setAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
+            #endif
+
             #endif
             #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.InitializeValues(advertiserId, conversionKey);
@@ -123,30 +129,34 @@ public class MATBinding : MonoBehaviour
     /// </para>
     /// <param name="action">Action</param>
     /// <param name="items">Items</param>
-    /// <param name="eventItemCount">Event item count</param>
     /// <param name="revenue">Revenue</param>
     /// <param name="currency">Currency</param>
     /// <param name="refId">Reference identifier</param>
     /// <param name="transactionState">Transaction state</param>
     /// <param name="receipt">Receipt</param>
     /// <param name="receiptSignature">Receipt signature</param>
-    public static void MeasureActionWithEventItems(string action, MATItem[] items, int eventItemCount, double revenue, string currency, string refId, int transactionState, string receipt, string receiptSignature)
+    public static void MeasureActionWithEventItems(string action, MATItem[] items, double revenue, string currency, string refId, int transactionState, string receipt, string receiptSignature)
     {
         if(!Application.isEditor)
         {
+            int itemCount = null == items ? 0 : items.Length;
+
             #if UNITY_ANDROID
-            MATAndroid.Instance.MeasureActionWithEventItems(action, items, eventItemCount, revenue, currency, refId, transactionState, receipt, receiptSignature);
+            MATAndroid.Instance.MeasureActionWithEventItems(action, items, itemCount, revenue, currency, refId, transactionState, receipt, receiptSignature);
             #endif
+            
             #if UNITY_IPHONE
-            MATExterns.measureActionWithEventItems(action, items, eventItemCount, refId, revenue, currency, transactionState, receipt, receiptSignature);
+            byte[] receiptBytes = null == receipt ? null : System.Convert.FromBase64String(receipt);
+            int receiptByteCount = null == receiptBytes ? 0 : receiptBytes.Length;
+            MATExterns.measureActionWithEventItems(action, items, itemCount, refId, revenue, currency, transactionState, receiptBytes, receiptByteCount);
             #endif
             
             #if UNITY_WP8
             //Convert MATItem[] to MATEventItem[]. These are the same things, but must be converted for recognition of
             //MobileAppTracker.cs.
-            MATWP8.MATEventItem[] newarr = new MATWP8.MATEventItem[items.Length];
+            MATWP8.MATEventItem[] newarr = new MATWP8.MATEventItem[itemCount];
             //Conversion is necessary to prevent the need of referencing a separate class.
-            for(int i = 0; i < items.Length; i++)
+            for(int i = 0; i < itemCount; i++)
             {
                 newarr[i] = new MATWP8.MATEventItem(items[i].name, items[i].quantity, items[i].unitPrice, 
                                                     items[i].revenue, items[i].attribute1, items[i].attribute2,
@@ -156,14 +166,14 @@ public class MATBinding : MonoBehaviour
             List<MATWP8.MATEventItem> list =  newarr.ToList();
             MATWP8.MobileAppTracker.Instance.MeasureAction(action, revenue, currency, refId, list);
             #endif
-
+            
             #if UNITY_METRO
-            MATWinStore.MATEventItem[] newarr = new MATWinStore.MATEventItem[items.Length];
-            for(int i = 0; i < items.Length; i++)
+            MATWinStore.MATEventItem[] newarr = new MATWinStore.MATEventItem[itemCount];
+            for(int i = 0; i < itemCount; i++)
             {
                 newarr[i] = new MATWinStore.MATEventItem(items[i].name, items[i].quantity, items[i].unitPrice, 
-                                                      items[i].revenue, items[i].attribute1, items[i].attribute2,
-                                                      items[i].attribute3, items[i].attribute4, items[i].attribute5);
+                                                         items[i].revenue, items[i].attribute1, items[i].attribute2,
+                                                         items[i].attribute3, items[i].attribute4, items[i].attribute5);
             }
             
             List<MATWinStore.MATEventItem> list =  newarr.ToList();
@@ -296,7 +306,7 @@ public class MATBinding : MonoBehaviour
             #if UNITY_IPHONE
             MATExterns.setAllowDuplicates(allow);
             #endif
-            #if UNITY_WP8 
+            #if UNITY_WP8
             MATWP8.MobileAppTracker.Instance.SetAllowDuplicates(allow);
             #endif
             #if UNITY_METRO
@@ -512,7 +522,7 @@ public class MATBinding : MonoBehaviour
 
     /// <para>
     /// Sets the first date associated with an app event.
-    /// Should be 1/1/1970 and after. 
+    /// Should be 1/1/1970 and after.
     /// </para>
     /// <param name="eventDate">the date</param>
     public static void SetEventDate1(DateTime eventDate)
@@ -1702,7 +1712,7 @@ public class MATBinding : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////////
 
     /// <para>
-    /// Sets the ISO 4217 currency code. 
+    /// Sets the ISO 4217 currency code.
     /// Does nothing if not Android or iOS.
     /// </para>
     /// <param name="currencyCode">the currency code</param>
@@ -1719,7 +1729,7 @@ public class MATBinding : MonoBehaviour
         }
     }
 
-    /// <para> 
+    /// <para>
     /// Sets delegate used by MobileAppTracker to post success and failure callbacks from the MAT SDK.
     /// Does nothing if not an Android or iOS device.
     /// </para>
@@ -1734,7 +1744,6 @@ public class MATBinding : MonoBehaviour
             #if (UNITY_IPHONE)
             MATExterns.setDelegate(enable);
             #endif
-            
         }
     }
 

@@ -1,38 +1,29 @@
-/*
-* Copyright (C) 2013 Google Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-* 
-* Modified for use with the Chartboost Unity plugin
-*/
 using System;
 using System.Collections;
 using System.IO;
+using System.Xml;
 using UnityEngine;
 using UnityEditor;
 
 namespace MATSDK {
     [CustomEditor(typeof(MATSettings))]
-    public class MATSettingsEditor : Editor {
-        private string sOk = "OK";
-        private string google_play_services_path = "";
-        private string google_play_services_folder_name = "";
+    public class MATSettingsEditor : Editor
+    {
+        // Minimum version of Google Play Services required for Google Advertising Id collection
+        private long MinGPSVersion = 4030530;
 
-        public override void OnInspectorGUI() {
+        private string sOk = "OK";
+        private string sCancel = "Cancel";
+        private string sSuccess = "Success";
+        private string sWarning = "Warning";
+
+        public override void OnInspectorGUI()
+        {
             SetupUI();
         }
 
-        private void SetupUI() {
+        private void SetupUI()
+        {
             GUI.skin.label.wordWrap = true;
             GUI.skin.button.wordWrap = true;
 
@@ -42,7 +33,7 @@ namespace MATSDK {
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.HelpBox("A GameObject named \"MobileAppTracker\" with MATDelegate.cs and MATBinding.cs attached is " +
-            "required in order for MAT to receive server callbacks and Google Advertising Id, respectively.", MessageType.Info);
+                "required in order for MAT to receive server callbacks and Google Advertising Id, respectively.", MessageType.Info);
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
@@ -51,9 +42,11 @@ namespace MATSDK {
                 if (GameObject.Find("MobileAppTracker") == null)
                 {
                     var obj = new GameObject("MobileAppTracker");
-                    obj.AddComponent("MATDelegate");
-                    obj.AddComponent("MATBinding");
-                } else {
+                    obj.AddComponent<MATDelegate>();
+                    obj.AddComponent<MATBinding>();
+                }
+                else
+                {
                     EditorUtility.DisplayDialog("MobileAppTracker exists", "A MobileAppTracker GameObject already exists", sOk);
                 }
             }
@@ -61,13 +54,13 @@ namespace MATSDK {
 
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("You may debug server requests with the MATDelegate.cs functions by enabling " +
-            "delegates and debug mode. This can be done with the following lines of code: \n\n" +
-            "MATBinding.SetDelegate(true); \n" +
-            "MATBinding.SetDebugMode(true); \n\n" +
-            "When using Windows Phone 8, the following code is also required: \n\n" +
-            "#if UNITY_WP8 \n" +
-            "MATBinding.SetMATResponse(new SampleMATResponse());\n" +
-            "#endif");
+                "delegates and debug mode. This can be done with the following lines of code: \n\n" +
+                "MATBinding.SetDelegate(true); \n" +
+                "MATBinding.SetDebugMode(true); \n\n" +
+                "When using Windows Phone 8, the following code is also required: \n\n" +
+                "#if UNITY_WP8 \n" +
+                "MATBinding.SetMATResponse(new SampleMATResponse());\n" +
+                "#endif");
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
 
@@ -75,7 +68,8 @@ namespace MATSDK {
             EditorGUILayout.LabelField("Android", EditorStyles.boldLabel);
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.HelpBox("\nA reference to your google-play-services_lib folder is required for Android builds that use the MAT Plugin.", MessageType.Info);
+            EditorGUILayout.HelpBox("For Android builds, the MAT plugin requires a copy of the Google Play Services 4.0+ library.\n",
+                MessageType.Info);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Import Google Play Services"))
             {
@@ -84,33 +78,132 @@ namespace MATSDK {
             EditorGUILayout.EndHorizontal();
         }
 
-        private void ImportGooglePlayServices() {
-            google_play_services_path = EditorUtility.OpenFolderPanel("select google-play-services_lib folder","","");
-            google_play_services_path = google_play_services_path.Replace('/', '\\');
-            string[] folders = google_play_services_path.Split(new char[] {'\\'});
-
-            if (folders.Length > 0)
-                google_play_services_folder_name = folders[folders.Length - 1]; 
+        private void ImportGooglePlayServices()
+        {
+            string sdkPath = GetAndroidSdkPath();
+            string gpsLibPath = FixSlashes(sdkPath) + FixSlashes("/extras/google/google_play_services/libproject/google-play-services_lib");
+            string gpsLibVersion = gpsLibPath + FixSlashes("/res/values/version.xml");
+            string gpsLibDestDir = FixSlashes("Assets/Plugins/Android/google-play-services_lib");
+    
+            // Check that Android SDK is there
+            if (!HasAndroidSdk())
+            {
+                Debug.LogError("Android SDK not found.");
+                EditorUtility.DisplayDialog("Android SDK not found",
+                    "The Android SDK path was not found. Please configure it in Unity > Edit > Preferences > External Tools.",
+                    sOk);
+                return;
+            }
             
-            if (google_play_services_path.Length > 0 && File.Exists(google_play_services_path + "\\libs\\google-play-services.jar"))
-            { 
-                if (Directory.Exists(Application.dataPath + "\\Plugins\\Android"))
-                {
-                    FileUtil.CopyFileOrDirectory(
-                        google_play_services_path,
-                        Application.dataPath + "\\Plugins\\Android\\" + google_play_services_folder_name);
+            // Check that the Google Play Services lib project is there
+            if (!System.IO.Directory.Exists(gpsLibPath) || !System.IO.File.Exists(gpsLibVersion))
+            {
+                Debug.LogError("Google Play Services lib project not found at: " + gpsLibPath);
+                EditorUtility.DisplayDialog("Google Play Services library not found",
+                    "Google Play Services could not be found in your Android SDK installation.\n" +
+                    "Install from the SDK Manager under Extras > Google Play Services.", sOk);
+                return;
+            }
+            
+            // Check GPS lib version for 4.0+ to support Advertising Id
+            if (!CheckForLibVersion(gpsLibVersion))
+            {
+                return;
+            }
+            
+            // Create Assets/Plugins and Assets/Plugins/Android if not existing
+            CheckDirExists("Assets/Plugins");
+            CheckDirExists("Assets/Plugins/Android");
 
-                    AssetDatabase.Refresh();
-                }
+            // Delete any existing google_play_services_lib destination directory
+            DeleteDirIfExists(gpsLibDestDir);
+            
+            // Copy Google Play Services library
+            FileUtil.CopyFileOrDirectory(gpsLibPath, gpsLibDestDir);
+            
+            // Refresh assets, and we're done
+            AssetDatabase.Refresh();
+            EditorUtility.DisplayDialog(sSuccess,
+                "Google Play Services imported successfully to Assets/Plugins/Android.", sOk);
+        }
+        
+        private bool CheckForLibVersion(string gpsLibVersionFile)
+        {
+            var root = new XmlDocument();
+            root.Load(gpsLibVersionFile);
+
+            // Read the version number from the res/values/version.xml
+            var versionNode = root.SelectSingleNode("resources/integer[@name='google_play_services_version']");
+            if (versionNode != null)
+            {
+                var version = versionNode.InnerText;
+                if (version == null || version == "")
+                {
+                    Debug.LogError("Google Play Services lib version could not be read from: " + gpsLibVersionFile);
+                    return EditorUtility.DisplayDialog(sWarning,
+                        string.Format(
+                            "The version of your Google Play Services could not be determined. Please make sure it is " +
+                            "at least version {0}. Continue?",
+                            MinGPSVersion),
+                        sOk, sCancel);
+                } 
                 else
                 {
-                    EditorUtility.DisplayDialog("Error:", "Cannot find Assets/Plugins/Android. Please make sure that you're using the latest version of the MAT Unity plugin.", "OK");
+                    // Convert version to long and compare to min version
+                    long versionNum = System.Convert.ToInt64(version);
+                    if (versionNum < MinGPSVersion)
+                    {
+                        return EditorUtility.DisplayDialog(sWarning,
+                            string.Format(
+                                "Your version of Google Play Services does not support Google Advertising Id." +
+                                "Please update your Google Play Services to 4.0+." +
+                                "Your version: {0}; required version: {1}). Proceed anyway?",
+                                versionNum,
+                                MinGPSVersion),
+                            sOk, sCancel);
+                    }
                 }
             }
-            else if (google_play_services_path.Length != 0 && !File.Exists(google_play_services_path + "\\libs\\google-play-services.jar"))
+            return true;
+        }
+        
+        private string GetAndroidSdkPath()
+        {
+            string sdkPath = EditorPrefs.GetString("AndroidSdkRoot");
+            // Remove trailing slash if exists
+            if (sdkPath != null && (sdkPath.EndsWith("/") || sdkPath.EndsWith("\\")))
             {
-                EditorUtility.DisplayDialog("Error:", google_play_services_path + " does not contain the necessary files. Please ensure that your directory contains the following: google-play-services_lib/libs/google-play-services.jar", "OK");
+                sdkPath = sdkPath.Substring(0, sdkPath.Length - 1);
             }
+            return sdkPath;
+        }
+        
+        private bool HasAndroidSdk()
+        {
+            string sdkPath = GetAndroidSdkPath();
+            return sdkPath != null && sdkPath.Trim() != "" && System.IO.Directory.Exists(sdkPath);
+        }
+
+        private void CheckDirExists(string dir)
+        {
+            dir = dir.Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());
+            if (!System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.CreateDirectory(dir);
+            }
+        }
+        
+        private void DeleteDirIfExists(string dir)
+        {
+            if (System.IO.Directory.Exists(dir))
+            {
+                System.IO.Directory.Delete(dir, true);
+            }
+        }
+        
+        private string FixSlashes(string path)
+        {
+            return path.Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());
         }
     }
 }
