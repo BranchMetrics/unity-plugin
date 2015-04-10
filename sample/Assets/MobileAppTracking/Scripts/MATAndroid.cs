@@ -2,24 +2,8 @@
 using System;
 using System.Collections;
 
-namespace com.mobileapptracking
+namespace MATSDK
 {
-    /// <para>
-    /// Struct used for storing MAT information.
-    /// </para>
-    public struct MATItem
-    {
-        public string   name;
-        public double   unitPrice;
-        public int      quantity;
-        public double   revenue;
-        public string   attribute1;
-        public string   attribute2;
-        public string   attribute3;
-        public string   attribute4;
-        public string   attribute5;
-    }
-
     #if UNITY_ANDROID
     public class MATAndroid
     {
@@ -58,15 +42,9 @@ namespace com.mobileapptracking
                 ajcUnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
                 ajcCurrentActivity = ajcUnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 
-                ajcMAT.CallStatic("init", ajcCurrentActivity, advertiserId, conversionKey);
-                ajcInstance = ajcMAT.CallStatic<AndroidJavaObject>("getInstance");
+                ajcInstance = ajcMAT.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey);
                 ajcInstance.Call("setPluginName", "unity");
                 ajcInstance.Call("setReferralSources", ajcCurrentActivity);
-
-                // Start GAID fetch
-                AndroidJavaObject objGAIDFetcher = new AndroidJavaObject("com.matunityutils.GAIDFetcher");
-                objGAIDFetcher.Call("useUnityFetcherInterface");
-                objGAIDFetcher.Call("fetchGAID", ajcCurrentActivity);
             }
         }
 
@@ -75,41 +53,15 @@ namespace com.mobileapptracking
             ajcInstance.Call("measureSession");
         }
 
-        public void MeasureAction(string eventName)
+        public void MeasureEvent(string eventName)
         {
-            ajcInstance.Call("measureAction", eventName);
+            ajcInstance.Call("measureEvent", eventName);
         }
 
-        public void MeasureActionWithRefId(string eventName, string refId)
+        public void MeasureEvent(MATEvent matEvent)
         {
-            ajcInstance.Call("measureAction", eventName, 0.0, "", refId);
-        }
-
-        public void MeasureActionWithRevenue(string eventName, double revenue, string currency, string refId)
-        {
-            ajcInstance.Call("measureAction", eventName, revenue, currency, refId);
-        }
-
-        public void MeasureActionWithEventItems(string eventName, MATItem[] items, int eventItemCount, double revenue, string currency, string refId, int transactionState, string receipt, string receiptSignature)
-        {
-            // Convert MATItem to MATEventItem
-            AndroidJavaObject objArrayList = new AndroidJavaObject("java.util.ArrayList");
-            foreach (MATItem item in items)
-            {
-                AndroidJavaObject objEventItem = new AndroidJavaObject("com.mobileapptracker.MATEventItem",
-                    item.name,
-                    item.quantity,
-                    item.unitPrice,
-                    item.revenue,
-                    item.attribute1,
-                    item.attribute2,
-                    item.attribute3,
-                    item.attribute4,
-                    item.attribute5);
-
-                objArrayList.Call<bool>("add", objEventItem);
-            }
-            ajcInstance.Call("measureAction", eventName, objArrayList, revenue, currency, refId, receipt, receiptSignature);
+            AndroidJavaObject objEvent = GetMATEventJavaObject(matEvent);
+            ajcInstance.Call("measureEvent", objEvent);
         }
 
         public bool GetIsPayingUser()
@@ -172,6 +124,12 @@ namespace com.mobileapptracking
             ajcInstance.Call("setDebugMode", debugMode);
         }
 
+
+        public void SetDeferredDeeplink(bool enableDeferredDeeplink, int timeoutInMillis)
+        {
+            ajcInstance.Call("setDeferredDeeplink", enableDeferredDeeplink, timeoutInMillis);
+        }
+
         public void SetDeviceId(string deviceId)
         {
             ajcInstance.Call("setDeviceId", deviceId);
@@ -192,86 +150,15 @@ namespace com.mobileapptracking
             ajcInstance.Call("setEmailCollection", collectEmail);
         }
 
-        public void SetEventAttribute1(string eventAttribute)
-        {
-            ajcInstance.Call("setEventAttribute1", eventAttribute);
-        }
-
-        public void SetEventAttribute2(string eventAttribute)
-        {
-            ajcInstance.Call("setEventAttribute2", eventAttribute);
-        }
-
-        public void SetEventAttribute3(string eventAttribute)
-        {
-            ajcInstance.Call("setEventAttribute3", eventAttribute);
-        }
-
-        public void SetEventAttribute4(string eventAttribute)
-        {
-            ajcInstance.Call("setEventAttribute4", eventAttribute);
-        }
-
-        public void SetEventAttribute5(string eventAttribute)
-        {
-            ajcInstance.Call("setEventAttribute5", eventAttribute);
-        }
-
-        public void SetEventContentId(string eventContentId)
-        {
-            ajcInstance.Call("setEventContentId", eventContentId);
-        }
-
-        public void SetEventContentType(string eventContentType)
-        {
-            ajcInstance.Call("setEventContentType", eventContentType);
-        }
-
-        public void SetEventDate1(string eventDate)
-        {
-            AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", eventDate);
-            AndroidJavaObject longDate = objDouble.Call<AndroidJavaObject>("longValue");
-            AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
-            ajcInstance.Call("setEventDate1", objDate);
-        }
-
-        public void SetEventDate2(string eventDate)
-        {
-            AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", eventDate);
-            AndroidJavaObject longDate = objDouble.Call<AndroidJavaObject>("longValue");
-            AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
-            ajcInstance.Call("setEventDate2", objDate);
-        }
-
-        public void SetEventLevel(int eventLevel)
-        {
-            ajcInstance.Call("setEventLevel", eventLevel);
-        }
-
-        public void SetEventQuantity(int eventQuantity)
-        {
-            ajcInstance.Call("setEventQuantity", eventQuantity);
-        }
-
-        public void SetEventRating(float eventRating)
-        {
-            ajcInstance.Call("setEventRating", eventRating);
-        }
-
-        public void SetEventSearchString(string eventSearchString)
-        {
-            ajcInstance.Call("setEventSearchString", eventSearchString);
-        }
-
         public void SetExistingUser(bool isExistingUser)
         {
             ajcInstance.Call("setExistingUser", isExistingUser);
         }
 
-        /*public void SetFacebookEventLogging(bool fbEventLogging)
+        public void SetFacebookEventLogging(bool fbEventLogging, bool limitEventAndDataUsage)
         {
-            ajcInstance.Call("setFacebookEventLogging", fbEventLogging);
-        }*/
+            ajcInstance.Call("setFacebookEventLogging", fbEventLogging, ajcCurrentActivity, limitEventAndDataUsage);
+        }
 
         public void SetFacebookUserId(string facebookUserId)
         {
@@ -345,110 +232,183 @@ namespace com.mobileapptracking
             ajcInstance.Call("setUserName", userName);
         }
 
-        /* Pre-loaded app attribution setters */
-        public void SetPublisherId(string publisherId)
+        // Preloaded app attribution
+        public void SetPreloadedApp(MATPreloadData preloadData)
         {
-            ajcInstance.Call("setPublisherId", publisherId);
+            // Convert C# MATPreloadData to Java MATPreloadData
+            AndroidJavaObject objPreloadData = new AndroidJavaObject("com.mobileapptracker.MATPreloadData", preloadData.publisherId);
+            if (preloadData.offerId != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withOfferId", preloadData.offerId);
+            }
+            if (preloadData.publisherReferenceId != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherReferenceId", preloadData.publisherReferenceId);
+            }
+            if (preloadData.publisherSub1 != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSub1", preloadData.publisherSub1);
+            }
+            if (preloadData.publisherSub2 != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSub2", preloadData.publisherSub2);
+            }
+            if (preloadData.publisherSub3 != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSub3", preloadData.publisherSub3);
+            }
+            if (preloadData.publisherSub4 != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSub4", preloadData.publisherSub4);
+            }
+            if (preloadData.publisherSub5 != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSub5", preloadData.publisherSub5);
+            }
+            if (preloadData.publisherSubAd != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSubAd", preloadData.publisherSubAd);
+            }
+            if (preloadData.publisherSubAdgroup != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSubAdgroup", preloadData.publisherSubAdgroup);
+            }
+            if (preloadData.publisherSubCampaign != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSubCampaign", preloadData.publisherSubCampaign);
+            }
+            if (preloadData.publisherSubKeyword != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSubKeyword", preloadData.publisherSubKeyword);
+            }
+            if (preloadData.publisherSubPublisher != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSubPublisher", preloadData.publisherSubPublisher);
+            }
+            if (preloadData.publisherSubSite != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherSubSite", preloadData.publisherSubSite);
+            }
+            if (preloadData.advertiserSubAd != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAdvertiserSubAd", preloadData.advertiserSubAd);
+            }
+            if (preloadData.advertiserSubAdgroup != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAdvertiserSubAdgroup", preloadData.advertiserSubAdgroup);
+            }
+            if (preloadData.advertiserSubCampaign != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAdvertiserSubCampaign", preloadData.advertiserSubCampaign);
+            }
+            if (preloadData.advertiserSubKeyword != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAdvertiserSubKeyword", preloadData.advertiserSubKeyword);
+            }
+            if (preloadData.advertiserSubPublisher != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAdvertiserSubPublisher", preloadData.advertiserSubPublisher);
+            }
+            if (preloadData.advertiserSubSite != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAdvertiserSubSite", preloadData.advertiserSubSite);
+            }
+
+            ajcInstance.Call("setPreloadedApp", objPreloadData);
         }
 
-        public void SetOfferId(string offerId)
+        private AndroidJavaObject GetMATEventJavaObject(MATEvent matEvent)
         {
-            ajcInstance.Call("setOfferId", offerId);
-        }
-
-        public void SetPublisherReferenceId(string refId)
-        {
-            ajcInstance.Call("setPublisherReferenceId", refId);
-        }
-
-        public void SetPublisherSub1(string sub1)
-        {
-            ajcInstance.Call("setPublisherSub1", sub1);
-        }
-
-        public void SetPublisherSub2(string sub2)
-        {
-            ajcInstance.Call("setPublisherSub2", sub2);
-        }
-
-        public void SetPublisherSub3(string sub3)
-        {
-            ajcInstance.Call("setPublisherSub3", sub3);
-        }
-
-        public void SetPublisherSub4(string sub4)
-        {
-            ajcInstance.Call("setPublisherSub4", sub4);
-        }
-
-        public void SetPublisherSub5(string sub5)
-        {
-            ajcInstance.Call("setPublisherSub5", sub5);
-        }
-
-        public void SetPublisherSubAd(string subAd)
-        {
-            ajcInstance.Call("setPublisherSubAd", subAd);
-        }
-
-        public void SetPublisherSubAdgroup(string subAdgroup)
-        {
-            ajcInstance.Call("setPublisherSubAdgroup", subAdgroup);
-        }
-
-        public void SetPublisherSubCampaign(string subCampaign)
-        {
-            ajcInstance.Call("setPublisherSubCampaign", subCampaign);
-        }
-
-        public void SetPublisherSubKeyword(string subKeyword)
-        {
-            ajcInstance.Call("setPublisherSubKeyword", subKeyword);
-        }
-
-        public void SetPublisherSubPublisher(string subPublisher)
-        {
-            ajcInstance.Call("setPublisherSubPublisher", subPublisher);
-        }
-
-        public void SetPublisherSubSite(string subSite)
-        {
-            ajcInstance.Call("setPublisherSubSite", subSite);
-        }
-
-        public void SetAdvertiserSubAd(string subAd)
-        {
-            ajcInstance.Call("setAdvertiserSubAd", subAd);
-        }
-
-        public void SetAdvertiserSubAdgroup(string subAdgroup)
-        {
-            ajcInstance.Call("setAdvertiserSubAdgroup", subAdgroup);
-        }
-
-        public void SetAdvertiserSubCampaign(string subCampaign)
-        {
-            ajcInstance.Call("setAdvertiserSubCampaign", subCampaign);
-        }
-
-        public void SetAdvertiserSubKeyword(string subKeyword)
-        {
-            ajcInstance.Call("setAdvertiserSubKeyword", subKeyword);
-        }
-
-        public void SetAdvertiserSubPublisher(string subPublisher)
-        {
-            ajcInstance.Call("setAdvertiserSubPublisher", subPublisher);
-        }
-
-        public void SetAdvertiserSubSite(string subSite)
-        {
-            ajcInstance.Call("setAdvertiserSubSite", subSite);
-        }
-
-        public string CheckForDeferredDeeplink(int timeoutInMillis)
-        {
-            return ajcInstance.Call<string>("checkForDeferredDeeplink", timeoutInMillis);
+            // Convert C# MATEvent to new Java matEvent object
+            AndroidJavaObject objMatEvent;
+            if (matEvent.name == null) {
+                objMatEvent = new AndroidJavaObject("com.mobileapptracker.MATEvent", matEvent.id);
+            } else {
+                objMatEvent = new AndroidJavaObject("com.mobileapptracker.MATEvent", matEvent.name);
+            }
+            // Set the optional params if they exist
+            if (matEvent.revenue != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withRevenue", matEvent.revenue);
+            }
+            if (matEvent.currencyCode != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withCurrencyCode", matEvent.currencyCode);
+            }
+            if (matEvent.advertiserRefId != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAdvertiserRefId", matEvent.advertiserRefId);
+            }
+            if (matEvent.eventItems != null) {
+                // Convert MATItem[] to Arraylist<MATEventItem>
+                AndroidJavaObject objArrayList = new AndroidJavaObject("java.util.ArrayList");
+                foreach (MATItem item in matEvent.eventItems)
+                {
+                    // Convert MATItem to matEventItem
+                    AndroidJavaObject objEventItem = new AndroidJavaObject("com.mobileapptracker.MATEventItem", item.name);
+                    if (item.quantity != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withQuantity", item.quantity);
+                    }
+                    if (item.unitPrice != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withUnitPrice", item.unitPrice);
+                    }
+                    if (item.revenue != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withRevenue", item.revenue);
+                    }
+                    if (item.attribute1 != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute1", item.attribute1);
+                    }
+                    if (item.attribute2 != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute2", item.attribute2);
+                    }
+                    if (item.attribute3 != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute3", item.attribute3);
+                    }
+                    if (item.attribute4 != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute4", item.attribute4);
+                    }
+                    if (item.attribute5 != null) {
+                        objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute5", item.attribute5);
+                    }
+                    // Add to list of matEventItems
+                    objArrayList.Call<bool>("add", objEventItem);
+                }
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withEventItems", objArrayList);
+            }
+            if (matEvent.receipt != null && matEvent.receiptSignature != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withReceipt", matEvent.receipt, matEvent.receiptSignature);
+            }
+            if (matEvent.contentType != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withContentType", matEvent.contentType);
+            }
+            if (matEvent.contentId != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withContentId", matEvent.contentId);
+            }
+            if (matEvent.level != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withLevel", matEvent.level);
+            }
+            if (matEvent.quantity != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withQuantity", matEvent.quantity);
+            }
+            if (matEvent.searchString != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withSearchString", matEvent.searchString);
+            }
+            if (matEvent.date1 != null) {
+                double milliseconds = new TimeSpan(((DateTime)matEvent.date1).Ticks).TotalMilliseconds;
+                //datetime starts in 1970
+                DateTime datetime = new DateTime(1970, 1, 1);
+                double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
+                // Convert C# DateTime to Java Date
+                AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", millisecondsFrom1970);
+                long longDate = objDouble.Call<long>("longValue");
+                AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withDate1", objDate);
+            }
+            if (matEvent.date2 != null) {
+                double milliseconds = new TimeSpan(((DateTime)matEvent.date2).Ticks).TotalMilliseconds;
+                //datetime starts in 1970
+                DateTime datetime = new DateTime(1970, 1, 1);
+                double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
+                // Convert C# DateTime to Java Date
+                AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", millisecondsFrom1970);
+                long longDate = objDouble.Call<long>("longValue");
+                AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withDate2", objDate);
+            }
+            if (matEvent.attribute1 != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute1", matEvent.attribute1);
+            }
+            if (matEvent.attribute2 != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute2", matEvent.attribute2);
+            }
+            if (matEvent.attribute3 != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute3", matEvent.attribute3);
+            }
+            if (matEvent.attribute4 != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute4", matEvent.attribute4);
+            }
+            if (matEvent.attribute5 != null) {
+                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute5", matEvent.attribute5);
+            }
+            return objMatEvent;
         }
     }
     #endif

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Linq;
 
-namespace com.mobileapptracking
+namespace MATSDK
 {
     // Externs used by the iOS component.
     class MATExterns

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using com.mobileapptracking;
+using MATSDK;
 
 /// <para>
 /// This class demonstrates the basic features of the MAT Unity Plugin and
@@ -53,7 +53,7 @@ public class MATSample : MonoBehaviour {
                 MATBinding.SetPackageName(MAT_PACKAGE_NAME);
                 MATBinding.SetFacebookEventLogging(true, false);
             #endif
-            #if UNITY_IPHONE
+            #if (UNITY_ANDROID || UNITY_IPHONE)
                 MATBinding.CheckForDeferredDeeplinkWithTimeout(750); // 750 ms
             #endif
         }
@@ -105,19 +105,17 @@ public class MATSample : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Action"))
+        else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event"))
         {
-            print ("Measure Action clicked");
+            print ("Measure Event clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
-            MATBinding.MeasureAction("evt11");
-            MATBinding.MeasureActionWithRefId("evt12", "ref111");
-            MATBinding.MeasureActionWithRevenue("evt13", 0.35, "CAD", "ref112");
+            MATBinding.MeasureEvent("evt11");
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Action With Event Items"))
+        else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event With Event Items"))
         {
-            print ("Measure Action With Event Items clicked");
+            print ("Measure Event With Event Items clicked");
             
             #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATItem item1 = new MATItem();
@@ -138,19 +136,34 @@ public class MATSample : MonoBehaviour {
             item2.attribute1 = "attrValue1";
             item2.attribute3 = "attrValue3";
             
-            MATItem[] arr = { item1, item2 };
-            
+            MATItem[] eventItems = { item1, item2 };
+
+            MATEvent matEvent = new MATEvent("purchase");
+            matEvent.revenue = 10;
+            matEvent.currencyCode = "AUD";
+            matEvent.advertiserRefId = "ref222";
+            matEvent.attribute1 = "test_attribute1";
+            matEvent.attribute2 = "test_attribute2";
+            matEvent.attribute3 = "test_attribute3";
+            matEvent.attribute4 = "test_attribute4";
+            matEvent.attribute5 = "test_attribute5";
+            matEvent.contentType = "test_contentType";
+            matEvent.contentId = "test_contentId";
+            matEvent.date1 = DateTime.UtcNow;
+            matEvent.date2 = (DateTime.UtcNow.Add(new TimeSpan((new DateTime(2,1,1)).Ticks)));
+            matEvent.level = 3;
+            matEvent.quantity = 2;
+            matEvent.rating = 4.5;
+            matEvent.searchString = "test_searchString";
+            matEvent.eventItems = eventItems;
             // transaction state may be set to the value received from the iOS/Android app store.
-            int transactionState = 1;
-            
-            string receiptData = null;
-            string receiptSignature = null;
+            matEvent.transactionState = 1;
             
             #if UNITY_IPHONE
-            receiptData = getSampleiTunesIAPReceipt();
+            matEvent.receipt = getSampleiTunesIAPReceipt();
             #endif
 
-            MATBinding.MeasureActionWithEventItems("event7WithReceipt", arr, 10.0, @"AUD", "ref222", transactionState, receiptData, receiptSignature);
+            MATBinding.MeasureEvent(matEvent);
 
             #endif
         }
@@ -163,19 +176,6 @@ public class MATSample : MonoBehaviour {
             MATBinding.SetAllowDuplicates(true);
             MATBinding.SetAppAdTracking(true);
             MATBinding.SetDebugMode(true);
-            MATBinding.SetEventAttribute1("test_attribute1");
-            MATBinding.SetEventAttribute2("test_attribute2");
-            MATBinding.SetEventAttribute3("test_attribute3");
-            MATBinding.SetEventAttribute4("test_attribute4");
-            MATBinding.SetEventAttribute5("test_attribute5");
-            MATBinding.SetEventContentType("testContentType");
-            MATBinding.SetEventContentId("testContentId");
-            MATBinding.SetEventDate1(DateTime.UtcNow);
-            MATBinding.SetEventDate2(DateTime.UtcNow.Add(new TimeSpan((new DateTime(2,1,1)).Ticks)));
-            MATBinding.SetEventLevel(3);
-            MATBinding.SetEventQuantity(2);
-            MATBinding.SetEventRating(4.5f);
-            MATBinding.SetEventSearchString("testSearchString");
             MATBinding.SetExistingUser(false);
             MATBinding.SetFacebookUserId("temp_facebook_user_id");
             MATBinding.SetGender(0);
@@ -207,26 +207,6 @@ public class MATSample : MonoBehaviour {
             MATBinding.SetDeviceId("123456789123456");
             MATBinding.SetGoogleAdvertisingId("12345678-1234-1234-1234-123456789012", true);
             MATBinding.SetMacAddress("AA:BB:CC:DD:EE:FF");
-            //MATBinding.SetPublisherId("");
-            //MATBinding.SetOfferId("");
-            MATBinding.SetPublisherReferenceId("publisher_ref_id");
-            MATBinding.SetPublisherSub1("publisher_sub1");
-            MATBinding.SetPublisherSub2("publisher_sub2");
-            MATBinding.SetPublisherSub3("publisher_sub3");
-            MATBinding.SetPublisherSub4("publisher_sub4");
-            MATBinding.SetPublisherSub5("publisher_sub5");
-            MATBinding.SetPublisherSubAd("publisher_sub_ad");
-            MATBinding.SetPublisherSubAdgroup("publisher_sub_adgroup");
-            MATBinding.SetPublisherSubCampaign("publisher_sub_campaign");
-            MATBinding.SetPublisherSubKeyword("publisher_sub_keyword");
-            MATBinding.SetPublisherSubPublisher("publisher_sub_publisher");
-            MATBinding.SetPublisherSubSite("publisher_sub_site");
-            MATBinding.SetAdvertiserSubAd("advertiser_sub_ad");
-            MATBinding.SetAdvertiserSubAdgroup("advertiser_sub_adgroup");
-            MATBinding.SetAdvertiserSubCampaign("advertiser_sub_campaign");
-            MATBinding.SetAdvertiserSubKeyword("advertiser_sub_keyword");
-            MATBinding.SetAdvertiserSubPublisher("advertiser_sub_publisher");
-            MATBinding.SetAdvertiserSubSite("advertiser_sub_site");
             #endif
             //Windows Phone 8 Specific Features
             #if UNITY_WP8

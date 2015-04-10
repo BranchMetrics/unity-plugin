@@ -28,43 +28,6 @@ namespace MATSDK {
             GUI.skin.button.wordWrap = true;
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("MobileAppTracker", EditorStyles.boldLabel);
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.HelpBox("A GameObject named \"MobileAppTracker\" with MATDelegate.cs and MATBinding.cs attached is " +
-                "required in order for MAT to receive server callbacks and Google Advertising Id, respectively.", MessageType.Info);
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Create MobileAppTracker GameObject"))
-            {
-                if (GameObject.Find("MobileAppTracker") == null)
-                {
-                    var obj = new GameObject("MobileAppTracker");
-                    obj.AddComponent<MATDelegate>();
-                    obj.AddComponent<MATBinding>();
-                }
-                else
-                {
-                    EditorUtility.DisplayDialog("MobileAppTracker exists", "A MobileAppTracker GameObject already exists", sOk);
-                }
-            }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("You may debug server requests with the MATDelegate.cs functions by enabling " +
-                "delegates and debug mode. This can be done with the following lines of code: \n\n" +
-                "MATBinding.SetDelegate(true); \n" +
-                "MATBinding.SetDebugMode(true); \n\n" +
-                "When using Windows Phone 8, the following code is also required: \n\n" +
-                "#if UNITY_WP8 \n" +
-                "MATBinding.SetMATResponse(new SampleMATResponse());\n" +
-                "#endif");
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space();
-
-            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Android", EditorStyles.boldLabel);
             EditorGUILayout.EndHorizontal();
 
@@ -74,6 +37,35 @@ namespace MATSDK {
             if (GUILayout.Button("Import Google Play Services"))
             {
                 ImportGooglePlayServices();
+            }
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+            EditorGUILayout.Space();
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Delegate Callbacks", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("You may debug server requests with the MATDelegate.cs functions by enabling delegate callbacks: \n\n" +
+                "MATBinding.SetDelegate(true); \n\n" +
+                "The MATDelegate.cs script must be attached to a GameObject named \"MobileAppTracker\" in order to receive the callbacks.\n");
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Create MobileAppTracker GameObject"))
+            {
+                if (GameObject.Find("MobileAppTracker") == null)
+                {
+                    var obj = new GameObject("MobileAppTracker");
+                    obj.AddComponent<MATDelegate>();
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("MobileAppTracker exists", "A MobileAppTracker GameObject already exists", sOk);
+                }
             }
             EditorGUILayout.EndHorizontal();
         }
