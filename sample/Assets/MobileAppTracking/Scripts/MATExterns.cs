@@ -119,7 +119,7 @@ namespace MATSDK
         [DllImport ("__Internal")]
         internal static extern void measureActionWithRevenue(string action, double revenue, string currencyCode, string refId);
         [DllImport ("__Internal")]
-        internal static extern void measureActionWithEventItems(string action, MATItem[] eventItems, int eventItemCount, string refId, double revenue, string currency, int transactionState, Byte[] receipt, int byteCount);
+        internal static extern void measureActionWithEventItems(string action, MATItemIOS[] eventItems, int eventItemCount, string refId, double revenue, string currency, int transactionState, Byte[] receipt, int byteCount);
         
         // Method to measure session
         [DllImport ("__Internal")]

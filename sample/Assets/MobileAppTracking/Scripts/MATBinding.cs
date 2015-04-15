@@ -143,8 +143,50 @@ namespace MATSDK
                 byte[] receiptBytes = null == matEvent.receipt ? null : System.Convert.FromBase64String(matEvent.receipt);
                 int receiptByteCount = null == receiptBytes ? 0 : receiptBytes.Length;
                 
+                // Convert MATItem to C-marshallable struct
+                MATItemIOS[] items = new MATItemIOS[itemCount];
+                for (int i = 0; i < itemCount; i++)
+                {
+                    MATItem item = matEvent.eventItems[i];
+                    MATItemIOS itemIOS = new MATItemIOS();
+                    itemIOS.name = item.name;
+                    if (item.unitPrice != null)
+                    {
+                        itemIOS.unitPrice = (double)item.unitPrice;
+                    }
+                    if (item.quantity != null)
+                    {
+                        itemIOS.quantity = (int)item.quantity;
+                    }
+                    if (item.revenue != null)
+                    {
+                        itemIOS.revenue = (double)item.revenue;
+                    }
+                    if (item.attribute1 != null)
+                    {
+                        itemIOS.attribute1 = item.attribute1;
+                    }
+                    if (item.attribute2 != null)
+                    {
+                        itemIOS.attribute2 = item.attribute2;
+                    }
+                    if (item.attribute3 != null)
+                    {
+                        itemIOS.attribute3 = item.attribute3;
+                    }
+                    if (item.attribute4 != null)
+                    {
+                        itemIOS.attribute4 = item.attribute4;
+                    }
+                    if (item.attribute5 != null)
+                    {
+                        itemIOS.attribute5 = item.attribute5;
+                    }
+                    items[i] = itemIOS;
+                }
+
                 MATExterns.measureActionWithEventItems(matEvent.name,
-                                                       matEvent.eventItems,
+                                                       items,
                                                        itemCount,
                                                        matEvent.advertiserRefId,
                                                        matEvent.revenue == null? 0 : (double)matEvent.revenue,
