@@ -111,7 +111,7 @@ namespace MATSDK
 
         public void SetAppAdTracking(bool adTrackingEnabled)
         {
-            ajcInstance.Call("setAppAdTracking", adTrackingEnabled);
+            ajcInstance.Call("setAppAdTrackingEnabled", adTrackingEnabled);
         }
 
         public void SetCurrencyCode(string currencyCode)
@@ -123,7 +123,6 @@ namespace MATSDK
         {
             ajcInstance.Call("setDebugMode", debugMode);
         }
-
 
         public void SetDeferredDeeplink(bool enableDeferredDeeplink, int timeoutInMillis)
         {
