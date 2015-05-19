@@ -25,6 +25,10 @@ namespace UnityEditor.MATEditor
         const string FRAMEWORK_ID_MOBILECORESERVICES = "4266CDD318907E8500C4E70B";
         const string FRAMEWORK_FILEREFID_MOBILECORESERVICES = "4266CDD218907E8500C4E70B";
 
+        const string FRAMEWORK_STOREKIT = "StoreKit.framework";
+        const string FRAMEWORK_ID_STOREKIT = "4266CDD118907E8F00C4E70B";
+        const string FRAMEWORK_FILEREFID_STOREKIT = "4266CDD018907E8F00C4E70B";
+
         const string FRAMEWORK_SYSTEMCONFIGURATION = "SystemConfiguration.framework";
         const string FRAMEWORK_ID_SYSTEMCONFIGURATION = "4266CDD518907E8F00C4E70B";
         const string FRAMEWORK_FILEREFID_SYSTEMCONFIGURATION = "4266CDD418907E8F00C4E70B";
@@ -74,6 +78,7 @@ namespace UnityEditor.MATEditor
             dictFrameworks.Add(FRAMEWORK_CORETELEPHONY, new framework (FRAMEWORK_CORETELEPHONY, FRAMEWORK_ID_CORETELEPHONY, FRAMEWORK_FILEREFID_CORETELEPHONY, null, false));
             dictFrameworks.Add(FRAMEWORK_IAD, new framework (FRAMEWORK_IAD, FRAMEWORK_ID_IAD, FRAMEWORK_FILEREFID_IAD, null, false));
             dictFrameworks.Add(FRAMEWORK_MOBILECORESERVICES, new framework (FRAMEWORK_MOBILECORESERVICES, FRAMEWORK_ID_MOBILECORESERVICES, FRAMEWORK_FILEREFID_MOBILECORESERVICES, null, false));
+            dictFrameworks.Add(FRAMEWORK_STOREKIT, new framework (FRAMEWORK_STOREKIT, FRAMEWORK_ID_STOREKIT, FRAMEWORK_FILEREFID_STOREKIT, null, false));
             dictFrameworks.Add(FRAMEWORK_SYSTEMCONFIGURATION, new framework (FRAMEWORK_SYSTEMCONFIGURATION, FRAMEWORK_ID_SYSTEMCONFIGURATION, FRAMEWORK_FILEREFID_SYSTEMCONFIGURATION, null, false));
 
             // 2: process our project
@@ -107,6 +112,7 @@ namespace UnityEditor.MATEditor
             bool existsCORETELEPHONY = false;
             bool existsIAD = false;
             bool existsMOBILECORESERVICES = false;
+            bool existsSTOREKIT = false;
             bool existsSYSTEMCONFIGURATION = false;
 
             Debug.Log ("total frameworks required = " + dictFrameworks.Count);
@@ -128,12 +134,16 @@ namespace UnityEditor.MATEditor
                     existsMOBILECORESERVICES = true;
                     dictFrameworks.Remove (FRAMEWORK_MOBILECORESERVICES);
                 }
+                else if (lines [i].Contains (FRAMEWORK_STOREKIT)) {
+                    existsSTOREKIT = true;
+                    dictFrameworks.Remove (FRAMEWORK_STOREKIT);
+                }
                 else if (lines [i].Contains (FRAMEWORK_SYSTEMCONFIGURATION)) {
                     existsSYSTEMCONFIGURATION = true;
                     dictFrameworks.Remove (FRAMEWORK_SYSTEMCONFIGURATION);
                 }
 
-                bFound = existsCORETELEPHONY && existsIAD && existsMOBILECORESERVICES && existsSYSTEMCONFIGURATION;
+                bFound = existsCORETELEPHONY && existsIAD && existsMOBILECORESERVICES && existsSTOREKIT && existsSYSTEMCONFIGURATION;
 
                 ++i;
             }

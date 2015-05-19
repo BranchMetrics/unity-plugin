@@ -55,6 +55,7 @@ public class MATSample : MonoBehaviour {
             #endif
             #if (UNITY_ANDROID || UNITY_IPHONE)
                 MATBinding.CheckForDeferredDeeplinkWithTimeout(750); // 750 ms
+                MATBinding.AutomateIapEventMeasurement(true);
             #endif
         }
 
@@ -150,7 +151,7 @@ public class MATSample : MonoBehaviour {
             matEvent.contentType = "test_contentType";
             matEvent.contentId = "test_contentId";
             matEvent.date1 = DateTime.UtcNow;
-            matEvent.date2 = (DateTime.UtcNow.Add(new TimeSpan((new DateTime(2,1,1)).Ticks)));
+            matEvent.date2 = DateTime.UtcNow.Add(new TimeSpan((new DateTime(2,1,1)).Ticks));
             matEvent.level = 3;
             matEvent.quantity = 2;
             matEvent.rating = 4.5;
@@ -183,6 +184,7 @@ public class MATSample : MonoBehaviour {
             MATBinding.SetLocation(111,222,333);
             //MATBinding.SetPackageName(MAT_PACKAGE_NAME);
             MATBinding.SetPayingUser(true);
+            MATBinding.SetPhoneNumber("111-222-3456");
             MATBinding.SetTwitterUserId("twitter_user_id");
             MATBinding.SetUserId("temp_user_id");
             MATBinding.SetUserName("temp_user_name");
@@ -219,6 +221,11 @@ public class MATSample : MonoBehaviour {
             #if (UNITY_ANDROID || UNITY_IPHONE)
             MATBinding.SetCurrencyCode("CAD");
             MATBinding.SetTRUSTeId("1234567890");
+
+            MATPreloadData pd = new MATPreloadData("1122334455");
+            pd.advertiserSubAd = "some_adv_sub_ad_id";
+            pd.publisherSub3 = "some_pub_sub3";
+            MATBinding.SetPreloadedApp(pd);
             #endif
 
             #endif
@@ -237,7 +244,7 @@ public class MATSample : MonoBehaviour {
 
     public static string getSampleiTunesIAPReceipt ()
     {
-		return "dGhpcyBpcyBhIHNhbXBsZSBpb3MgYXBwIHN0b3JlIHJlY2VpcHQ=";
+        return "dGhpcyBpcyBhIHNhbXBsZSBpb3MgYXBwIHN0b3JlIHJlY2VpcHQ=";
     }
 }
 

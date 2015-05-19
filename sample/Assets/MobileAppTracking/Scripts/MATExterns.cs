@@ -14,125 +14,105 @@ namespace MATSDK
         #if UNITY_IPHONE
         // Main initializer method for MAT
         [DllImport ("__Internal")]
-        internal static extern void initNativeCode(string advertiserId, string conversionKey);
+        internal static extern void MATInit(string advertiserId, string conversionKey);
 
         // Method to check if a deferred deep-link is available
         [DllImport ("__Internal")]
-        internal static extern void checkForDeferredDeeplinkWithTimeout(double timeoutMillis);
+        internal static extern void MATCheckForDeferredDeeplinkWithTimeout(double timeoutMillis);
+
+        // Method to enable auto-measurement of successful in-app-purchase (IAP) transactions as "purchase" events
+        [DllImport ("__Internal")]
+        internal static extern void MATAutomateIapEventMeasurement(bool automate);
+
+        // Method to enable auto-logging of events to Facebook, when Facebook SDK has been included in the project
+        [DllImport ("__Internal")]
+        internal static extern void MATSetFacebookEventLogging(bool enable, bool limit);
 
         // Methods to help debugging and testing
         [DllImport ("__Internal")]
-        internal static extern void tuneSetDebugMode(bool enable);
+        internal static extern void MATSetDebugMode(bool enable);
         [DllImport ("__Internal")]
-        internal static extern void setAllowDuplicates(bool allowDuplicateRequests);
+        internal static extern void MATSetAllowDuplicates(bool allowDuplicateRequests);
 
         // Method to enable MAT delegate success/failure callbacks
         [DllImport ("__Internal")]
-        internal static extern void setDelegate(bool enable);
+        internal static extern void MATSetDelegate(bool enable);
 
         // Optional Setter Methods
         [DllImport ("__Internal")]
-        internal static extern void setAppAdTracking(bool enable);
+        internal static extern void MATSetAppAdTracking(bool enable);
         [DllImport ("__Internal")]
-        internal static extern void setCurrencyCode(string currencyCode);
+        internal static extern void MATSetCurrencyCode(string currencyCode);
         [DllImport ("__Internal")]
-        internal static extern void setPackageName(string packageName);
+        internal static extern void MATSetPackageName(string packageName);
         [DllImport ("__Internal")]
-        internal static extern void setSiteId(string siteId);
+        internal static extern void MATSetPhoneNumber(string phoneNumber);
         [DllImport ("__Internal")]
-        internal static extern void setTRUSTeId(string trusteTPID);
+        internal static extern void MATSetSiteId(string siteId);
         [DllImport ("__Internal")]
-        internal static extern void setUserEmail(string userEmail);
+        internal static extern void MATSetTRUSTeId(string trusteTPID);
         [DllImport ("__Internal")]
-        internal static extern void setUserId(string userId);
+        internal static extern void MATSetUserEmail(string userEmail);
         [DllImport ("__Internal")]
-        internal static extern void setUserName(string userName);
+        internal static extern void MATSetUserId(string userId);
         [DllImport ("__Internal")]
-        internal static extern void setFacebookEventLogging(bool enable, bool limit);
+        internal static extern void MATSetUserName(string userName);
         [DllImport ("__Internal")]
-        internal static extern void setFacebookUserId(string facebookUserId);
+        internal static extern void MATSetFacebookUserId(string facebookUserId);
         [DllImport ("__Internal")]
-        internal static extern void setTwitterUserId(string twitterUserId);
+        internal static extern void MATSetTwitterUserId(string twitterUserId);
         [DllImport ("__Internal")]
-        internal static extern void setGoogleUserId(string googleUserId);
+        internal static extern void MATSetGoogleUserId(string googleUserId);
         [DllImport ("__Internal")]
-        internal static extern bool getIsPayingUser();
+        internal static extern void MATSetExistingUser(bool isExisting);
         [DllImport ("__Internal")]
-        internal static extern void setExistingUser(bool isExisting);
+        internal static extern void MATSetPayingUser(bool isPaying);
         [DllImport ("__Internal")]
-        internal static extern void setPayingUser(bool isPaying);
+        internal static extern void MATSetJailbroken(bool isJailbroken);
         [DllImport ("__Internal")]
-        internal static extern void setJailbroken(bool isJailbroken);
+        internal static extern void MATSetShouldAutoDetectJailbroken(bool shouldAutoDetect);
         [DllImport ("__Internal")]
-        internal static extern void setShouldAutoDetectJailbroken(bool shouldAutoDetect);
+        internal static extern void MATSetAge(int age);
         [DllImport ("__Internal")]
-        internal static extern void setAge(int age);
+        internal static extern void MATSetGender(int gender);
         [DllImport ("__Internal")]
-        internal static extern void setGender(int gender);
-        [DllImport ("__Internal")]
-        internal static extern void setLocation(double latitude, double longitude, double altitude);
-        [DllImport ("__Internal")]
-        internal static extern void setEventAttribute1(string value);
-        [DllImport ("__Internal")]
-        internal static extern void setEventAttribute2(string value);
-        [DllImport ("__Internal")]
-        internal static extern void setEventAttribute3(string value);
-        [DllImport ("__Internal")]
-        internal static extern void setEventAttribute4(string value);
-        [DllImport ("__Internal")]
-        internal static extern void setEventAttribute5(string value);
+        internal static extern void MATSetLocation(double latitude, double longitude, double altitude);
 
+        // Method to include publisher information in the MAT SDK requests
         [DllImport ("__Internal")]
-        internal static extern void setEventContentType(string contentType);
-        [DllImport ("__Internal")]
-        internal static extern void setEventContentId(string contentId);
-        [DllImport ("__Internal")]
-        internal static extern void setEventDate1(string dateString);
-        [DllImport ("__Internal")]
-        internal static extern void setEventDate2(string dateString);
-        [DllImport ("__Internal")]
-        internal static extern void setEventLevel(int level);
-        [DllImport ("__Internal")]
-        internal static extern void setEventQuantity(int quantity);
-        [DllImport ("__Internal")]
-        internal static extern void setEventRating(float rating);
-        [DllImport ("__Internal")]
-        internal static extern void setEventSearchString(string searchString);
+        internal static extern void MATSetPreloadData(MATPreloadData preloadData);
 
         // Method to enable cookie based tracking
         [DllImport ("__Internal")]
-        internal static extern void setUseCookieTracking(bool useCookieTracking);
+        internal static extern void MATSetUseCookieTracking(bool useCookieTracking);
 
         // Methods for setting Apple related id
         [DllImport ("__Internal")]
-        internal static extern void setAppleAdvertisingIdentifier(string appleAdvertisingIdentifier, bool trackingEnabled);
+        internal static extern void MATSetAppleAdvertisingIdentifier(string appleAdvertisingIdentifier, bool trackingEnabled);
         [DllImport ("__Internal")]
-        internal static extern void setAppleVendorIdentifier(string appleVendorIdentifier);
+        internal static extern void MATSetAppleVendorIdentifier(string appleVendorIdentifier);
         [DllImport ("__Internal")]
-        internal static extern void setShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate);
+        internal static extern void MATSetShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate);
 
         // Methods to measure custom in-app events
         [DllImport ("__Internal")]
-        internal static extern void measureAction(string action);
+        internal static extern void MATMeasureEventName(string eventName);
         [DllImport ("__Internal")]
-        internal static extern void measureActionWithRefId(string action, string refId);
+        internal static extern void MATMeasureEventId(int eventId);
         [DllImport ("__Internal")]
-        internal static extern void measureActionWithRevenue(string action, double revenue, string currencyCode, string refId);
-        [DllImport ("__Internal")]
-        internal static extern void measureActionWithEventItems(string action, MATItemIOS[] eventItems, int eventItemCount, string refId, double revenue, string currency, int transactionState, Byte[] receipt, int byteCount);
+        internal static extern void MATMeasureEvent(MATEventIos matEvent, MATItemIos[] items, int itemCount, Byte[] receipt, int receiptLength);
         
         // Method to measure session
         [DllImport ("__Internal")]
-        internal static extern void measureSession();
+        internal static extern void MATMeasureSession();
 
+        // Getter Methods
         [DllImport ("__Internal")]
-        internal static extern string getMatId();
+        internal static extern string MATGetMatId();
         [DllImport ("__Internal")]
-        internal static extern string getOpenLogId();
-
-        // Android-only methods
+        internal static extern string MATGetOpenLogId();
         [DllImport ("__Internal")]
-        internal static extern void setGoogleAdvertisingId(string advertisingId, bool limitAdTracking);
+        internal static extern bool MATGetIsPayingUser();
 
         #endif
     }

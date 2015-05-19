@@ -196,6 +196,11 @@ namespace MATSDK
             ajcInstance.Call("setPackageName", packageName);
         }
 
+        public void SetPhoneNumber(string phoneNumber)
+        {
+            ajcInstance.Call("setPhoneNumber", phoneNumber);
+        }
+        
         public void SetPayingUser(bool isPayingUser)
         {
             ajcInstance.Call("setIsPayingUser", isPayingUser);

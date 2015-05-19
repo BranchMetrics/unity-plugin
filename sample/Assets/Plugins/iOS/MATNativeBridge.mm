@@ -9,6 +9,18 @@ const char * UNITY_SENDMESSAGE_CALLBACK_FAILURE  = "trackerDidFail";
 const char * UNITY_SENDMESSAGE_CALLBACK_ENQUEUED = "trackerDidEnqueueRequest";
 const char * UNITY_SENDMESSAGE_CALLBACK_DEEPLINK = "trackerDidReceiveDeepLink";
 
+
+#pragma mark - MobileAppTracker Plugin Helper Category
+
+@interface MobileAppTracker (MATUnityPlugin)
+
++ (void)setPluginName:(NSString *)pluginName;
+
+@end
+
+
+#pragma mark - MATSDKDelegate
+
 @interface MATSDKDelegate : NSObject<MobileAppTrackerDelegate>
 
 // empty
@@ -57,7 +69,6 @@ const char * UNITY_SENDMESSAGE_CALLBACK_DEEPLINK = "trackerDidReceiveDeepLink";
     UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_ENQUEUED, nil != referenceId ? [referenceId UTF8String] : "");
 }
 
-
 - (NSString *)base64String:(NSData *)data
 {
     // Get NSString from NSData object in Base64
@@ -77,6 +88,9 @@ const char * UNITY_SENDMESSAGE_CALLBACK_DEEPLINK = "trackerDidReceiveDeepLink";
 }
 
 @end
+
+
+#pragma mark - MATAppDelegateListener
 
 @interface MATAppDelegateListener : NSObject<AppDelegateListener>
 
@@ -115,6 +129,7 @@ static MATAppDelegateListener *_instance = [MATAppDelegateListener sharedInstanc
     return self;
 }
 
+
 #pragma mark - Unity AppDelegateListener Callback Methods
 
 - (void)onOpenURL:(NSNotification*)notification {
@@ -131,6 +146,9 @@ static MATAppDelegateListener *_instance = [MATAppDelegateListener sharedInstanc
 
 @end
 
+
+#pragma mark - Helper Methods
+
 // Converts C style string to NSString
 NSString* MATCreateNSString (const char* string)
 {
@@ -145,7 +163,7 @@ NSData* MATCreateNSData (Byte bytes[], NSUInteger length)
     }
     else
     {
-        return [NSData data];
+        return nil;
     }
 }
 
@@ -160,7 +178,7 @@ char* MATAutonomousStringCopy (const char* string)
     return res;
 }
 
-NSArray *arrayFromItems(MATItem eventItems[], int eventItemCount)
+NSArray *arrayFromItems(MATItemIos eventItems[], int eventItemCount)
 {
     // reformat the items array as an nsarray of dictionary
     NSMutableArray *arrEventItems = [NSMutableArray array];
@@ -169,7 +187,7 @@ NSArray *arrayFromItems(MATItem eventItems[], int eventItemCount)
     {
         for (uint i = 0; i < eventItemCount; i++)
         {
-            MATItem item = eventItems[i];
+            MATItemIos item = eventItems[i];
             
             NSString *name = MATCreateNSString(item.name);
             float unitPrice = (float)item.unitPrice;
@@ -197,33 +215,234 @@ NSArray *arrayFromItems(MATItem eventItems[], int eventItemCount)
     return arrEventItems;
 }
 
-void measureActionInternal(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency)
+MATEvent *convertIosEvent(MATEventIos event, MATItemIos eventItems[], int eventItemCount, Byte receipt[], int receiptByteCount)
 {
-    // reformat the items array as an nsarray of dictionary
-    NSArray *arrEventItems = arrayFromItems(eventItems, eventItemCount);
+    MATEvent *evt = nil;
     
-    [MobileAppTracker measureAction:MATCreateNSString(eventName)
-                         eventItems:arrEventItems
-                        referenceId:MATCreateNSString(refId)
-                      revenueAmount:revenue
-                       currencyCode:MATCreateNSString(currency)];
+    if(event.name || event.eventId)
+    {
+        evt = event.name ? [MATEvent eventWithName:MATCreateNSString(event.name)] : [MATEvent eventWithId:[MATCreateNSString(event.eventId) integerValue]];
+        
+        if(event.revenue)
+        {
+            evt.revenue = [MATCreateNSString(event.revenue) floatValue];
+        }
+        
+        if(event.currencyCode)
+        {
+            evt.currencyCode = MATCreateNSString(event.currencyCode);
+        }
+        
+        if(event.advertiserRefId)
+        {
+            evt.refId = MATCreateNSString(event.advertiserRefId);
+        }
+        
+        if(eventItemCount > 0)
+        {
+            evt.eventItems = arrayFromItems(eventItems, eventItemCount);
+        }
+        
+        if(receiptByteCount > 0)
+        {
+            evt.receipt = MATCreateNSData(receipt, receiptByteCount);
+        }
+        
+        if(event.transactionState)
+        {
+            evt.transactionState = [MATCreateNSString(event.transactionState) integerValue];
+        }
+        
+        if(event.contentType)
+        {
+            evt.contentType = MATCreateNSString(event.contentType);
+        }
+        
+        if(event.contentId)
+        {
+            evt.contentId = MATCreateNSString(event.contentId);
+        }
+        
+        if(event.level)
+        {
+            evt.level = [MATCreateNSString(event.level) integerValue];
+        }
+        
+        if(event.quantity)
+        {
+            evt.quantity = [MATCreateNSString(event.quantity) integerValue];
+        }
+        
+        if(event.searchString)
+        {
+            evt.searchString = MATCreateNSString(event.searchString);
+        }
+        
+        if(event.rating)
+        {
+            evt.rating = [MATCreateNSString(event.rating) floatValue];
+        }
+        
+        if(event.date1)
+        {
+            // convert millis string to NSTimeInterval
+            NSTimeInterval ti = [MATCreateNSString(event.date1) doubleValue] / 1000.0f;
+            
+            // convert NSTimeInterval to NSDate
+            evt.date1 = [NSDate dateWithTimeIntervalSince1970:ti];
+        }
+        
+        if(event.date2)
+        {
+            // convert millis string to NSTimeInterval
+            NSTimeInterval ti = [MATCreateNSString(event.date2) doubleValue] / 1000.0f;
+            
+            // convert NSTimeInterval to NSDate
+            evt.date2 = [NSDate dateWithTimeIntervalSince1970:ti];
+        }
+        
+        if(event.attribute1)
+        {
+            evt.attribute1 = MATCreateNSString(event.attribute1);
+        }
+        if(event.attribute2)
+        {
+            evt.attribute2 = MATCreateNSString(event.attribute2);
+        }
+        if(event.attribute3)
+        {
+            evt.attribute3 = MATCreateNSString(event.attribute3);
+        }
+        if(event.attribute4)
+        {
+            evt.attribute4 = MATCreateNSString(event.attribute4);
+        }
+        if(event.attribute5)
+        {
+            evt.attribute5 = MATCreateNSString(event.attribute5);
+        }
+    }
+    
+    return evt;
 }
 
-void measureActionInternalWithReceiptData(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, Byte receiptData[], int byteCount)
+MATPreloadData *convertIosPreloadData(MATPreloadDataIos preloadData)
 {
-    // reformat the items array as an nsarray of dictionary
-    NSArray *arrEventItems = arrayFromItems(eventItems, eventItemCount);
+    MATPreloadData *matPreloadData = nil;
     
-    NSData *receipt = MATCreateNSData(receiptData, byteCount);
+    if(preloadData.publisherId)
+    {
+        matPreloadData = [MATPreloadData preloadDataWithPublisherId:MATCreateNSString(preloadData.publisherId)];
+        
+        if(preloadData.advertiserSubAd)
+        {
+            matPreloadData.advertiserSubAd = MATCreateNSString(preloadData.advertiserSubAd);
+        }
+        
+        if(preloadData.advertiserSubAdgroup)
+        {
+            matPreloadData.advertiserSubAdgroup = MATCreateNSString(preloadData.advertiserSubAdgroup);
+        }
+        
+        if(preloadData.advertiserSubCampaign)
+        {
+            matPreloadData.advertiserSubCampaign = MATCreateNSString(preloadData.advertiserSubCampaign);
+        }
+        
+        if(preloadData.advertiserSubKeyword)
+        {
+            matPreloadData.advertiserSubKeyword = MATCreateNSString(preloadData.advertiserSubKeyword);
+        }
+        
+        if(preloadData.advertiserSubPublisher)
+        {
+            matPreloadData.advertiserSubPublisher = MATCreateNSString(preloadData.advertiserSubPublisher);
+        }
+        
+        if(preloadData.advertiserSubSite)
+        {
+            matPreloadData.advertiserSubSite = MATCreateNSString(preloadData.advertiserSubSite);
+        }
+        
+        if(preloadData.agencyId)
+        {
+            matPreloadData.agencyId = MATCreateNSString(preloadData.agencyId);
+        }
+        
+        if(preloadData.offerId)
+        {
+            matPreloadData.offerId = MATCreateNSString(preloadData.offerId);
+        }
+        
+        if(preloadData.publisherReferenceId)
+        {
+            matPreloadData.publisherReferenceId = MATCreateNSString(preloadData.publisherReferenceId);
+        }
+        
+        if(preloadData.publisherSub1)
+        {
+            matPreloadData.publisherSub1 = MATCreateNSString(preloadData.publisherSub1);
+        }
+        
+        if(preloadData.publisherSub1)
+        {
+            matPreloadData.publisherSub1 = MATCreateNSString(preloadData.publisherSub1);
+        }
+        
+        if(preloadData.publisherSub2)
+        {
+            matPreloadData.publisherSub2 = MATCreateNSString(preloadData.publisherSub2);
+        }
+        
+        if(preloadData.publisherSub3)
+        {
+            matPreloadData.publisherSub3 = MATCreateNSString(preloadData.publisherSub3);
+        }
+        
+        if(preloadData.publisherSub4)
+        {
+            matPreloadData.publisherSub4 = MATCreateNSString(preloadData.publisherSub4);
+        }
+        
+        if(preloadData.publisherSub5)
+        {
+            matPreloadData.publisherSub5 = MATCreateNSString(preloadData.publisherSub5);
+        }
+        
+        if(preloadData.publisherSubAd)
+        {
+            matPreloadData.publisherSubAd = MATCreateNSString(preloadData.publisherSubAd);
+        }
+        
+        if(preloadData.publisherSubAdgroup)
+        {
+            matPreloadData.publisherSubAdgroup = MATCreateNSString(preloadData.publisherSubAdgroup);
+        }
+        
+        if(preloadData.publisherSubCampaign)
+        {
+            matPreloadData.publisherSubCampaign = MATCreateNSString(preloadData.publisherSubCampaign);
+        }
+        
+        if(preloadData.publisherSubKeyword)
+        {
+            matPreloadData.publisherSubKeyword = MATCreateNSString(preloadData.publisherSubKeyword);
+        }
+        
+        if(preloadData.publisherSubPublisher)
+        {
+            matPreloadData.publisherSubPublisher = MATCreateNSString(preloadData.publisherSubPublisher);
+        }
+        
+        if(preloadData.publisherSubSite)
+        {
+            matPreloadData.publisherSubSite = MATCreateNSString(preloadData.publisherSubSite);
+        }
+    }
     
-    [MobileAppTracker measureAction:MATCreateNSString(eventName)
-                         eventItems:arrEventItems
-                        referenceId:MATCreateNSString(refId)
-                      revenueAmount:revenue
-                       currencyCode:MATCreateNSString(currency)
-                   transactionState:(NSInteger)transactionState
-                            receipt:receipt];
+    return matPreloadData;
 }
+
 
 MATSDKDelegate *matDelegate;
 
@@ -231,7 +450,10 @@ MATSDKDelegate *matDelegate;
 // should be surrounded with extern "C" block to conform to C function naming rules.
 extern "C" {
     
-    void initNativeCode (const char* advertiserId, const char* conversionKey)
+    
+#pragma mark - Init Method
+    
+    void MATInit (const char* advertiserId, const char* conversionKey)
     {
         NSLog(@"Native: initNativeCode = %s, %s", advertiserId, conversionKey);
         
@@ -240,7 +462,10 @@ extern "C" {
         [MobileAppTracker setPluginName:@"unity"];
     }
     
-    void checkForDeferredDeeplinkWithTimeout(double timeoutMillis)
+    
+#pragma mark - Behavior Flags
+    
+    void MATCheckForDeferredDeeplinkWithTimeout(double timeoutMillis)
     {
         NSTimeInterval timeoutSeconds = timeoutMillis / 1000.0f;
         
@@ -249,7 +474,24 @@ extern "C" {
         [MobileAppTracker checkForDeferredDeeplinkWithTimeout:timeoutSeconds];
     }
     
-    const char* getMatId()
+    void MATAutomateIapEventMeasurement(bool automate)
+    {
+        NSLog(@"Native: automateIapEventMeasurement = %d", automate);
+        
+        [MobileAppTracker automateIapEventMeasurement:automate];
+    }
+    
+    void MATSetFacebookEventLogging(bool enable, bool limitEventAndDataUsage)
+    {
+        NSLog(@"Native: setFacebookEventLogging: enable = %d, limit = %d", enable, limitEventAndDataUsage);
+        
+        [MobileAppTracker setFacebookEventLogging:enable limitEventAndDataUsage:limitEventAndDataUsage];
+    }
+    
+    
+#pragma mark - Getter Methods
+    
+    const char* MATGetMatId()
     {
         NSLog(@"Native: getMatId");
         
@@ -259,14 +501,14 @@ extern "C" {
         return strMatId;
     }
     
-    bool getIsPayingUser()
+    bool MATGetIsPayingUser()
     {
         NSLog(@"Native: getIsPayingUser");
         
         return [MobileAppTracker isPayingUser];
     }
     
-    const char* getOpenLogId()
+    const char* MATGetOpenLogId()
     {
         NSLog(@"Native: getOpenLogId");
         
@@ -276,7 +518,10 @@ extern "C" {
         return strOpenLogId;
     }
     
-    void setDelegate(bool enable)
+    
+#pragma mark - Setter Methods
+    
+    void MATSetDelegate(bool enable)
     {
         NSLog(@"Native: setDelegate = %d", enable);
         
@@ -286,325 +531,221 @@ extern "C" {
         [MobileAppTracker setDelegate:matDelegate];
     }
     
-    void setAllowDuplicates(bool allowDuplicateRequests)
+    void MATSetAllowDuplicates(bool allowDuplicateRequests)
     {
         NSLog(@"Native: setAllowDuplicates = %d", allowDuplicateRequests);
         
         [MobileAppTracker setAllowDuplicateRequests:allowDuplicateRequests];
     }
     
-    void setShouldAutoDetectJailbroken(bool shouldAutoDetect)
+    void MATSetShouldAutoDetectJailbroken(bool shouldAutoDetect)
     {
         NSLog(@"Native: setShouldAutoDetectJailbroken = %d", shouldAutoDetect);
         
         [MobileAppTracker setShouldAutoDetectJailbroken:shouldAutoDetect];
     }
     
-    void setShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate)
+    void MATSetShouldAutoGenerateAppleVendorIdentifier(bool shouldAutoGenerate)
     {
         NSLog(@"Native: setShouldAutoGenerateAppleVendorIdentifier = %d", shouldAutoGenerate);
         
         [MobileAppTracker setShouldAutoGenerateAppleVendorIdentifier:shouldAutoGenerate];
     }
     
-    void setUseCookieTracking(bool useCookieTracking)
+    void MATSetUseCookieTracking(bool useCookieTracking)
     {
         NSLog(@"Native: setUseCookieTracking = %d", useCookieTracking);
         
         [MobileAppTracker setUseCookieTracking:useCookieTracking];
     }
     
-    void setExistingUser(bool isExisting)
+    void MATSetExistingUser(bool isExisting)
     {
         NSLog(@"Native: setExistingUser = %d", isExisting);
         
         [MobileAppTracker setExistingUser:isExisting];
     }
     
-    void setPayingUser(bool isPaying)
+    void MATSetPayingUser(bool isPaying)
     {
         NSLog(@"Native: setPayingUser = %d", isPaying);
         
         [MobileAppTracker setPayingUser:isPaying];
     }
     
-    void setJailbroken(bool isJailbroken)
+    void MATSetPreloadData(MATPreloadDataIos preloadData)
+    {
+        NSLog(@"Native: setPreloadData");
+        
+        MATPreloadData *matPreloadData = convertIosPreloadData(preloadData);
+        [MobileAppTracker setPreloadData:matPreloadData];
+    }
+    
+    void MATSetJailbroken(bool isJailbroken)
     {
         NSLog(@"Native: setJailbroken = %d", isJailbroken);
         
         [MobileAppTracker setJailbroken:isJailbroken];
     }
     
-    void setAppAdTracking(bool enable)
+    void MATSetAppAdTracking(bool enable)
     {
         NSLog(@"Native: setAppAdTracking = %d", enable);
         
         [MobileAppTracker setAppAdTracking:enable];
     }
     
-    void setCurrencyCode(const char* currencyCode)
+    void MATSetCurrencyCode(const char* currencyCode)
     {
         NSLog(@"Native: setCurrencyCode = %s", currencyCode);
         
         [MobileAppTracker setCurrencyCode:MATCreateNSString(currencyCode)];
     }
     
-    void tuneSetDebugMode(bool enable)
+    void MATSetDebugMode(bool enable)
     {
         NSLog(@"Native: setDebugMode = %d", enable);
         
         [MobileAppTracker setDebugMode:enable];
     }
     
-    void setPackageName(const char* packageName)
+    void MATSetPackageName(const char* packageName)
     {
         NSLog(@"Native: setPackageName = %s", packageName);
         
         [MobileAppTracker setPackageName:MATCreateNSString(packageName)];
     }
     
-    void setSiteId(const char* siteId)
+    void MATSetPhoneNumber(const char* phoneNumber)
+    {
+        NSLog(@"Native: setPhoneNumber = %s", phoneNumber);
+        
+        [MobileAppTracker setPhoneNumber:MATCreateNSString(phoneNumber)];
+    }
+    
+    void MATSetSiteId(const char* siteId)
     {
         NSLog(@"Native: setSiteId: %s", siteId);
         
         [MobileAppTracker setSiteId:MATCreateNSString(siteId)];
     }
     
-    void setTRUSTeId(const char* tpid)
+    void MATSetTRUSTeId(const char* tpid)
     {
         NSLog(@"Native: setTRUSTeId: %s", tpid);
         
         [MobileAppTracker setTRUSTeId:MATCreateNSString(tpid)];
     }
     
-    void setUserEmail(const char* userEmail)
+    void MATSetUserEmail(const char* userEmail)
     {
         NSLog(@"Native: setUserEmail: %s", userEmail);
         
         [MobileAppTracker setUserEmail:MATCreateNSString(userEmail)];
     }
     
-    void setUserId(const char* userId)
+    void MATSetUserId(const char* userId)
     {
         NSLog(@"Native: setUserId: %s", userId);
         
         [MobileAppTracker setUserId:MATCreateNSString(userId)];
     }
     
-    void setUserName(const char* userName)
+    void MATSetUserName(const char* userName)
     {
         NSLog(@"Native: setUserName: %s", userName);
         
         [MobileAppTracker setUserName:MATCreateNSString(userName)];
     }
     
-    void setFacebookEventLogging(bool enable, bool limitEventAndDataUsage)
-    {
-        NSLog(@"Native: setFacebookEventLogging: enable = %d, limit = %d", enable, limitEventAndDataUsage);
-        
-        [MobileAppTracker setFacebookEventLogging:enable limitEventAndDataUsage:limitEventAndDataUsage];
-    }
-    
-    void setFacebookUserId(const char* userId)
+    void MATSetFacebookUserId(const char* userId)
     {
         NSLog(@"Native: setFacebookUserId: %s", userId);
         
         [MobileAppTracker setFacebookUserId:MATCreateNSString(userId)];
     }
     
-    void setTwitterUserId(const char* userId)
+    void MATSetTwitterUserId(const char* userId)
     {
         NSLog(@"Native: setTwitterUserId: %s", userId);
         
         [MobileAppTracker setTwitterUserId:MATCreateNSString(userId)];
     }
     
-    void setGoogleUserId(const char* userId)
+    void MATSetGoogleUserId(const char* userId)
     {
         NSLog(@"Native: setGoogleUserId: %s", userId);
         
         [MobileAppTracker setGoogleUserId:MATCreateNSString(userId)];
     }
     
-    void setAppleAdvertisingIdentifier(const char* appleAdvertisingId, bool trackingEnabled)
+    void MATSetAppleAdvertisingIdentifier(const char* appleAdvertisingId, bool trackingEnabled)
     {
         NSLog(@"Native: setAppleAdvertisingIdentifier: %s advertisingTrackingEnabled:%d", appleAdvertisingId, trackingEnabled);
         
         [MobileAppTracker setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:MATCreateNSString(appleAdvertisingId)] advertisingTrackingEnabled:trackingEnabled];
     }
     
-    void setAppleVendorIdentifier(const char* appleVendorId)
+    void MATSetAppleVendorIdentifier(const char* appleVendorId)
     {
         NSLog(@"Native: setAppleVendorIdentifier: %s", appleVendorId);
         
         [MobileAppTracker setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:MATCreateNSString(appleVendorId)] ];
     }
     
-    void setAge(int age)
+    void MATSetAge(int age)
     {
         NSLog(@"Native: setAge = %d", age);
         
         [MobileAppTracker setAge:age];
     }
     
-    void setEventAttribute1(const char* value)
-    {
-        NSLog(@"Native: setEventAttribute1: %s", value);
-        
-        [MobileAppTracker setEventAttribute1:MATCreateNSString(value)];
-    }
-    
-    void setEventAttribute2(const char* value)
-    {
-        NSLog(@"Native: setEventAttribute2: %s", value);
-        
-        [MobileAppTracker setEventAttribute2:MATCreateNSString(value)];
-    }
-    
-    void setEventAttribute3(const char* value)
-    {
-        NSLog(@"Native: setEventAttribute3: %s", value);
-        
-        [MobileAppTracker setEventAttribute3:MATCreateNSString(value)];
-    }
-    
-    void setEventAttribute4(const char* value)
-    {
-        NSLog(@"Native: setEventAttribute4: %s", value);
-        
-        [MobileAppTracker setEventAttribute4:MATCreateNSString(value)];
-    }
-    
-    void setEventAttribute5(const char* value)
-    {
-        NSLog(@"Native: setEventAttribute5: %s", value);
-        
-        [MobileAppTracker setEventAttribute5:MATCreateNSString(value)];
-    }
-    
-    void setEventContentType(const char* value)
-    {
-        NSLog(@"Native: setEventContentType: %s", value);
-        
-        [MobileAppTracker setEventContentType:MATCreateNSString(value)];
-    }
-    
-    void setEventContentId(const char* value)
-    {
-        NSLog(@"Native: setEventContentId: %s", value);
-        
-        [MobileAppTracker setEventContentId:MATCreateNSString(value)];
-    }
-    
-    void setEventDate1(const char* value)
-    {
-        NSLog(@"Native: setEventDate1: %s", value);
-        
-        NSString *strMillis = MATCreateNSString(value);
-        
-        double millis = [strMillis doubleValue];
-        
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:millis / 1000];
-        
-        [MobileAppTracker setEventDate1:date];
-    }
-    
-    void setEventDate2(const char* value)
-    {
-        NSLog(@"Native: setEventDate2: %s", value);
-        
-        NSString *strMillis = MATCreateNSString(value);
-        
-        double millis = [strMillis doubleValue];
-        
-        NSDate *date = [NSDate dateWithTimeIntervalSince1970:millis / 1000];
-        
-        [MobileAppTracker setEventDate2:date];
-    }
-    
-    void setEventLevel(int level)
-    {
-        NSLog(@"Native: setEventLevel: %d", level);
-        
-        [MobileAppTracker setEventLevel:level];
-    }
-    
-    void setEventQuantity(int quantity)
-    {
-        NSLog(@"Native: setEventQuantity: %d", quantity);
-        
-        [MobileAppTracker setEventQuantity:quantity];
-    }
-    
-    void setEventRating(float rating)
-    {
-        NSLog(@"Native: setEventRating: %f", rating);
-        
-        [MobileAppTracker setEventRating:rating];
-    }
-    
-    void setEventSearchString(const char* value)
-    {
-        NSLog(@"Native: setEventSearchString: %s", value);
-        
-        [MobileAppTracker setEventSearchString:MATCreateNSString(value)];
-    }
-    
-    void setGender(MATGender gender)
+    void MATSetGender(MATGender gender)
     {
         NSLog(@"Native: setGender = %d", gender);
         
         [MobileAppTracker setGender:gender];
     }
     
-    void setLocation(double latitude, double longitude, double altitude)
+    void MATSetLocation(double latitude, double longitude, double altitude)
     {
         NSLog(@"Native: setLocation: %f, %f, %f", latitude, longitude, altitude);
         
         [MobileAppTracker setLatitude:latitude longitude:longitude altitude:altitude];
     }
     
-    void measureSession()
+    
+#pragma mark - Measure Session
+    
+    void MATMeasureSession()
     {
         NSLog(@"Native: measureSession");
         
         [MobileAppTracker measureSession];
     }
     
-    void measureAction(const char* eventName)
+    
+#pragma mark - Measure Event Methods
+    
+    void MATMeasureEventName(const char* eventName)
     {
-        NSLog(@"Native: measureAction");
+        NSLog(@"Native: measureEventName");
         
-        measureActionInternal(eventName, NULL, -1, NULL, 0, NULL);
+        [MobileAppTracker measureEventName:MATCreateNSString(eventName)];
     }
     
-    void measureActionWithRefId(const char* eventName, const char* refId)
+    void MATMeasureEventId(int eventId)
     {
-        NSLog(@"Native: measureActionWithRefId");
+        NSLog(@"Native: measureEventId");
         
-        measureActionInternal(eventName, NULL, -1, refId, 0, NULL);
+        [MobileAppTracker measureEventId:eventId];
     }
     
-    void measureActionWithRevenue(const char* eventName, double revenue, const char*  currency, const char* refId)
+    void MATMeasureEvent(MATEventIos event, MATItemIos eventItems[], int eventItemCount, Byte receipt[], int receiptByteCount)
     {
-        NSLog(@"Native: measureActionWithRevenue");
+        NSLog(@"Native: measureEvent");
         
-        measureActionInternal(eventName, NULL, -1, refId, revenue, currency);
-    }
-    
-    void measureActionWithEventItems(const char* eventName, MATItem eventItems[], int eventItemCount, const char* refId, double revenue, const char* currency, int transactionState, Byte receiptData[], int byteCount)
-    {
-        NSLog(@"Native: measureActionWithEventItems");
-        
-        measureActionInternalWithReceiptData(eventName, eventItems, eventItemCount, refId, revenue, currency, transactionState, receiptData, byteCount);
-    }
-    
-    const char* setGoogleAdvertisingId(const char* advertisingId, bool limitAdTracking)
-    {
-        // Android only method
-        
-        NSLog(@"Native: setGoogleAdvertisingId: only supported on Android");
-        
-        return NULL;
+        MATEvent *matEvent = convertIosEvent(event, eventItems, eventItemCount, receipt, receiptByteCount);
+        [MobileAppTracker measureEvent:matEvent];
     }
 }

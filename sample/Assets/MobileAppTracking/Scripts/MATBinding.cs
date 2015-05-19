@@ -29,12 +29,12 @@ namespace MATSDK
                 MATAndroid.Instance.Init(advertiserId, conversionKey);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.initNativeCode(advertiserId, conversionKey);
+                MATExterns.MATInit(advertiserId, conversionKey);
 
                 #if UNITY_5_0
-                MATExterns.setAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
+                MATExterns.MATSetAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
                 #else
-                MATExterns.setAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
+                MATExterns.MATSetAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
                 #endif
 
                 #endif
@@ -59,13 +59,27 @@ namespace MATSDK
                 MATAndroid.Instance.SetDeferredDeeplink(true, (int)timeoutMillis);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.checkForDeferredDeeplinkWithTimeout(timeoutMillis);
+                MATExterns.MATCheckForDeferredDeeplinkWithTimeout(timeoutMillis);
                 #endif
                 #if UNITY_WP8
                 //MATWP8.MobileAppTracker.Instance.CheckForDeferredDeeplinkWithTimeout(timeoutMillis);
                 #endif
                 #if UNITY_METRO
                 //MATWinStore.MobileAppTracker.Instance.CheckForDeferredDeeplinkWithTimeout(timeoutMillis);
+                #endif
+            }
+        }
+
+        /// <para>
+        /// Enable auto-measurement of successful in-app-purchase (IAP) transactions as "purhcase" events in iOS.
+        /// </para>
+        /// <param name="automate">should auto-measure IAP transactions</param>
+        public static void AutomateIapEventMeasurement(bool automate)
+        {
+            if(!Application.isEditor)
+            {
+                #if UNITY_IPHONE
+                MATExterns.MATAutomateIapEventMeasurement(automate);
                 #endif
             }
         }
@@ -82,7 +96,7 @@ namespace MATSDK
                 MATAndroid.Instance.MeasureEvent(eventName);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.measureAction(eventName);
+                MATExterns.MATMeasureEventName(eventName);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.MeasureAction(eventName);
@@ -107,7 +121,7 @@ namespace MATSDK
                 MATAndroid.Instance.MeasureEvent(matEvent);
                 #endif
 
-                #if (UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
+                #if (UNITY_WP8 || UNITY_METRO)
                 // Set event characteristic values separately
                 SetEventContentType(matEvent.contentType);
                 SetEventContentId(matEvent.contentId);
@@ -140,60 +154,19 @@ namespace MATSDK
                 #endif
                 
                 #if UNITY_IPHONE
+                MATEventIos eventIos = new MATEventIos(matEvent);
+
                 byte[] receiptBytes = null == matEvent.receipt ? null : System.Convert.FromBase64String(matEvent.receipt);
                 int receiptByteCount = null == receiptBytes ? 0 : receiptBytes.Length;
-                
-                // Convert MATItem to C-marshallable struct
-                MATItemIOS[] items = new MATItemIOS[itemCount];
+
+                // Convert MATItem to C-marshallable struct MATItemIos
+                MATItemIos[] items = new MATItemIos[itemCount];
                 for (int i = 0; i < itemCount; i++)
                 {
-                    MATItem item = matEvent.eventItems[i];
-                    MATItemIOS itemIOS = new MATItemIOS();
-                    itemIOS.name = item.name;
-                    if (item.unitPrice != null)
-                    {
-                        itemIOS.unitPrice = (double)item.unitPrice;
-                    }
-                    if (item.quantity != null)
-                    {
-                        itemIOS.quantity = (int)item.quantity;
-                    }
-                    if (item.revenue != null)
-                    {
-                        itemIOS.revenue = (double)item.revenue;
-                    }
-                    if (item.attribute1 != null)
-                    {
-                        itemIOS.attribute1 = item.attribute1;
-                    }
-                    if (item.attribute2 != null)
-                    {
-                        itemIOS.attribute2 = item.attribute2;
-                    }
-                    if (item.attribute3 != null)
-                    {
-                        itemIOS.attribute3 = item.attribute3;
-                    }
-                    if (item.attribute4 != null)
-                    {
-                        itemIOS.attribute4 = item.attribute4;
-                    }
-                    if (item.attribute5 != null)
-                    {
-                        itemIOS.attribute5 = item.attribute5;
-                    }
-                    items[i] = itemIOS;
+                    items[i] = new MATItemIos(matEvent.eventItems[i]);
                 }
 
-                MATExterns.measureActionWithEventItems(matEvent.name,
-                                                       items,
-                                                       itemCount,
-                                                       matEvent.advertiserRefId,
-                                                       matEvent.revenue == null? 0 : (double)matEvent.revenue,
-                                                       matEvent.currencyCode,
-                                                       matEvent.transactionState == null? 1 : (int)matEvent.transactionState,
-                                                       receiptBytes,
-                                                       receiptByteCount);
+                MATExterns.MATMeasureEvent(eventIos, items, itemCount, receiptBytes, receiptByteCount);
                 #endif
                 
                 #if UNITY_WP8
@@ -261,7 +234,7 @@ namespace MATSDK
                 #endif
 
                 #if UNITY_IPHONE
-                MATExterns.measureSession();
+                MATExterns.MATMeasureSession();
                 #endif
 
                 #if UNITY_WP8
@@ -292,7 +265,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetAge(age);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setAge(age);
+                MATExterns.MATSetAge(age);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetAge(age);
@@ -315,7 +288,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetAllowDuplicates(allow);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setAllowDuplicates(allow);
+                MATExterns.MATSetAllowDuplicates(allow);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetAllowDuplicates(allow);
@@ -336,7 +309,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetAppAdTracking(adTrackingEnabled);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setAppAdTracking(adTrackingEnabled);
+                MATExterns.MATSetAppAdTracking(adTrackingEnabled);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetAppAdTracking(adTrackingEnabled);
@@ -359,7 +332,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetDebugMode(debug);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.tuneSetDebugMode(debug);
+                MATExterns.MATSetDebugMode(debug);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetDebugMode(debug);
@@ -378,9 +351,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventAttribute1(eventAttribute);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventAttribute1(eventAttribute);
                 #endif
@@ -398,9 +368,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventAttribute2(eventAttribute);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventAttribute2(eventAttribute);
                 #endif
@@ -418,9 +385,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventAttribute3(eventAttribute);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventAttribute3(eventAttribute);
                 #endif
@@ -438,9 +402,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventAttribute4(eventAttribute);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventAttribute4(eventAttribute);
                 #endif
@@ -458,9 +419,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventAttribute5(eventAttribute);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventAttribute5(eventAttribute);
                 #endif
@@ -478,9 +436,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventContentId(eventContentId);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventContentId(eventContentId);
                 #endif
@@ -498,9 +453,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventContentType(eventContentType);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventContentType(eventContentType);
                 #endif
@@ -519,17 +471,12 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if (UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
+                #if (UNITY_WP8 || UNITY_METRO)
                 double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
                 //datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
 
-                #if UNITY_IPHONE
-                MATExterns.setEventDate1(millisecondsFrom1970.ToString());
-                #endif
-                
-                #if (UNITY_WP8 || UNITY_METRO)
                 TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
                 //Update to current time for c#
                 datetime = datetime.Add(timeFrom1970);
@@ -540,8 +487,6 @@ namespace MATSDK
 
                 #if UNITY_METRO
                 MATWinStore.MobileAppTracker.Instance.SetEventDate1(datetime);
-                #endif
-
                 #endif
 
                 #endif
@@ -556,17 +501,12 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if (UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
+                #if (UNITY_WP8 || UNITY_METRO)
                 double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
                 //datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 
-                #if UNITY_IPHONE
-                MATExterns.setEventDate2(millisecondsFrom1970.ToString());
-                #endif
-
-                #if (UNITY_WP8 || UNITY_METRO)
                 TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
                 //Update to current time for c#
                 datetime = datetime.Add(timeFrom1970);
@@ -577,8 +517,6 @@ namespace MATSDK
 
                 #if UNITY_METRO
                 MATWinStore.MobileAppTracker.Instance.SetEventDate2(datetime);
-                #endif
-
                 #endif
 
                 #endif
@@ -593,9 +531,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventLevel(eventLevel);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventLevel(eventLevel);
                 #endif
@@ -613,9 +548,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventQuantity(eventQuantity);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventQuantity(eventQuantity);
                 #endif
@@ -633,9 +565,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventRating(eventRating);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventRating(eventRating);
                 #endif
@@ -653,9 +582,6 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_IPHONE
-                MATExterns.setEventSearchString(eventSearchString);
-                #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetEventSearchString(eventSearchString);
                 #endif
@@ -676,7 +602,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.setExistingUser(isExistingUser);
+                MATExterns.MATSetExistingUser(isExistingUser);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetExistingUser(isExistingUser);
@@ -700,7 +626,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetFacebookEventLogging(enable, limit);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setFacebookEventLogging(enable, limit);
+                MATExterns.MATSetFacebookEventLogging(enable, limit);
                 #endif
                 #if UNITY_WP8
                 //MATWP8.MobileAppTracker.Instance.SetFacebookEventLogging(enable, limit);
@@ -723,7 +649,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetFacebookUserId(fbUserId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setFacebookUserId(fbUserId);
+                MATExterns.MATSetFacebookUserId(fbUserId);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetFacebookUserId(fbUserId);
@@ -746,7 +672,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetGender(gender);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setGender(gender);
+                MATExterns.MATSetGender(gender);
                 #endif
 
                 #if UNITY_WP8
@@ -787,7 +713,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetGoogleUserId(googleUserId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setGoogleUserId(googleUserId);
+                MATExterns.MATSetGoogleUserId(googleUserId);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetGoogleUserId(googleUserId);
@@ -812,7 +738,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetLocation(latitude, longitude, altitude);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setLocation(latitude, longitude, altitude);
+                MATExterns.MATSetLocation(latitude, longitude, altitude);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetLatitude(latitude);
@@ -839,7 +765,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetPackageName(packageName);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setPackageName(packageName);
+                MATExterns.MATSetPackageName(packageName);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetPackageName(packageName);
@@ -863,7 +789,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetPayingUser(isPayingUser);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setPayingUser(isPayingUser);
+                MATExterns.MATSetPayingUser(isPayingUser);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
@@ -871,6 +797,29 @@ namespace MATSDK
                 #if UNITY_METRO
                 MATWinStore.MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
                 #endif
+            }
+        }
+        
+        ///<para>
+        ///Sets the custom user phone number.
+        ///</para>
+        ///<param name="phoneNumber">User's phone number</param>
+        public static void SetPhoneNumber(string phoneNumber)
+        {
+            if(!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.SetPhoneNumber(phoneNumber);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.MATSetPhoneNumber(phoneNumber);
+                #endif
+//                #if UNITY_WP8
+//                MATWP8.MobileAppTracker.Instance.SetPhoneNumber(phoneNumber);
+//                #endif
+//                #if UNITY_METRO
+//                MATWinStore.MobileAppTracker.Instance.SetPhoneNumber(phoneNumber);
+//                #endif
             }
         }
 
@@ -886,7 +835,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetTwitterUserId(twitterUserId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setTwitterUserId(twitterUserId);
+                MATExterns.MATSetTwitterUserId(twitterUserId);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetTwitterUserId(twitterUserId);
@@ -909,7 +858,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetUserEmail(userEmail);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setUserEmail(userEmail);
+                MATExterns.MATSetUserEmail(userEmail);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetUserEmail(userEmail);
@@ -932,7 +881,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetUserId(userId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setUserId(userId);
+                MATExterns.MATSetUserId(userId);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetUserId(userId);
@@ -955,7 +904,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetUserName(userName);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setUserName(userName);
+                MATExterns.MATSetUserName(userName);
                 #endif
                 #if UNITY_WP8
                 MATWP8.MobileAppTracker.Instance.SetUserName(userName);
@@ -984,7 +933,7 @@ namespace MATSDK
                 return MATAndroid.Instance.GetIsPayingUser();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.getIsPayingUser();
+                return MATExterns.MATGetIsPayingUser();
                 #endif
                 #if UNITY_WP8
                 return MATWP8.MobileAppTracker.Instance.GetIsPayingUser();
@@ -1008,7 +957,7 @@ namespace MATSDK
                 return MATAndroid.Instance.GetMatId();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.getMatId();
+                return MATExterns.MATGetMatId();
                 #endif
                 #if UNITY_WP8
                 return MATWP8.MobileAppTracker.Instance.GetMatId();
@@ -1033,7 +982,7 @@ namespace MATSDK
                 return MATAndroid.Instance.GetOpenLogId();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.getOpenLogId();
+                return MATExterns.MATGetOpenLogId();
                 #endif
                 #if UNITY_WP8
                 return MATWP8.MobileAppTracker.Instance.GetOpenLogId();
@@ -1052,20 +1001,20 @@ namespace MATSDK
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////
 
-    /// <para>
-    /// Sets the Apple Identifier For Advertising -- IDFA.
-    /// Does nothing if not an iOS device.
-    /// </para>
-    /// <param name="advertiserIdentifier">Apple Identifier For Advertising -- IDFA</param>
-    /// <param name="trackingEnabled">
-    /// A Boolean value that indicates whether the user has limited ad tracking
-    /// </param>
+        /// <para>
+        /// Sets the Apple Identifier For Advertising -- IDFA.
+        /// Does nothing if not an iOS device.
+        /// </para>
+        /// <param name="advertiserIdentifier">Apple Identifier For Advertising -- IDFA</param>
+        /// <param name="trackingEnabled">
+        /// A Boolean value that indicates whether the user has limited ad tracking
+        /// </param>
         public static void SetAppleAdvertisingIdentifier(string advertiserIdentifier, bool trackingEnabled)
         {
            if(!Application.isEditor)
            {
                #if UNITY_IPHONE
-                MATExterns.setAppleAdvertisingIdentifier(advertiserIdentifier, trackingEnabled);
+                MATExterns.MATSetAppleAdvertisingIdentifier(advertiserIdentifier, trackingEnabled);
                #endif
            }
        }
@@ -1080,7 +1029,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.setAppleVendorIdentifier(vendorIdentifier);
+                MATExterns.MATSetAppleVendorIdentifier(vendorIdentifier);
                 #endif
             }
         }
@@ -1095,7 +1044,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.setJailbroken(isJailbroken);
+                MATExterns.MATSetJailbroken(isJailbroken);
                 #endif
             }
         }
@@ -1112,7 +1061,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.setShouldAutoDetectJailbroken(isAutoDetectJailbroken);
+                MATExterns.MATSetShouldAutoDetectJailbroken(isAutoDetectJailbroken);
                 #endif
             }
         }
@@ -1127,7 +1076,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.setShouldAutoGenerateAppleVendorIdentifier(shouldAutoGenerate);
+                MATExterns.MATSetShouldAutoGenerateAppleVendorIdentifier(shouldAutoGenerate);
                 #endif
             }
         }
@@ -1142,7 +1091,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.setUseCookieTracking(useCookieTracking);
+                MATExterns.MATSetUseCookieTracking(useCookieTracking);
                 #endif
             }
         }
@@ -1278,16 +1227,20 @@ namespace MATSDK
         }
 
         /// <para>
-        /// Sets the preloaded app attribution values.
-        /// Does nothing if not an Android device.
+        /// Sets the preloaded app attribution values (publisher information).
+        /// Does nothing if not an Android or iOS device.
         /// </para>
-        /// <param name="preloadData">Preloaded app attribution values</param>
+        /// <param name="preloadData">Preloaded app attribution values (publisher information)</param>
         public static void SetPreloadedApp(MATPreloadData preloadData)
         {
             if(!Application.isEditor)
             {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetPreloadedApp(preloadData);
+                #endif
+
+                #if UNITY_IPHONE
+                MATExterns.MATSetPreloadData(preloadData);
                 #endif
             }
         }
@@ -1408,7 +1361,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetCurrencyCode(currencyCode);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setCurrencyCode(currencyCode);
+                MATExterns.MATSetCurrencyCode(currencyCode);
                 #endif
             }
         }
@@ -1426,7 +1379,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetDelegate(enable);
                 #endif
                 #if (UNITY_IPHONE)
-                MATExterns.setDelegate(enable);
+                MATExterns.MATSetDelegate(enable);
                 #endif
             }
         }
@@ -1444,7 +1397,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetSiteId(siteId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setSiteId(siteId);
+                MATExterns.MATSetSiteId(siteId);
                 #endif
             }
         }
@@ -1462,7 +1415,7 @@ namespace MATSDK
                 MATAndroid.Instance.SetTRUSTeId(tpid);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.setTRUSTeId(tpid);
+                MATExterns.MATSetTRUSTeId(tpid);
                 #endif
             }
         }
