@@ -44,12 +44,12 @@ namespace MATSDK
 
                 ajcInstance = ajcMAT.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey);
                 ajcInstance.Call("setPluginName", "unity");
-                ajcInstance.Call("setReferralSources", ajcCurrentActivity);
             }
         }
 
         public void MeasureSession()
         {
+            ajcInstance.Call("setReferralSources", ajcCurrentActivity);
             ajcInstance.Call("measureSession");
         }
 
@@ -243,6 +243,9 @@ namespace MATSDK
             AndroidJavaObject objPreloadData = new AndroidJavaObject("com.mobileapptracker.MATPreloadData", preloadData.publisherId);
             if (preloadData.offerId != null) {
                 objPreloadData = objPreloadData.Call<AndroidJavaObject>("withOfferId", preloadData.offerId);
+            }
+            if (preloadData.agencyId != null) {
+                objPreloadData = objPreloadData.Call<AndroidJavaObject>("withAgencyId", preloadData.agencyId);
             }
             if (preloadData.publisherReferenceId != null) {
                 objPreloadData = objPreloadData.Call<AndroidJavaObject>("withPublisherReferenceId", preloadData.publisherReferenceId);

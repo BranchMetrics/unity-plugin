@@ -75,7 +75,7 @@ const char * UNITY_SENDMESSAGE_CALLBACK_DEEPLINK = "trackerDidReceiveDeepLink";
     NSString *encodedString = nil;
     
     // if iOS 7+
-    if([NSData instancesRespondToSelector:@selector(base64EncodedStringWithOptions:)])
+    if([data respondsToSelector:@selector(base64EncodedStringWithOptions:)])
     {
         encodedString = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     }
@@ -109,7 +109,7 @@ static MATAppDelegateListener *_instance = [MATAppDelegateListener sharedInstanc
 
 + (void)initialize {
     if(!_instance) {
-        _instance = [[MATAppDelegateListener alloc] init];
+        _instance = [MATAppDelegateListener new];
     }
 }
 
@@ -526,7 +526,7 @@ extern "C" {
         NSLog(@"Native: setDelegate = %d", enable);
         
         // When enabled, create/set MATSDKDelegate object as the delegate for MobileAppTracker.
-        matDelegate = enable ? (matDelegate ? nil : [[MATSDKDelegate alloc] init]) : nil;
+        matDelegate = enable ? (matDelegate ? nil : [MATSDKDelegate new]) : nil;
         
         [MobileAppTracker setDelegate:matDelegate];
     }

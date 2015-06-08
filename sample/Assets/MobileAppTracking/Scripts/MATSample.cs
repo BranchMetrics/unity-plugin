@@ -196,7 +196,7 @@ public class MATSample : MonoBehaviour {
             #else
             MATBinding.SetAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
             #endif
-            MATBinding.SetAppleVendorIdentifier("87654321-4321-4321-4321-210987654321");
+            MATBinding.SetAppleVendorIdentifier(UnityEngine.iPhone.vendorIdentifier);
             MATBinding.SetDelegate(true);
             MATBinding.SetJailbroken(false);
             MATBinding.SetShouldAutoDetectJailbroken(true);
