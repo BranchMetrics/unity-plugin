@@ -601,6 +601,9 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.SetExistingUser(isExistingUser);
+                #endif
                 #if UNITY_IPHONE
                 MATExterns.MATSetExistingUser(isExistingUser);
                 #endif
