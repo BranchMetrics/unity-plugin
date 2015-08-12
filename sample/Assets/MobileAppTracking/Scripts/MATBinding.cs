@@ -31,7 +31,7 @@ namespace MATSDK
                 #if UNITY_IPHONE
                 MATExterns.MATInit(advertiserId, conversionKey);
 
-                #if UNITY_5_0
+                #if UNITY_5
                 MATExterns.MATSetAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
                 #else
                 MATExterns.MATSetAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);

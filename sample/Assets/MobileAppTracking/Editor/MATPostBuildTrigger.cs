@@ -66,28 +66,26 @@ namespace UnityEditor.MATEditor
 
             // 1: Proceed only if this is an iOS build
 
-    #if UNITY_IPHONE
-            
-            string xcodeprojPath = Path.Combine(path, DEFAULT_UNITY_IPHONE_PROJECT_NAME);
-            
-            Debug.Log("We found xcodeprojPath to be : " + xcodeprojPath);
+            if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.iPhone) {
+                string xcodeprojPath = Path.Combine(path, DEFAULT_UNITY_IPHONE_PROJECT_NAME);
+                
+                Debug.Log("We found xcodeprojPath to be : " + xcodeprojPath);
 
-            Dictionary<string, framework> dictFrameworks = new Dictionary<string, framework> ();
+                Dictionary<string, framework> dictFrameworks = new Dictionary<string, framework> ();
 
-            // List of all the frameworks to be added to the project
-            dictFrameworks.Add(FRAMEWORK_CORETELEPHONY, new framework (FRAMEWORK_CORETELEPHONY, FRAMEWORK_ID_CORETELEPHONY, FRAMEWORK_FILEREFID_CORETELEPHONY, null, false));
-            dictFrameworks.Add(FRAMEWORK_IAD, new framework (FRAMEWORK_IAD, FRAMEWORK_ID_IAD, FRAMEWORK_FILEREFID_IAD, null, false));
-            dictFrameworks.Add(FRAMEWORK_MOBILECORESERVICES, new framework (FRAMEWORK_MOBILECORESERVICES, FRAMEWORK_ID_MOBILECORESERVICES, FRAMEWORK_FILEREFID_MOBILECORESERVICES, null, false));
-            dictFrameworks.Add(FRAMEWORK_STOREKIT, new framework (FRAMEWORK_STOREKIT, FRAMEWORK_ID_STOREKIT, FRAMEWORK_FILEREFID_STOREKIT, null, false));
-            dictFrameworks.Add(FRAMEWORK_SYSTEMCONFIGURATION, new framework (FRAMEWORK_SYSTEMCONFIGURATION, FRAMEWORK_ID_SYSTEMCONFIGURATION, FRAMEWORK_FILEREFID_SYSTEMCONFIGURATION, null, false));
+                // List of all the frameworks to be added to the project
+                dictFrameworks.Add(FRAMEWORK_CORETELEPHONY, new framework (FRAMEWORK_CORETELEPHONY, FRAMEWORK_ID_CORETELEPHONY, FRAMEWORK_FILEREFID_CORETELEPHONY, null, false));
+                dictFrameworks.Add(FRAMEWORK_IAD, new framework (FRAMEWORK_IAD, FRAMEWORK_ID_IAD, FRAMEWORK_FILEREFID_IAD, null, false));
+                dictFrameworks.Add(FRAMEWORK_MOBILECORESERVICES, new framework (FRAMEWORK_MOBILECORESERVICES, FRAMEWORK_ID_MOBILECORESERVICES, FRAMEWORK_FILEREFID_MOBILECORESERVICES, null, false));
+                dictFrameworks.Add(FRAMEWORK_STOREKIT, new framework (FRAMEWORK_STOREKIT, FRAMEWORK_ID_STOREKIT, FRAMEWORK_FILEREFID_STOREKIT, null, false));
+                dictFrameworks.Add(FRAMEWORK_SYSTEMCONFIGURATION, new framework (FRAMEWORK_SYSTEMCONFIGURATION, FRAMEWORK_ID_SYSTEMCONFIGURATION, FRAMEWORK_FILEREFID_SYSTEMCONFIGURATION, null, false));
 
-            // 2: process our project
+                // 2: process our project
 
-            updateXcodeProject(xcodeprojPath, dictFrameworks);
-
-    #else
-            Debug.Log("OnPostProcessBuild - Warning: No PostProcessing required. This is not an iOS build.");
-    #endif
+                updateXcodeProject(xcodeprojPath, dictFrameworks);
+            } else {
+                Debug.Log("OnPostProcessBuild - Warning: No PostProcessing required. This is not an iOS build.");
+            }
             Debug.Log("OnPostProcessBuild - END");
         }
         
