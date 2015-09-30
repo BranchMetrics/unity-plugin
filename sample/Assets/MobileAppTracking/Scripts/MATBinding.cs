@@ -5,14 +5,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Linq;
+#if UNITY_METRO
+using MATWinStore;
+#endif
 
-/// <para>
-/// MATBinding wraps Android, iOS, and Windows Phone 8 MobileAppTracking SDK
-/// functions to be used within Unity. The functions can be called within any
-/// C# script by typing MATBinding.*.
-/// </para>
 namespace MATSDK
 {
+    /// <para>
+    /// MATBinding wraps Android, iOS, and Windows Tune/MobileAppTracking SDK
+    /// functions to be used within Unity. The functions can be called within any
+    /// C# script by typing MATBinding.*.
+    /// </para>
     public class MATBinding : MonoBehaviour
     {
         /// <para>
@@ -29,20 +32,204 @@ namespace MATSDK
                 MATAndroid.Instance.Init(advertiserId, conversionKey);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATInit(advertiserId, conversionKey);
-
-                #if UNITY_5_0
-                MATExterns.MATSetAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
-                #else
-                MATExterns.MATSetAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
-                #endif
-
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.InitializeValues(advertiserId, conversionKey);
+                MATExterns.TuneInit(advertiserId, conversionKey );
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.InitializeValues(advertiserId, conversionKey);
+                MobileAppTracker.InitializeValues(advertiserId, conversionKey);
+                #endif
+            }
+        }
+
+        /// <para>
+        /// Initializes relevant information about the advertiser and
+        /// conversion key on startup of Unity game.
+        /// </para>
+        /// <param name="advertiserId">the MAT advertiser ID for the app</param>
+        /// <param name="conversionKey">the MAT advertiser key for the app</param>
+        /// <param name="packageName">the package name used when setting up the app in MobileAppTracking</param>
+        /// <param name="wearable">should be set to YES when being initialized in a WatchKit extension, defaults to NO</param>
+        public static void Init(string advertiserId, string conversionKey, string packageName, bool wearable)
+        {
+            if(!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.Init(advertiserId, conversionKey);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneInitForWearable(advertiserId, conversionKey, packageName, wearable);
+                #endif
+                #if UNITY_METRO
+                MobileAppTracker.InitializeValues(advertiserId, conversionKey);
+                #endif
+            }
+        }
+
+        public static void CacheInterstitial(string placement)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.CacheInterstitial(placement);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneCacheInterstitial(placement);
+                #endif
+            }
+        }
+
+        public static void CacheInterstitial(string placement, MATAdMetadata metadata)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.CacheInterstitial(placement, metadata);
+                #endif
+                #if UNITY_IPHONE
+                IntPtr metadataPtr = CreateMetadata(metadata);
+                MATExterns.TuneCacheInterstitialWithMetadata(placement, metadataPtr);
+                MATExterns.TuneRelease(metadataPtr);
+                #endif
+            }
+        }
+
+        public static void ShowInterstitial(string placement)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.ShowInterstitial(placement);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneShowInterstitial(placement);
+                #endif
+            }
+        }
+
+        public static void ShowInterstitial(string placement, MATAdMetadata metadata)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.ShowInterstitial(placement, metadata);
+                #endif
+                #if UNITY_IPHONE
+                IntPtr metadataPtr = CreateMetadata(metadata);
+                MATExterns.TuneShowInterstitialWithMetadata(placement, metadataPtr);
+                MATExterns.TuneRelease(metadataPtr);
+                #endif
+            }
+        }
+
+        public static void DestroyInterstitial()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.DestroyInterstitial();
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneDestroyInterstitial();
+                #endif
+            }
+        }
+
+        #if UNITY_IPHONE
+        // Load an ad.
+        private static IntPtr CreateMetadata(MATAdMetadata metadata)
+        {
+            IntPtr metadataPtr = MATExterns.TuneCreateMetadata();
+            foreach (string keyword in metadata.getKeywords()) {
+                MATExterns.TuneAddKeyword(metadataPtr, keyword);
+            }
+
+            if (metadata.getBirthDate().HasValue) {
+                DateTime birthDate = metadata.getBirthDate().GetValueOrDefault();
+                MATExterns.TuneSetBirthDate(metadataPtr, birthDate.Year, birthDate.Month, birthDate.Day);
+            }
+
+            MATExterns.TuneAdSetDebugMode(metadataPtr, (bool)metadata.getDebugMode ());
+            MATExterns.TuneAdSetGender(metadataPtr, (int)metadata.getGender ());
+
+            MATExterns.TuneSetLatitude(metadataPtr, (int)metadata.getLatitude ());
+            MATExterns.TuneSetLongitude(metadataPtr, (int)metadata.getLongitude ());
+            MATExterns.TuneSetAltitude(metadataPtr, (int)metadata.getAltitude ());
+
+            foreach (KeyValuePair<string, string> entry in metadata.getCustomTargets()) {
+                MATExterns.TuneSetCustomTargets(metadataPtr, entry.Key, entry.Value);
+            }
+
+            return metadataPtr;
+        }
+        #endif
+
+        public static void ShowBanner(string placement)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.ShowBanner(placement);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneShowBanner(placement);
+                #endif
+            }
+        }
+
+        public static void ShowBanner(string placement, MATAdMetadata metadata)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.ShowBanner(placement, metadata);
+                #endif
+                #if UNITY_IPHONE
+                ShowBanner(placement, metadata, MATBannerPosition.BOTTOM_CENTER);
+                #endif
+            }
+        }
+
+        public static void ShowBanner(string placement, MATAdMetadata metadata, MATBannerPosition position)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.ShowBanner(placement, metadata, position);
+                #endif
+                #if UNITY_IPHONE
+
+                IntPtr metadataPtr = null == metadata ? IntPtr.Zero : CreateMetadata(metadata);
+
+                MATExterns.TuneShowBannerWithPosition(placement, metadataPtr, position);
+
+                if(IntPtr.Zero != metadataPtr)
+                {
+                    MATExterns.TuneRelease(metadataPtr);
+                }
+                #endif
+            }
+        }
+
+        public static void HideBanner()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.HideBanner();
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneHideBanner();
+                #endif
+            }
+        }
+
+        public static void LayoutBanner()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_IPHONE
+                MATExterns.TuneLayoutBanner();
+                #endif
+            }
+        }
+
+        public static void DestroyBanner()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.DestroyBanner();
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneDestroyBanner();
                 #endif
             }
         }
@@ -50,22 +237,18 @@ namespace MATSDK
         /// <para>
         /// Check if a deferred deep-link is available.
         /// </para>
-        /// <param name="timeoutMillis">timeout duration in milliseconds</param>
-        public static void CheckForDeferredDeeplinkWithTimeout(double timeoutMillis)
+        public static void CheckForDeferredDeeplink()
         {
             if(!Application.isEditor)
             {
                 #if UNITY_ANDROID
-                MATAndroid.Instance.SetDeferredDeeplink(true, (int)timeoutMillis);
+                MATAndroid.Instance.CheckForDeferredDeeplink();
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATCheckForDeferredDeeplinkWithTimeout(timeoutMillis);
-                #endif
-                #if UNITY_WP8
-                //MATWP8.MobileAppTracker.Instance.CheckForDeferredDeeplinkWithTimeout(timeoutMillis);
+                MATExterns.TuneCheckForDeferredDeeplink();
                 #endif
                 #if UNITY_METRO
-                //MATWinStore.MobileAppTracker.Instance.CheckForDeferredDeeplinkWithTimeout(timeoutMillis);
+                //MATWinStore.MobileAppTracker.Instance.CheckForDeferredDeeplink();
                 #endif
             }
         }
@@ -79,7 +262,7 @@ namespace MATSDK
             if(!Application.isEditor)
             {
                 #if UNITY_IPHONE
-                MATExterns.MATAutomateIapEventMeasurement(automate);
+                MATExterns.TuneAutomateIapEventMeasurement(automate);
                 #endif
             }
         }
@@ -90,134 +273,133 @@ namespace MATSDK
         /// <param name="eventName">event name in MAT system</param>
         public static void MeasureEvent(string eventName)
         {
-            if(!Application.isEditor)
+            if (!Application.isEditor)
             {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.MeasureEvent(eventName);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATMeasureEventName(eventName);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.MeasureAction(eventName);
+                MATExterns.TuneMeasureEventName(eventName);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.MeasureAction(eventName);
+                MobileAppTracker.Instance.MeasureAction(eventName);
                 #endif
             }
         }
 
+        #if (UNITY_ANDROID || UNITY_IPHONE)
+        /// <para>
+        /// Event measurement function, by event id.
+        /// </para>
+        /// <param name="eventId">event id in MAT system</param>
+        public static void MeasureEvent(int eventId)
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.MeasureEvent(eventId);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneMeasureEventId(eventId);
+                #endif
+//                #if UNITY_METRO
+//                MATWinStore.MobileAppTracker.Instance.MeasureAction(eventId);
+//                #endif
+            }
+        }
+        #endif
+
         /// <para>
         /// Measures the event with MATEvent.
         /// </para>
-        /// <param name="matEvent">MATEvent object of event values to measure</param>
-        public static void MeasureEvent(MATEvent matEvent)
+        /// <param name="tuneEvent">MATEvent object of event values to measure</param>
+        public static void MeasureEvent(MATEvent tuneEvent)
         {
-            if(!Application.isEditor)
+            if (!Application.isEditor)
             {
-                int itemCount = null == matEvent.eventItems ? 0 : matEvent.eventItems.Length;
+                int itemCount = null == tuneEvent.eventItems ? 0 : tuneEvent.eventItems.Length;
 
                 #if UNITY_ANDROID
-                MATAndroid.Instance.MeasureEvent(matEvent);
+                MATAndroid.Instance.MeasureEvent(tuneEvent);
                 #endif
-
-                #if (UNITY_WP8 || UNITY_METRO)
+                
+                #if UNITY_METRO
                 // Set event characteristic values separately
-                SetEventContentType(matEvent.contentType);
-                SetEventContentId(matEvent.contentId);
-                if (matEvent.level != null)
+                SetEventContentType(tuneEvent.contentType);
+                SetEventContentId(tuneEvent.contentId);
+
+                // Set event characteristic values separately
+                SetEventContentType(tuneEvent.contentType);
+                SetEventContentId(tuneEvent.contentId);
+                if (tuneEvent.level != null)
                 {
-                    SetEventLevel((int)matEvent.level);
+                    SetEventLevel((int)tuneEvent.level);
                 }
-                if (matEvent.quantity != null)
+                if (tuneEvent.quantity != null)
                 {
-                    SetEventQuantity((int)matEvent.quantity);
+                    SetEventQuantity((int)tuneEvent.quantity);
                 }
-                SetEventSearchString(matEvent.searchString);
-                if (matEvent.rating != null)
+                SetEventSearchString(tuneEvent.searchString);
+                if (tuneEvent.rating != null)
                 {
-                    SetEventRating((float)matEvent.rating);
+                    SetEventRating((float)tuneEvent.rating);
                 }
-                if (matEvent.date1 != null)
+                if (tuneEvent.date1 != null)
                 {
-                    SetEventDate1((DateTime)matEvent.date1);
+                    SetEventDate1((DateTime)tuneEvent.date1);
                 }
-                if (matEvent.date2 != null)
+                if (tuneEvent.date2 != null)
                 {
-                    SetEventDate2((DateTime)matEvent.date2);
+                    SetEventDate2((DateTime)tuneEvent.date2);
                 }
-                SetEventAttribute1(matEvent.attribute1);
-                SetEventAttribute2(matEvent.attribute2);
-                SetEventAttribute3(matEvent.attribute3);
-                SetEventAttribute4(matEvent.attribute4);
-                SetEventAttribute5(matEvent.attribute5);
+                SetEventAttribute1(tuneEvent.attribute1);
+                SetEventAttribute2(tuneEvent.attribute2);
+                SetEventAttribute3(tuneEvent.attribute3);
+                SetEventAttribute4(tuneEvent.attribute4);
+                SetEventAttribute5(tuneEvent.attribute5);
                 #endif
                 
                 #if UNITY_IPHONE
-                MATEventIos eventIos = new MATEventIos(matEvent);
+                MATEventIos eventIos = new MATEventIos(tuneEvent);
 
-                byte[] receiptBytes = null == matEvent.receipt ? null : System.Convert.FromBase64String(matEvent.receipt);
+                byte[] receiptBytes = null == tuneEvent.receipt ? null : System.Convert.FromBase64String(tuneEvent.receipt);
                 int receiptByteCount = null == receiptBytes ? 0 : receiptBytes.Length;
 
                 // Convert MATItem to C-marshallable struct MATItemIos
                 MATItemIos[] items = new MATItemIos[itemCount];
                 for (int i = 0; i < itemCount; i++)
                 {
-                    items[i] = new MATItemIos(matEvent.eventItems[i]);
+                    items[i] = new MATItemIos(tuneEvent.eventItems[i]);
                 }
 
-                MATExterns.MATMeasureEvent(eventIos, items, itemCount, receiptBytes, receiptByteCount);
+                MATExterns.TuneMeasureEvent(eventIos, items, itemCount, receiptBytes, receiptByteCount);
                 #endif
-                
-                #if UNITY_WP8
+
+                #if UNITY_METRO
                 //Convert MATItem[] to MATEventItem[]. These are the same things, but must be converted for recognition of
                 //MobileAppTracker.cs.
-                MATWP8.MATEventItem[] newarr = new MATWP8.MATEventItem[itemCount];
+                MATEventItem[] newarr = new MATEventItem[itemCount];
                 //Conversion is necessary to prevent the need of referencing a separate class.
                 for(int i = 0; i < itemCount; i++)
                 {
-                    MATItem item = matEvent.eventItems[i];
-                    newarr[i] = new MATWP8.MATEventItem(item.name,
-                                                        item.quantity == null? 0 : (int)item.quantity,
-                                                        item.unitPrice == null? 0 : (double)item.unitPrice,
-                                                        item.revenue == null? 0 : (double)item.revenue,
-                                                        item.attribute1,
-                                                        item.attribute2,
-                                                        item.attribute3,
-                                                        item.attribute4,
-                                                        item.attribute5);
+                    MATItem item = tuneEvent.eventItems[i];
+                    newarr[i] = new MATEventItem(item.name,
+                                                 item.quantity == null ? 0 : (int)item.quantity,
+                                                 item.unitPrice == null ? 0 : (double)item.unitPrice,
+                                                 item.revenue == null ? 0 : (double)item.revenue,
+                                                 item.attribute1,
+                                                 item.attribute2,
+                                                 item.attribute3,
+                                                 item.attribute4,
+                                                 item.attribute5);
                 }
-                
-                List<MATWP8.MATEventItem> list =  newarr.ToList();
-                MATWP8.MobileAppTracker.Instance.MeasureAction(matEvent.name,
-                                                               matEvent.revenue == null? 0 : (double)matEvent.revenue,
-                                                               matEvent.currencyCode,
-                                                               matEvent.advertiserRefId,
-                                                               list);
-                #endif
-                
-                #if UNITY_METRO
-                MATWinStore.MATEventItem[] newarr = new MATWinStore.MATEventItem[itemCount];
-                for(int i = 0; i < itemCount; i++)
-                {
-                    MATItem item = matEvent.eventItems[i];
-                    newarr[i] = new MATWinStore.MATEventItem(item.name,
-                                                             item.quantity == null? 0 : (int)item.quantity,
-                                                             item.unitPrice == null? 0 : (double)item.unitPrice,
-                                                             item.revenue == null? 0 : (double)item.revenue,
-                                                             item.attribute1,
-                                                             item.attribute2,
-                                                             item.attribute3,
-                                                             item.attribute4,
-                                                             item.attribute5);
-                }
-                
-                List<MATWinStore.MATEventItem> list =  newarr.ToList();
-                MATWinStore.MobileAppTracker.Instance.MeasureAction(matEvent.name,
-                                                                    matEvent.revenue == null? 0 : (double)matEvent.revenue,
-                                                                    matEvent.currencyCode,
-                                                                    matEvent.advertiserRefId,
-                                                                    list);
+
+                List<MATEventItem> list =  newarr.ToList();
+                MobileAppTracker.Instance.MeasureAction(tuneEvent.name,
+                                                        tuneEvent.revenue == null ? 0 : (double)tuneEvent.revenue,
+                                                        tuneEvent.currencyCode,
+                                                        tuneEvent.advertiserRefId,
+                                                        list);
                 #endif
             }
         }
@@ -227,22 +409,15 @@ namespace MATSDK
         /// </para>
         public static void MeasureSession()
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.MeasureSession();
                 #endif
-
                 #if UNITY_IPHONE
-                MATExterns.MATMeasureSession();
+                MATExterns.TuneMeasureSession();
                 #endif
-
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.MeasureSession();
-                #endif
-
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.MeasureSession();
+                MobileAppTracker.Instance.MeasureSession();
                 #endif
             }
         }
@@ -259,19 +434,15 @@ namespace MATSDK
         /// <param name="age">User age to track in MAT</param>
         public static void SetAge(int age)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetAge(age);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetAge(age);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetAge(age);
+                MATExterns.TuneSetAge(age);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetAge(age);
+                MobileAppTracker.Instance.SetAge(age);
                 #endif
             }
         }
@@ -282,40 +453,32 @@ namespace MATSDK
         /// <param name="allow">whether to allow duplicate installs from device</param>
         public static void SetAllowDuplicates(bool allow)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetAllowDuplicates(allow);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetAllowDuplicates(allow);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetAllowDuplicates(allow);
+                MATExterns.TuneSetAllowDuplicates(allow);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetAllowDuplicates(allow);
+                MobileAppTracker.Instance.SetAllowDuplicates(allow);
                 #endif
             }
         }
 
-        ///<para>Sets whether app-level ad tracking is enabled.</para>
-        ///<param name="adTrackingEnabled">true if user has opted out of ad tracking at the app-level, false if not</param>
+        /// <para>Sets whether app-level ad tracking is enabled.</para>
+        /// <param name="adTrackingEnabled">true if user has opted out of ad tracking at the app-level, false if not</param>
         public static void SetAppAdTracking(bool adTrackingEnabled)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetAppAdTracking(adTrackingEnabled);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetAppAdTracking(adTrackingEnabled);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetAppAdTracking(adTrackingEnabled);
+                MATExterns.TuneSetAppAdTracking(adTrackingEnabled);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetAppAdTracking(adTrackingEnabled);
+                MobileAppTracker.Instance.SetAppAdTracking(adTrackingEnabled);
                 #endif
             }
         }
@@ -326,22 +489,19 @@ namespace MATSDK
         /// <param name="debug">whether to enable debug output</param>
         public static void SetDebugMode(bool debug)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetDebugMode(debug);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetDebugMode(debug);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetDebugMode(debug);
+                MATExterns.TuneSetDebugMode(debug);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetDebugMode(debug);
+                MobileAppTracker.Instance.SetDebugMode(debug);
                 #endif
             }
         }
+
 
         /// <para>
         /// Sets the first attribute associated with an app event.
@@ -351,15 +511,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventAttribute1(eventAttribute);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventAttribute1(eventAttribute);
+                MobileAppTracker.Instance.SetEventAttribute1(eventAttribute);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the second attribute associated with an app event.
         /// </para>
@@ -368,15 +524,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventAttribute2(eventAttribute);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventAttribute2(eventAttribute);
+                MobileAppTracker.Instance.SetEventAttribute2(eventAttribute);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the third attribute associated with an app event.
         /// </para>
@@ -385,15 +537,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventAttribute3(eventAttribute);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventAttribute3(eventAttribute);
+                MobileAppTracker.Instance.SetEventAttribute3(eventAttribute);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the fourth attribute associated with an app event.
         /// </para>
@@ -402,15 +550,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventAttribute4(eventAttribute);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventAttribute4(eventAttribute);
+                MobileAppTracker.Instance.SetEventAttribute4(eventAttribute);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the fifth attribute associated with an app event.
         /// </para>
@@ -419,15 +563,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventAttribute5(eventAttribute);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventAttribute5(eventAttribute);
+                MobileAppTracker.Instance.SetEventAttribute5(eventAttribute);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the content ID associated with an app event.
         /// </para>
@@ -436,15 +576,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventContentId(eventContentId);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventContentId(eventContentId);
+                MobileAppTracker.Instance.SetEventContentId(eventContentId);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the content type associated with an app event.
         /// </para>
@@ -453,15 +589,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventContentType(eventContentType);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventContentType(eventContentType);
+                MobileAppTracker.Instance.SetEventContentType(eventContentType);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the first date associated with an app event.
         /// Should be 1/1/1970 and after.
@@ -471,28 +603,20 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if (UNITY_WP8 || UNITY_METRO)
+                #if UNITY_METRO
                 double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
-                //datetime starts in 1970
+                
+                // datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
-
                 TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
+                
                 //Update to current time for c#
                 datetime = datetime.Add(timeFrom1970);
-
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventDate1(datetime);
-                #endif
-
-                #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventDate1(datetime);
-                #endif
-
+                MobileAppTracker.Instance.SetEventDate1(datetime);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the second date associated with an app event.
         /// </para>
@@ -501,7 +625,7 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if (UNITY_WP8 || UNITY_METRO)
+                #if UNITY_METRO
                 double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
                 //datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
@@ -510,19 +634,10 @@ namespace MATSDK
                 TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
                 //Update to current time for c#
                 datetime = datetime.Add(timeFrom1970);
-
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventDate2(datetime);
-                #endif
-
-                #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventDate2(datetime);
-                #endif
-
+                MobileAppTracker.Instance.SetEventDate2(datetime);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the level associated with an app event.
         /// </para>
@@ -531,15 +646,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventLevel(eventLevel);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventLevel(eventLevel);
+                MobileAppTracker.Instance.SetEventLevel(eventLevel);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the quantity associated with an app event.
         /// </para>
@@ -548,15 +659,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventQuantity(eventQuantity);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventQuantity(eventQuantity);
+                MobileAppTracker.Instance.SetEventQuantity(eventQuantity);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the rating associated with an app event.
         /// </para>
@@ -565,15 +672,11 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventRating(eventRating);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventRating(eventRating);
+                MobileAppTracker.Instance.SetEventRating(eventRating);
                 #endif
             }
         }
-
         /// <para>
         /// Sets the search string associated with an app event.
         /// </para>
@@ -582,44 +685,37 @@ namespace MATSDK
         {
             if(!Application.isEditor)
             {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetEventSearchString(eventSearchString);
-                #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetEventSearchString(eventSearchString);
+                MobileAppTracker.Instance.SetEventSearchString(eventSearchString);
                 #endif
             }
         }
 
         /// <para>
-        /// Sets whether app was previously installed prior to version with MAT SDK.
+        /// Sets whether app was previously installed prior to version with Tune SDK.
         /// </para>
         /// <param name="isExistingUser">
-        /// existing true if this user already had the app installed prior to updating to MAT version
+        /// existing true if this user already had the app installed prior to updating to Tune version
         /// </param>
         public static void SetExistingUser(bool isExistingUser)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetExistingUser(isExistingUser);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetExistingUser(isExistingUser);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetExistingUser(isExistingUser);
+                MATExterns.TuneSetExistingUser(isExistingUser);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetExistingUser(isExistingUser);
+                MobileAppTracker.Instance.SetExistingUser(isExistingUser);
                 #endif
             }
         }
 
         /// <para>
-        /// Set whether the MAT events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
+        /// Set whether the Tune events should also be logged to the Facebook SDK. This flag is ignored if the Facebook SDK is not present.
         /// </para>
-        /// <param name="enable">Whether to send MAT events to FB as well</param>
+        /// <param name="enable">Whether to send Tune events to FB as well</param>
         /// <param name="limitEventAndDataUsabe">Whether data such as that generated through FBAppEvents and sent to Facebook should be restricted from being used for other than analytics and conversions. Defaults to NO. This value is stored on the device and persists across app launches.</param>
         public static void SetFacebookEventLogging(bool enable, bool limit)
         {
@@ -629,13 +725,10 @@ namespace MATSDK
                 MATAndroid.Instance.SetFacebookEventLogging(enable, limit);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetFacebookEventLogging(enable, limit);
-                #endif
-                #if UNITY_WP8
-                //MATWP8.MobileAppTracker.Instance.SetFacebookEventLogging(enable, limit);
+                MATExterns.TuneSetFacebookEventLogging(enable, limit);
                 #endif
                 #if UNITY_METRO
-                //MATWinStore.MobileAppTracker.Instance.SetFacebookEventLogging(enable, limit);
+                //MobileAppTracker.Instance.SetFacebookEventLogging(enable, limit);
                 #endif
             }
         }
@@ -646,19 +739,15 @@ namespace MATSDK
         /// <param name="fbUserId">Facebook User ID</param>
         public static void SetFacebookUserId(string fbUserId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetFacebookUserId(fbUserId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetFacebookUserId(fbUserId);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetFacebookUserId(fbUserId);
+                MATExterns.TuneSetFacebookUserId(fbUserId);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetFacebookUserId(fbUserId);
+                MobileAppTracker.Instance.SetFacebookUserId(fbUserId);
                 #endif
             }
         }
@@ -666,40 +755,27 @@ namespace MATSDK
         /// <para>
         /// Sets the user gender.
         /// </para>
-        /// <param name="gender">use MobileAppTracker.GENDER_MALE, MobileAppTracker.GENDER_FEMALE</param>
+        /// <param name="gender">use TuneGenderMale, TuneGenderFemale, TuneGenderUnknown</param>
         public static void SetGender(int gender)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetGender(gender);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetGender(gender);
-                #endif
-
-                #if UNITY_WP8
-                MATWP8.MATGender gender_temp;
-                if(gender == 0)
-                    gender_temp = MATWP8.MATGender.MALE;
-                else if (gender == 1)
-                    gender_temp = MATWP8.MATGender.FEMALE;
-                else
-                    gender_temp = MATWP8.MATGender.NONE;
-                
-                MATWP8.MobileAppTracker.Instance.SetGender(gender_temp);
+                MATExterns.TuneSetGender(gender);
                 #endif
 
                 #if UNITY_METRO
-                MATWinStore.MATGender gender_temp;
+                MATGender gender_temp;
                 if(gender == 0)
-                    gender_temp = MATWinStore.MATGender.MALE;
+                    gender_temp = MATGender.MALE;
                 else if (gender == 1)
-                    gender_temp = MATWinStore.MATGender.FEMALE;
+                    gender_temp = MATGender.FEMALE;
                 else
-                    gender_temp = MATWinStore.MATGender.NONE;
-                
-                MATWinStore.MobileAppTracker.Instance.SetGender(gender_temp);
+                    gender_temp = MATGender.NONE;
+
+                MobileAppTracker.Instance.SetGender(gender_temp);
                 #endif
             }
         }
@@ -710,19 +786,15 @@ namespace MATSDK
         /// <param name="googleUserId">Google user ID.</param>
         public static void SetGoogleUserId(string googleUserId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetGoogleUserId(googleUserId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetGoogleUserId(googleUserId);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetGoogleUserId(googleUserId);
+                MATExterns.TuneSetGoogleUserId(googleUserId);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetGoogleUserId(googleUserId);
+                MobileAppTracker.Instance.SetGoogleUserId(googleUserId);
                 #endif
             }
         }
@@ -735,23 +807,17 @@ namespace MATSDK
         /// <param name="altitude">user's altitude</param>
         public static void SetLocation(double latitude, double longitude, double altitude)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetLocation(latitude, longitude, altitude);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetLocation(latitude, longitude, altitude);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetLatitude(latitude);
-                MATWP8.MobileAppTracker.Instance.SetLongitude(longitude);
-                MATWP8.MobileAppTracker.Instance.SetAltitude(altitude);
+                MATExterns.TuneSetLocation(latitude, longitude, altitude);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetLatitude(latitude);
-                MATWinStore.MobileAppTracker.Instance.SetLongitude(longitude);
-                MATWinStore.MobileAppTracker.Instance.SetAltitude(altitude);
+                MobileAppTracker.Instance.SetLatitude(latitude);
+                MobileAppTracker.Instance.SetLongitude(longitude);
+                MobileAppTracker.Instance.SetAltitude(altitude);
                 #endif
             }
         }
@@ -762,19 +828,15 @@ namespace MATSDK
         /// <param name="packageName">Package name</param>
         public static void SetPackageName(string packageName)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetPackageName(packageName);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetPackageName(packageName);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetPackageName(packageName);
+                MATExterns.TuneSetPackageName(packageName);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetPackageName(packageName);
+                MobileAppTracker.Instance.SetPackageName(packageName);
                 #endif
             }
         }
@@ -786,19 +848,15 @@ namespace MATSDK
         /// <param name="isPayingUser">true if the user is revenue-generating, false if not</param>
         public static void SetPayingUser(bool isPayingUser)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetPayingUser(isPayingUser);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetPayingUser(isPayingUser);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
+                MATExterns.TuneSetPayingUser(isPayingUser);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
+                MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
                 #endif
             }
         }
@@ -815,59 +873,48 @@ namespace MATSDK
                 MATAndroid.Instance.SetPhoneNumber(phoneNumber);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetPhoneNumber(phoneNumber);
+                MATExterns.TuneSetPhoneNumber(phoneNumber);
                 #endif
-//                #if UNITY_WP8
-//                MATWP8.MobileAppTracker.Instance.SetPhoneNumber(phoneNumber);
-//                #endif
-//                #if UNITY_METRO
-//                MATWinStore.MobileAppTracker.Instance.SetPhoneNumber(phoneNumber);
-//                #endif
+                #if UNITY_METRO
+                MobileAppTracker.Instance.SetPhoneNumber(phoneNumber);
+                #endif
             }
         }
-
-        ///<para>
-        ///Sets the user ID to associate with Twitter.
-        ///</para>
-        ///<param name="twitterUserId">Twitter user ID</param>
+        
+        /// <para>
+        /// Sets the user ID to associate with Twitter.
+        /// </para>
+        /// <param name="twitterUserId">Twitter user ID</param>
         public static void SetTwitterUserId(string twitterUserId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetTwitterUserId(twitterUserId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetTwitterUserId(twitterUserId);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetTwitterUserId(twitterUserId);
+                MATExterns.TuneSetTwitterUserId(twitterUserId);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetTwitterUserId(twitterUserId);
+                MobileAppTracker.Instance.SetTwitterUserId(twitterUserId);
                 #endif
             }
         }
 
-        ///<para>
-        ///Sets the custom user email.
-        ///</para>
-        ///<param name="userEmail">User's email address</param>
+        /// <para>
+        /// Sets the custom user email.
+        /// </para>
+        /// <param name="userEmail">User's email address</param>
         public static void SetUserEmail(string userEmail)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetUserEmail(userEmail);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetUserEmail(userEmail);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetUserEmail(userEmail);
+                MATExterns.TuneSetUserEmail(userEmail);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetUserEmail(userEmail);
+                MobileAppTracker.Instance.SetUserEmail(userEmail);
                 #endif
             }
         }
@@ -878,42 +925,34 @@ namespace MATSDK
         /// <param name="userId">the new user ID</param>
         public static void SetUserId(string userId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetUserId(userId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetUserId(userId);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetUserId(userId);
+                MATExterns.TuneSetUserId(userId);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetUserId(userId);
+                MobileAppTracker.Instance.SetUserId(userId);
                 #endif
             }
         }
 
-        ///<para>
-        ///Sets the custom user name.
-        ///</para>
-        ///<param name="userName">User name</param>
+        /// <para>
+        /// Sets the custom user name.
+        /// </para>
+        /// <param name="userName">User name</param>
         public static void SetUserName(string userName)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetUserName(userName);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetUserName(userName);
-                #endif
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetUserName(userName);
+                MATExterns.TuneSetUserName(userName);
                 #endif
                 #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetUserName(userName);
+                MobileAppTracker.Instance.SetUserName(userName);
                 #endif
             }
         }
@@ -930,19 +969,15 @@ namespace MATSDK
         /// <returns>true if the user has produced revenue, false if not</returns>
         public static bool GetIsPayingUser()
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 return MATAndroid.Instance.GetIsPayingUser();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.MATGetIsPayingUser();
-                #endif
-                #if UNITY_WP8
-                return MATWP8.MobileAppTracker.Instance.GetIsPayingUser();
+                return MATExterns.TuneGetIsPayingUser();
                 #endif
                 #if UNITY_METRO
-                return MATWinStore.MobileAppTracker.Instance.GetIsPayingUser();
+                return MobileAppTracker.Instance.GetIsPayingUser();
                 #endif
             }
             return true;
@@ -954,22 +989,18 @@ namespace MATSDK
         /// <returns>MAT ID</returns>
         public static string GetMATId()
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 return MATAndroid.Instance.GetMatId();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.MATGetMatId();
-                #endif
-                #if UNITY_WP8
-                return MATWP8.MobileAppTracker.Instance.GetMatId();
+                return MATExterns.TuneGetMatId();
                 #endif
                 #if UNITY_METRO
-                return MATWinStore.MobileAppTracker.Instance.GetMatId();
+                return MobileAppTracker.Instance.GetMatId();
                 #endif
             }
-            
+
             return string.Empty;
         }
 
@@ -979,22 +1010,18 @@ namespace MATSDK
         /// <returns>first MAT open log ID</returns>
         public static string GetOpenLogId()
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 return MATAndroid.Instance.GetOpenLogId();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.MATGetOpenLogId();
-                #endif
-                #if UNITY_WP8
-                return MATWP8.MobileAppTracker.Instance.GetOpenLogId();
+                return MATExterns.TuneGetOpenLogId();
                 #endif
                 #if UNITY_METRO
-                return MATWinStore.MobileAppTracker.Instance.GetOpenLogId();
+                return MobileAppTracker.Instance.GetOpenLogId();
                 #endif
             }
-            
+
             return string.Empty;
         }
 
@@ -1017,10 +1044,10 @@ namespace MATSDK
            if(!Application.isEditor)
            {
                #if UNITY_IPHONE
-                MATExterns.MATSetAppleAdvertisingIdentifier(advertiserIdentifier, trackingEnabled);
+                MATExterns.TuneSetAppleAdvertisingIdentifier(advertiserIdentifier, trackingEnabled);
                #endif
            }
-       }
+        }
 
         /// <para>
         /// Set the Apple Vendor Identifier available in iOS 6.
@@ -1029,10 +1056,9 @@ namespace MATSDK
         /// <param name="vendorIdentifier">Apple Vendor Identifier</param>
         public static void SetAppleVendorIdentifier(string vendorIdentifier)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_IPHONE
-                MATExterns.MATSetAppleVendorIdentifier(vendorIdentifier);
+                MATExterns.TuneSetAppleVendorIdentifier(vendorIdentifier);
                 #endif
             }
         }
@@ -1044,10 +1070,9 @@ namespace MATSDK
         /// <param name="isJailbroken">The jailbroken device flag</param>
         public static void SetJailbroken(bool isJailbroken)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_IPHONE
-                MATExterns.MATSetJailbroken(isJailbroken);
+                MATExterns.TuneSetJailbroken(isJailbroken);
                 #endif
             }
         }
@@ -1061,10 +1086,37 @@ namespace MATSDK
         /// </param>
         public static void SetShouldAutoDetectJailbroken(bool isAutoDetectJailbroken)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_IPHONE
-                MATExterns.MATSetShouldAutoDetectJailbroken(isAutoDetectJailbroken);
+                MATExterns.TuneSetShouldAutoDetectJailbroken(isAutoDetectJailbroken);
+                #endif
+            }
+        }
+
+        /// <para>
+        /// Specifies if the sdk should auto-collect the Apple Advertising Identfier (IDFA).
+        /// Does nothing if not iOS device.
+        /// </para>
+        /// <param name="shouldAutoCollect">Will auto-collect if true. Defaults to true.</param>
+        public static void SetShouldAutoCollectAppleAdvertisingIdentifier(bool shouldAutoCollect)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_IPHONE
+                MATExterns.TuneSetShouldAutoCollectAppleAdvertisingIdentifier(shouldAutoCollect);
+                #endif
+            }
+        }
+
+        /// <para>
+        /// Specifies if the sdk should auto-collect the geo location of the device.
+        /// Does nothing if not iOS device.
+        /// </para>
+        /// <param name="shouldAutoCollect">Will auto-collect if true. Defaults to true.</param>
+        public static void SetShouldAutoCollectDeviceLocation(bool shouldAutoCollect)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_IPHONE
+                MATExterns.TuneSetShouldAutoCollectDeviceLocation(shouldAutoCollect);
                 #endif
             }
         }
@@ -1076,10 +1128,9 @@ namespace MATSDK
         /// <param name="shouldAutoGenerate">True if yes, false if no.</param>
         public static void SetShouldAutoGenerateVendorIdentifier(bool shouldAutoGenerate)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_IPHONE
-                MATExterns.MATSetShouldAutoGenerateAppleVendorIdentifier(shouldAutoGenerate);
+                MATExterns.TuneSetShouldAutoGenerateAppleVendorIdentifier(shouldAutoGenerate);
                 #endif
             }
         }
@@ -1091,10 +1142,9 @@ namespace MATSDK
         /// <param name="useCookieTracking">True if yes, false if no.</param>
         public static void SetUseCookieTracking(bool useCookieTracking)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_IPHONE
-                MATExterns.MATSetUseCookieTracking(useCookieTracking);
+                MATExterns.TuneSetUseCookieTracking(useCookieTracking);
                 #endif
             }
         }
@@ -1112,8 +1162,7 @@ namespace MATSDK
         /// <param name="androidId">Device ANDROID_ID</param>
         public static void SetAndroidId(string androidId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetAndroidId(androidId);
                 #endif
@@ -1172,8 +1221,7 @@ namespace MATSDK
         /// <param name="deviceId">Device IMEI/MEID</param>
         public static void SetDeviceId(string deviceId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetDeviceId(deviceId);
                 #endif
@@ -1203,8 +1251,7 @@ namespace MATSDK
         /// <param name="macAddress">Device MAC address</param>
         public static void SetMacAddress(string macAddress)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetMacAddress(macAddress);
                 #endif
@@ -1221,8 +1268,7 @@ namespace MATSDK
         /// </param>
         public static void SetGoogleAdvertisingId(string adId, bool isLATEnabled)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetGoogleAdvertisingId(adId, isLATEnabled);
                 #endif
@@ -1233,117 +1279,38 @@ namespace MATSDK
         /// Sets the preloaded app attribution values (publisher information).
         /// Does nothing if not an Android or iOS device.
         /// </para>
-        /// <param name="preloadData">Preloaded app attribution values (publisher information)</param>
+        /// <param name="preloadedData">Preloaded app attribution values (publisher information)</param>
         public static void SetPreloadedApp(MATPreloadData preloadData)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetPreloadedApp(preloadData);
                 #endif
 
                 #if UNITY_IPHONE
-                MATExterns.MATSetPreloadData(preloadData);
+                MATExterns.TuneSetPreloadData(preloadData);
                 #endif
             }
         }
 
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////
-        /*---------------------Windows Phone 8 Specific Features-------------------*/
+        /*---------------------Windows Specific Features-------------------*/
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////
-
-        /// <para>
-        /// Sets the name of the app.
-        /// Does nothing if not a Windows Phone 8 device.
-        /// </para>
-        /// <param name="appName">App name</param>
-        public static void SetAppName(string appName)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetAppName(appName);
-                #endif
-            }
-        }
-
-
-        /// <para>
-        /// Sets the app version.
-        /// Does nothing if not a Windows Phone 8 device.
-        /// </para>
-        /// <param name="appVersion">App version</param>
-        public static void SetAppVersion(string appVersion)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetAppVersion(appVersion);
-                #endif
-            }
-        }
-
-        /// <para>
-        /// Sets the last open log ID.
-        /// Does nothing if not a Windows Phone 8 device.
-        /// </para>
-        /// <param name="lastOpenLogId">Last open log ID</param>
-        public static void SetLastOpenLogId(string lastOpenLogId)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetLastOpenLogId(lastOpenLogId);
-                #endif
-            }
-        }
-
+        #if UNITY_METRO
         /// <para>
         /// Sets the MAT response.
-        /// Does nothing if not a Windows Phone 8 device.
+        /// Does nothing if not a Windows device.
         /// </para>
         /// <param name="matResponse">MAT response</param>
-        public static void SetMATResponse(MATWP8.MATResponse matResponse)
+        public static void SetMATResponse(MATResponse matResponse)
         {
-            if(!Application.isEditor)
-            {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetMATResponse (matResponse);
-                #endif
+            if (!Application.isEditor) {
+                MobileAppTracker.Instance.SetMATResponse(matResponse);
             }
         }
-
-        /// <para>
-        /// Sets the MAT response.
-        /// Does nothing if not a Windows Store device.
-        /// </para>
-        /// <param name="matResponse">MAT response</param>
-        public static void SetMATResponse(MATWinStore.MATResponse matResponse)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MATWinStore.MobileAppTracker.Instance.SetMATResponse(matResponse);
-                #endif
-            }
-        }
-        
-        /// <para>
-        /// Sets the OS version.
-        /// Does nothing if not a Windows Phone 8 device.
-        /// </para>
-        /// <param name="osVersion">OS version</param>
-        public static void SetOSVersion(string osVersion)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_WP8
-                MATWP8.MobileAppTracker.Instance.SetOSVersion(osVersion);
-                #endif
-            }
-        }
+        #endif
 
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////
@@ -1358,32 +1325,31 @@ namespace MATSDK
         /// <param name="currencyCode">the currency code</param>
         public static void SetCurrencyCode(string currencyCode)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetCurrencyCode(currencyCode);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetCurrencyCode(currencyCode);
+                MATExterns.TuneSetCurrencyCode(currencyCode);
                 #endif
             }
         }
 
         /// <para>
-        /// Sets delegate used by MobileAppTracker to post success and failure callbacks from the MAT SDK.
+        /// Sets delegate used by Tune to post success and failure callbacks from the Tune SDK.
         /// Does nothing if not an Android or iOS device.
         /// </para>
         /// <param name="enable">If set to true enable delegate.</param>
         public static void SetDelegate(bool enable)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetDelegate(enable);
                 #endif
                 #if (UNITY_IPHONE)
-                MATExterns.MATSetDelegate(enable);
+                MATExterns.TuneSetDelegate(enable);
                 #endif
+
             }
         }
 
@@ -1391,16 +1357,15 @@ namespace MATSDK
         /// Sets the MAT site ID to specify which app to attribute to.
         /// Does nothing if not Android or iOS device.
         /// </para>
-        /// <param name="siteId"> MAT site ID to attribute to</param>
+        /// <param name="siteId">MAT site ID to attribute to</param>
         public static void SetSiteId(string siteId)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetSiteId(siteId);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetSiteId(siteId);
+                MATExterns.TuneSetSiteId(siteId);
                 #endif
             }
         }
@@ -1412,13 +1377,12 @@ namespace MATSDK
         /// <param name="tpid">TRUSTe ID</param>
         public static void SetTRUSTeId(string tpid)
         {
-            if(!Application.isEditor)
-            {
+            if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 MATAndroid.Instance.SetTRUSTeId(tpid);
                 #endif
                 #if UNITY_IPHONE
-                MATExterns.MATSetTRUSTeId(tpid);
+                MATExterns.TuneSetTRUSTeId(tpid);
                 #endif
             }
         }

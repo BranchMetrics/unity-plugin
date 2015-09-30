@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
 
-namespace UnityEditor.MATEditor
+namespace MATSDK
 {
     public static class MATPostBuildTrigger
     {
@@ -12,6 +12,10 @@ namespace UnityEditor.MATEditor
         // extracting the values from the generated project.pbxproj.  The format of this
         // file is not documented by Apple so the correct algorithm for generating these
         // ids is unknown. They also differ from project to project, so it may not matter.
+
+        const string FRAMEWORK_ADSUPPORT = "AdSupport.framework";
+        const string FRAMEWORK_ID_ADSUPPORT = "4266CDC118907E7C00C4E70B";
+        const string FRAMEWORK_FILEREFID_ADSUPPORT = "4266CDC018907E7C00C4E70B";
 
         const string FRAMEWORK_CORETELEPHONY = "CoreTelephony.framework";
         const string FRAMEWORK_ID_CORETELEPHONY = "4266CDD118907E7C00C4E70B";
@@ -27,7 +31,7 @@ namespace UnityEditor.MATEditor
 
         const string FRAMEWORK_STOREKIT = "StoreKit.framework";
         const string FRAMEWORK_ID_STOREKIT = "4266CDD118907E8F00C4E70B";
-        const string FRAMEWORK_FILEREFID_STOREKIT = "4266CDD018907E8F00C4E70B";
+        const string FRAMEWORK_FILEREFID_STOREKIT = "4266CDD218907E8D00C4E70B";
 
         const string FRAMEWORK_SYSTEMCONFIGURATION = "SystemConfiguration.framework";
         const string FRAMEWORK_ID_SYSTEMCONFIGURATION = "4266CDD518907E8F00C4E70B";
@@ -66,28 +70,27 @@ namespace UnityEditor.MATEditor
 
             // 1: Proceed only if this is an iOS build
 
-    #if UNITY_IPHONE
-            
-            string xcodeprojPath = Path.Combine(path, DEFAULT_UNITY_IPHONE_PROJECT_NAME);
-            
-            Debug.Log("We found xcodeprojPath to be : " + xcodeprojPath);
+            if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS) {
+                string xcodeprojPath = Path.Combine (path, DEFAULT_UNITY_IPHONE_PROJECT_NAME);
+                
+                Debug.Log ("We found xcodeprojPath to be : " + xcodeprojPath);
 
-            Dictionary<string, framework> dictFrameworks = new Dictionary<string, framework> ();
+                Dictionary<string, framework> dictFrameworks = new Dictionary<string, framework> ();
 
-            // List of all the frameworks to be added to the project
-            dictFrameworks.Add(FRAMEWORK_CORETELEPHONY, new framework (FRAMEWORK_CORETELEPHONY, FRAMEWORK_ID_CORETELEPHONY, FRAMEWORK_FILEREFID_CORETELEPHONY, null, false));
-            dictFrameworks.Add(FRAMEWORK_IAD, new framework (FRAMEWORK_IAD, FRAMEWORK_ID_IAD, FRAMEWORK_FILEREFID_IAD, null, false));
-            dictFrameworks.Add(FRAMEWORK_MOBILECORESERVICES, new framework (FRAMEWORK_MOBILECORESERVICES, FRAMEWORK_ID_MOBILECORESERVICES, FRAMEWORK_FILEREFID_MOBILECORESERVICES, null, false));
-            dictFrameworks.Add(FRAMEWORK_STOREKIT, new framework (FRAMEWORK_STOREKIT, FRAMEWORK_ID_STOREKIT, FRAMEWORK_FILEREFID_STOREKIT, null, false));
-            dictFrameworks.Add(FRAMEWORK_SYSTEMCONFIGURATION, new framework (FRAMEWORK_SYSTEMCONFIGURATION, FRAMEWORK_ID_SYSTEMCONFIGURATION, FRAMEWORK_FILEREFID_SYSTEMCONFIGURATION, null, false));
+                // List of all the frameworks to be added to the project
+                dictFrameworks.Add (FRAMEWORK_ADSUPPORT, new framework (FRAMEWORK_ADSUPPORT, FRAMEWORK_ID_ADSUPPORT, FRAMEWORK_FILEREFID_ADSUPPORT, null, false));
+                dictFrameworks.Add (FRAMEWORK_CORETELEPHONY, new framework (FRAMEWORK_CORETELEPHONY, FRAMEWORK_ID_CORETELEPHONY, FRAMEWORK_FILEREFID_CORETELEPHONY, null, false));
+                dictFrameworks.Add (FRAMEWORK_IAD, new framework (FRAMEWORK_IAD, FRAMEWORK_ID_IAD, FRAMEWORK_FILEREFID_IAD, null, false));
+                dictFrameworks.Add (FRAMEWORK_MOBILECORESERVICES, new framework (FRAMEWORK_MOBILECORESERVICES, FRAMEWORK_ID_MOBILECORESERVICES, FRAMEWORK_FILEREFID_MOBILECORESERVICES, null, false));
+                dictFrameworks.Add (FRAMEWORK_STOREKIT, new framework (FRAMEWORK_STOREKIT, FRAMEWORK_ID_STOREKIT, FRAMEWORK_FILEREFID_STOREKIT, null, false));
+                dictFrameworks.Add (FRAMEWORK_SYSTEMCONFIGURATION, new framework (FRAMEWORK_SYSTEMCONFIGURATION, FRAMEWORK_ID_SYSTEMCONFIGURATION, FRAMEWORK_FILEREFID_SYSTEMCONFIGURATION, null, false));
 
-            // 2: process our project
+                // 2: process our project
 
-            updateXcodeProject(xcodeprojPath, dictFrameworks);
-
-    #else
-            Debug.Log("OnPostProcessBuild - Warning: No PostProcessing required. This is not an iOS build.");
-    #endif
+                updateXcodeProject (xcodeprojPath, dictFrameworks);
+            } else {
+                Debug.Log ("OnPostProcessBuild - Warning: No PostProcessing required. This is not an iOS build.");
+            }
             Debug.Log("OnPostProcessBuild - END");
         }
         
@@ -109,6 +112,7 @@ namespace UnityEditor.MATEditor
             bool bFound = false;
             bool bEnd = false;
 
+            bool existsADSUPPORT = false;
             bool existsCORETELEPHONY = false;
             bool existsIAD = false;
             bool existsMOBILECORESERVICES = false;
@@ -122,7 +126,11 @@ namespace UnityEditor.MATEditor
                 if (lines[i].Length > 5 && (string.Compare(lines[i].Substring(3, 3), "End") == 0) )
                     bEnd = true;
 
-                if (lines [i].Contains (FRAMEWORK_CORETELEPHONY)) {
+                if (lines [i].Contains (FRAMEWORK_ADSUPPORT)) {
+                    existsADSUPPORT = true;
+                    dictFrameworks.Remove (FRAMEWORK_ADSUPPORT);
+                }
+                else if (lines [i].Contains (FRAMEWORK_CORETELEPHONY)) {
                     existsCORETELEPHONY = true;
                     dictFrameworks.Remove (FRAMEWORK_CORETELEPHONY);
                 }
@@ -143,7 +151,7 @@ namespace UnityEditor.MATEditor
                     dictFrameworks.Remove (FRAMEWORK_SYSTEMCONFIGURATION);
                 }
 
-                bFound = existsCORETELEPHONY && existsIAD && existsMOBILECORESERVICES && existsSTOREKIT && existsSYSTEMCONFIGURATION;
+                bFound = existsADSUPPORT && existsCORETELEPHONY && existsIAD && existsMOBILECORESERVICES && existsSTOREKIT && existsSYSTEMCONFIGURATION;
 
                 ++i;
             }
@@ -152,12 +160,12 @@ namespace UnityEditor.MATEditor
 
             if (bFound)
             {
-                Debug.Log("OnPostProcessBuild - WARNING: The frameworks required by MobileAppTracker are already present in the Xcode project. Nothing to add.");
+                Debug.Log("OnPostProcessBuild - WARNING: The frameworks required by Tune are already present in the Xcode project. Nothing to add.");
             }
             else
             {
                 // STEP 3 :
-                // Edit the project.pbxproj and include the missing frameworks required by MobileAppTracker.
+                // Edit the project.pbxproj and include the missing frameworks required by Tune.
 
                 FileStream filestr = new FileStream(project, FileMode.Create); //Create new file and open it for read and write, if the file exists overwrite it.
                 filestr.Close();
@@ -180,15 +188,6 @@ namespace UnityEditor.MATEditor
                     //////////////////////////////
                     //  STEP 1 : Build Options  //
                     //////////////////////////////
-                    
-                    if (section == "XCBuildConfiguration"
-                        && line.StartsWith("\t\t\t\tOTHER_CFLAGS"))
-                    {
-                        Debug.Log("OnPostProcessBuild - Adding FRAMEWORK_SEARCH_PATHS");
-                        
-                        // Add "." to the framework search path
-                        fCurrentXcodeProjFile.Write("\t\t\t\tFRAMEWORK_SEARCH_PATHS = (\n\t\t\t\t\t\"$(inherited)\",\n\t\t\t\t\t\"\\\"$(SRCROOT)/" + "." + "\\\"\",\n\t\t\t\t);\n");
-                    }
 
                     fCurrentXcodeProjFile.WriteLine(line);
 

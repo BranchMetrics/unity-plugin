@@ -3,6 +3,25 @@ using System;
 namespace MATSDK
 {
     /// <para>
+    /// Enum used for MAT ad request gender.
+    /// </para>
+    public enum MATAdGender
+    {
+        UNKNOWN,
+        MALE,
+        FEMALE
+    }
+
+    /// <para>
+    /// Enum used for MAT banner ad position.
+    /// </para>
+    public enum MATBannerPosition
+    {
+        BOTTOM_CENTER,
+        TOP_CENTER
+    }
+
+    /// <para>
     /// Struct used for MAT events.
     /// </para>
     public struct MATEvent
@@ -12,7 +31,7 @@ namespace MATSDK
         public double?      revenue;
         public string       currencyCode;
         public string       advertiserRefId;
-        public MATItem[]    eventItems;
+        public MATItem[]   eventItems;
         public int?         transactionState;
         public string       receipt;
         public string       receiptSignature;
@@ -85,7 +104,7 @@ namespace MATSDK
         public string        attribute3;
         public string        attribute4;
         public string        attribute5;
-
+        
         private MATEventIos(int dummy1, int dummy2) {
             this.eventId            = null;
             this.name               = null;
@@ -111,7 +130,7 @@ namespace MATSDK
         public MATEventIos(string name) : this(0, 0) {
             this.name = name;
         }
-
+        
         public MATEventIos(int id) : this(0, 0) {
             this.eventId = id.ToString();
         }
@@ -140,14 +159,14 @@ namespace MATSDK
 
             // datetime starts in 1970
             DateTime datetime = new DateTime(1970, 1, 1);
-
+            
             if(matEvent.date1.HasValue)
             {
                 double millis = new TimeSpan(matEvent.date1.Value.Ticks).TotalMilliseconds;
                 double millisFrom1970 = millis - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 date1 = millisFrom1970.ToString();
             }
-
+            
             if(matEvent.date2.HasValue)
             {
                 double millis = new TimeSpan(matEvent.date2.Value.Ticks).TotalMilliseconds;
@@ -156,7 +175,7 @@ namespace MATSDK
             }
         }
     }
-
+    
     /// <para>
     /// Struct used for MAT event items.
     /// </para>
@@ -171,7 +190,7 @@ namespace MATSDK
         public string   attribute3;
         public string   attribute4;
         public string   attribute5;
-
+        
         public MATItem(string name)
         {
             this.name       = name;

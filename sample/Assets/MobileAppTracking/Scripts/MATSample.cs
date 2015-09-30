@@ -4,31 +4,26 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using MATSDK;
+#if UNITY_METRO
+using MATWinStore;
+#endif
 
 /// <para>
 /// This class demonstrates the basic features of the MAT Unity Plugin and
 /// its ability to have one project work with Android, iOS, and Windows Phone 8.
 /// </para>
-using System.Text;
-
-
 public class MATSample : MonoBehaviour {
-
-    #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
     string MAT_ADVERTISER_ID = null;
     string MAT_CONVERSION_KEY = null;
     string MAT_PACKAGE_NAME = null;
-    #endif
 
     void Awake ()
     {
-        #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
         MAT_ADVERTISER_ID = "877";
         MAT_CONVERSION_KEY = "8c14d6bbe466b65211e781d62e301eec";
         MAT_PACKAGE_NAME = "com.hasoffers.unitytestapp";
 
         print ("Awake called: " + MAT_ADVERTISER_ID + ", " + MAT_CONVERSION_KEY);
-        #endif
 
         return;
     }
@@ -45,16 +40,16 @@ public class MATSample : MonoBehaviour {
         
         GUI.skin.button.fontSize = 40;
         
-        if (GUI.Button (new Rect (10, Screen.height/10, Screen.width - 20, Screen.height/10), "Start MAT"))
+        if (GUI.Button (new Rect (10, Screen.height/10, Screen.width - 20, Screen.height/10), "Start MAT SDK"))
         {
-            print ("Start MAT clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
+            print ("Start MAT SDK clicked");
+            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_METRO)
                 MATBinding.Init(MAT_ADVERTISER_ID, MAT_CONVERSION_KEY);
                 MATBinding.SetPackageName(MAT_PACKAGE_NAME);
                 MATBinding.SetFacebookEventLogging(true, false);
             #endif
             #if (UNITY_ANDROID || UNITY_IPHONE)
-                MATBinding.CheckForDeferredDeeplinkWithTimeout(750); // 750 ms
+                MATBinding.CheckForDeferredDeeplink();
                 MATBinding.AutomateIapEventMeasurement(true);
             #endif
         }
@@ -64,61 +59,48 @@ public class MATSample : MonoBehaviour {
             print ("Set Delegate clicked");
             #if (UNITY_ANDROID || UNITY_IPHONE)
             MATBinding.SetDelegate(true);
-
-            #endif
-            #if UNITY_WP8
-            MATBinding.SetMATResponse(new SampleWP8MATResponse());
             #endif
             #if UNITY_METRO
-            MATBinding.SetMATResponse(new SampleWinStoreMATResponse());
+            MATBinding.SetMATResponse(new SampleWinMATResponse());
             #endif
         }
 
         else if (GUI.Button (new Rect (10, 3*Screen.height/10, Screen.width - 20, Screen.height/10), "Enable Debug Mode"))
         {
             print ("Enable Debug Mode clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             // NOTE: !!! ONLY FOR DEBUG !!!
             // !!! Make sure you set to false
             //     OR
             //     remove the setDebugMode and setAllowDuplicates calls for Production builds !!!
             MATBinding.SetDebugMode(true);
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 4*Screen.height/10, Screen.width - 20, Screen.height/10), "Allow Duplicates"))
         {
             print ("Allow Duplicates clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             // NOTE: !!! ONLY FOR DEBUG !!!
             // !!! Make sure you set to false
             //     OR
             //     remove the setDebugMode and setAllowDuplicates calls for Production builds !!!
             MATBinding.SetAllowDuplicates(true);
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 5*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Session"))
         {
             print ("Measure Session clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATBinding.MeasureSession();
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event"))
         {
             print ("Measure Event clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATBinding.MeasureEvent("evt11");
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event With Event Items"))
         {
             print ("Measure Event With Event Items clicked");
             
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATItem item1 = new MATItem();
             item1.name = "subitem1";
             item1.unitPrice = 5;
@@ -136,43 +118,40 @@ public class MATSample : MonoBehaviour {
             item2.revenue = 1.5;
             item2.attribute1 = "attrValue1";
             item2.attribute3 = "attrValue3";
-            
+
             MATItem[] eventItems = { item1, item2 };
-
-            MATEvent matEvent = new MATEvent("purchase");
-            matEvent.revenue = 10;
-            matEvent.currencyCode = "AUD";
-            matEvent.advertiserRefId = "ref222";
-            matEvent.attribute1 = "test_attribute1";
-            matEvent.attribute2 = "test_attribute2";
-            matEvent.attribute3 = "test_attribute3";
-            matEvent.attribute4 = "test_attribute4";
-            matEvent.attribute5 = "test_attribute5";
-            matEvent.contentType = "test_contentType";
-            matEvent.contentId = "test_contentId";
-            matEvent.date1 = DateTime.UtcNow;
-            matEvent.date2 = DateTime.UtcNow.Add(new TimeSpan((new DateTime(2,1,1)).Ticks));
-            matEvent.level = 3;
-            matEvent.quantity = 2;
-            matEvent.rating = 4.5;
-            matEvent.searchString = "test_searchString";
-            matEvent.eventItems = eventItems;
-            // transaction state may be set to the value received from the iOS/Android app store.
-            matEvent.transactionState = 1;
             
+            MATEvent tuneEvent = new MATEvent("purchase");
+            tuneEvent.revenue = 10;
+            tuneEvent.currencyCode = "AUD";
+            tuneEvent.advertiserRefId = "ref222";
+            tuneEvent.attribute1 = "test_attribute1";
+            tuneEvent.attribute2 = "test_attribute2";
+            tuneEvent.attribute3 = "test_attribute3";
+            tuneEvent.attribute4 = "test_attribute4";
+            tuneEvent.attribute5 = "test_attribute5";
+            tuneEvent.contentType = "test_contentType";
+            tuneEvent.contentId = "test_contentId";
+            tuneEvent.date1 = DateTime.UtcNow;
+            tuneEvent.date2 = DateTime.UtcNow.Add(new TimeSpan((new DateTime(2, 1, 1).Ticks)));
+            tuneEvent.level = 3;
+            tuneEvent.quantity = 2;
+            tuneEvent.rating = 4.5;
+            tuneEvent.searchString = "test_searchString";
+            tuneEvent.eventItems = eventItems;
+            // transaction state may be set to the value received from the iOS/Android app store.
+            tuneEvent.transactionState = 1;
+
             #if UNITY_IPHONE
-            matEvent.receipt = getSampleiTunesIAPReceipt();
+            tuneEvent.receipt = getSampleiTunesIAPReceipt();
             #endif
-
-            MATBinding.MeasureEvent(matEvent);
-
-            #endif
+            
+            MATBinding.MeasureEvent(tuneEvent);
         }
 
         else if (GUI.Button (new Rect (10, 8*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Setter Methods"))
         {
             print ("Test Setter Methods clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             MATBinding.SetAge(34);
             MATBinding.SetAllowDuplicates(true);
             MATBinding.SetAppAdTracking(true);
@@ -184,38 +163,38 @@ public class MATSample : MonoBehaviour {
             MATBinding.SetLocation(111,222,333);
             //MATBinding.SetPackageName(MAT_PACKAGE_NAME);
             MATBinding.SetPayingUser(true);
-            MATBinding.SetPhoneNumber("111-222-3456");
+            MATBinding.SetPhoneNumber("111-222-3333");
             MATBinding.SetTwitterUserId("twitter_user_id");
             MATBinding.SetUserId("temp_user_id");
             MATBinding.SetUserName("temp_user_name");
             MATBinding.SetUserEmail("tempuser@tempcompany.com");
+
             //iOS-specific Features
             #if UNITY_IPHONE
-            #if UNITY_5_0
+
+            #if UNITY_5
             MATBinding.SetAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
+            MATBinding.SetAppleVendorIdentifier(UnityEngine.iOS.Device.vendorIdentifier);
             #else
             MATBinding.SetAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
-            #endif
             MATBinding.SetAppleVendorIdentifier(UnityEngine.iPhone.vendorIdentifier);
+            #endif
+
             MATBinding.SetDelegate(true);
             MATBinding.SetJailbroken(false);
+            MATBinding.SetShouldAutoCollectAppleAdvertisingIdentifier(true);
+            MATBinding.SetShouldAutoCollectDeviceLocation(true);
             MATBinding.SetShouldAutoDetectJailbroken(true);
             MATBinding.SetShouldAutoGenerateVendorIdentifier(true);
             MATBinding.SetUseCookieTracking(false);
             #endif
+
             //Android-specific Features
             #if UNITY_ANDROID
             MATBinding.SetAndroidId("111111111111");
             MATBinding.SetDeviceId("123456789123456");
             MATBinding.SetGoogleAdvertisingId("12345678-1234-1234-1234-123456789012", true);
             MATBinding.SetMacAddress("AA:BB:CC:DD:EE:FF");
-            #endif
-            //Windows Phone 8 Specific Features
-            #if UNITY_WP8
-            MATBinding.SetAppName("testWP8_AppName");
-            MATBinding.SetAppVersion("testWP8_AppVersion");
-            MATBinding.SetLastOpenLogId("testWP8_LastOpenLogId");
-            MATBinding.SetOSVersion("testWP8_OS");
             #endif
             //Android and iOS-specific Features
             #if (UNITY_ANDROID || UNITY_IPHONE)
@@ -227,18 +206,14 @@ public class MATSample : MonoBehaviour {
             pd.publisherSub3 = "some_pub_sub3";
             MATBinding.SetPreloadedApp(pd);
             #endif
-
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 9*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Getter Methods"))
         {
             print ("Test Getter Methods clicked");
-            #if (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8 || UNITY_METRO)
             print ("isPayingUser = " + MATBinding.GetIsPayingUser());
             print ("matId     = " + MATBinding.GetMATId());
             print ("openLogId = " + MATBinding.GetOpenLogId());
-            #endif
         }
     }
 
@@ -248,8 +223,9 @@ public class MATSample : MonoBehaviour {
     }
 }
 
-// Used to test MATResponse functionality
-public class SampleWP8MATResponse : MATWP8.MATResponse
+#if UNITY_METRO
+// Used to test Windows MATResponse functionality
+public class SampleWinMATResponse : MATResponse
 {
     // Make sure to attach MATDelegate.cs to the empty "MobileAppTracker" object
     MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegate>();
@@ -272,28 +248,4 @@ public class SampleWP8MATResponse : MATWP8.MATResponse
             message_receiver.trackerDidEnqueueRequest("" + refId);
     }
 }
-
-// Used to test MATResponse functionality
-public class SampleWinStoreMATResponse : MATWinStore.MATResponse
-{
-    // Make sure to attach MATDelegate.cs to the empty "MobileAppTracker" object
-    MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegate>();
-
-    public void DidSucceedWithData(string response)
-    {
-        if (message_receiver != null)
-            message_receiver.trackerDidSucceed("" + response);
-    }
-
-    public void DidFailWithError(string error)
-    {
-        if (message_receiver != null)
-            message_receiver.trackerDidFail("" + error);
-    }
-
-    public void EnqueuedActionWithRefId(string refId)
-    {
-        if (message_receiver != null)
-            message_receiver.trackerDidEnqueueRequest("" + refId);
-    }
-}
+#endif

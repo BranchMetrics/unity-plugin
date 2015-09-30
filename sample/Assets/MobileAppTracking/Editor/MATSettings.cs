@@ -5,8 +5,8 @@ using System.IO;
 using UnityEditor;
 #endif
 
-namespace MATSDK {
-
+namespace MATSDK
+{
 #if UNITY_EDITOR
     [InitializeOnLoad]
 #endif

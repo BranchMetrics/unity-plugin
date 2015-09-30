@@ -4,35 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-/* Attach this script to an empty object to retrieve information about the server request.
- * iOS and Android builds are designed to send messages to this script. For Windows Phone 8, 
- * create the class shown below and pass an instance of it into MATBinding.SetMATResponse
- * 
-public class SampleMATResponse : MATWP8.MATResponse
-{
-    //Make sure to attach MATDelegateScript to the empty "MobileAppTracker" object
-    MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegateScript>();
-
-    public void DidSucceedWithData(string response)
-    {
-        if(message_receiver != null)
-            message_receiver.trackerDidSucceed("" + response);
-    }
-    
-    public void DidFailWithError(string error)
-    {
-        if(message_receiver != null)
-            message_receiver.trackerDidFail("" + error);
-    }
-    
-    public void EnqueuedActionWithRefId(string refId)
-    {
-        if(message_receiver != null)
-            message_receiver.trackerDidEnqueueRequest("" + refId);
-    }
-}
-
- */
 namespace MATSDK
 {
     public class MATDelegate : MonoBehaviour
@@ -42,7 +13,7 @@ namespace MATSDK
             #if UNITY_IPHONE
             print ("MATDelegate trackerDidSucceed: " + DecodeFrom64 (data));
             #endif
-            #if (UNITY_ANDROID || UNITY_WP8)
+            #if (UNITY_ANDROID || UNITY_WP8 || UNITY_METRO)
             print ("MATDelegate trackerDidSucceed: " + data);
             #endif
         }
@@ -57,11 +28,57 @@ namespace MATSDK
             print ("MATDelegate trackerDidEnqueueRequest: " + refId);
         }
 
-        public void trackerDidReceiveDeepLink (string url)
+        public void trackerDidReceiveDeeplink (string url)
         {
-            print ("MATDelegate trackerDidReceiveDeepLink: " + url);
+            print ("MATDelegate trackerDidReceiveDeeplink: " + url);
+
+            // TODO: add your custom code to handle the deferred deeplink url
         }
 
+        public void trackerDidFailDeeplink (string error)
+        {
+            print ("MATDelegate trackerDidFailDeeplink: " + error);
+        }
+
+        public void onAdLoad(String placement)
+        {
+            print ("MATDelegate onAdLoad: placement = " + placement);
+        }
+
+        public void onAdLoadFailed(String error)
+        {
+            print ("MATDelegate onAdLoadFailed: " + error);
+        }
+
+        public void onAdClick(String empty)
+        {
+            print ("MATDelegate onAdClick");
+        }
+        
+        public void onAdShown(String empty)
+        {
+            print ("MATDelegate onAdShown");
+        }
+
+        public void onAdActionStart(String willLeaveApplication)
+        {
+            print ("MATDelegate onAdActionStart: willLeaveApplication = " + willLeaveApplication);
+        }
+        
+        public void onAdActionEnd(String empty)
+        {
+            print ("MATDelegate onAdActionEnd");
+        }
+
+        public void onAdRequestFired(String request)
+        {
+            print ("MATDelegate onAdRequestFired: request = " + request);
+        }
+
+        public void onAdClosed(String empty)
+        {
+            print ("MATDelegate onAdClosed");
+        }
 
         /// <summary>
         /// The method to decode base64 strings.

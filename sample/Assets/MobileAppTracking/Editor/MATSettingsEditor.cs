@@ -5,10 +5,10 @@ using System.Xml;
 using UnityEngine;
 using UnityEditor;
 
-namespace MATSDK {
+namespace MATSDK
+{
     [CustomEditor(typeof(MATSettings))]
-    public class MATSettingsEditor : Editor
-    {
+    public class MATSettingsEditor : Editor {
         // Minimum version of Google Play Services required for Google Advertising Id collection
         private long MinGPSVersion = 4030530;
 

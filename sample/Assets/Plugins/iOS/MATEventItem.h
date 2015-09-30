@@ -7,50 +7,51 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AvailabilityMacros.h>
 
 /*!
  MATEventItem represents event items for use with MAT events.
  */
-@interface MATEventItem : NSObject
+DEPRECATED_MSG_ATTRIBUTE("Please use class TuneEventItem instead") @interface MATEventItem : NSObject
 
 /** @name MATEventItem Properties */
 /*!
  name of the event item
  */
-@property (nonatomic, copy) NSString *item;
+@property (nonatomic, copy) NSString *item DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  unit price of the event item
  */
-@property (nonatomic, assign) float unitPrice;
+@property (nonatomic, assign) float unitPrice DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  quantity of the event item
  */
-@property (nonatomic, assign) int quantity;
+@property (nonatomic, assign) int quantity DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  revenue of the event item
  */
-@property (nonatomic, assign) float revenue;
+@property (nonatomic, assign) float revenue DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 
 /*!
  an extra parameter that corresponds to attribute_sub1 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute1;
+@property (nonatomic, copy) NSString *attribute1 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  an extra parameter that corresponds to attribute_sub2 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute2;
+@property (nonatomic, copy) NSString *attribute2 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  an extra parameter that corresponds to attribute_sub3 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute3;
+@property (nonatomic, copy) NSString *attribute3 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  an extra parameter that corresponds to attribute_sub4 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute4;
+@property (nonatomic, copy) NSString *attribute4 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 /*!
  an extra parameter that corresponds to attribute_sub5 property of the event item
  */
-@property (nonatomic, copy) NSString *attribute5;
+@property (nonatomic, copy) NSString *attribute5 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding property from class TuneEventItem");
 
 
 /** @name Methods to create MATEventItem objects.*/
@@ -62,7 +63,7 @@
  @param unitPrice unit price of the event item
  @param quantity quantity of the event item
  */
-+ (instancetype)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity;
++ (instancetype)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class TuneEventItem");
 
 /*!
  Method to create an event item.
@@ -71,7 +72,7 @@
  @param quantity quantity of the event item
  @param revenue revenue of the event item, to be used instead of (quantity * unitPrice)
  */
-+ (instancetype)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue;
++ (instancetype)eventItemWithName:(NSString *)name unitPrice:(float)unitPrice quantity:(int)quantity revenue:(float)revenue DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class TuneEventItem");
 
 /*!
  Method to create an event item.
@@ -87,7 +88,7 @@
                        attribute2:(NSString *)attribute2
                        attribute3:(NSString *)attribute3
                        attribute4:(NSString *)attribute4
-                       attribute5:(NSString *)attribute5;
+                       attribute5:(NSString *)attribute5 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class TuneEventItem");
 
 /*!
  Method to create an event item.
@@ -106,5 +107,5 @@
                        attribute2:(NSString *)attribute2
                        attribute3:(NSString *)attribute3
                        attribute4:(NSString *)attribute4
-                       attribute5:(NSString *)attribute5;
+                       attribute5:(NSString *)attribute5 DEPRECATED_MSG_ATTRIBUTE("Please use corresponding method from class TuneEventItem");
 @end

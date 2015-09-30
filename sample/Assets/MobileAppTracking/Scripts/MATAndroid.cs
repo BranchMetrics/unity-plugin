@@ -1,19 +1,24 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace MATSDK
 {
     #if UNITY_ANDROID
+
     public class MATAndroid
     {
         private static MATAndroid instance;
 
-        //MobileAppTracker.java for Android is already encapsulated.
+        //Tune.java for Android is already encapsulated.
         private AndroidJavaClass ajcMAT;
         public AndroidJavaObject ajcInstance;
         private AndroidJavaClass ajcUnityPlayer;
         private AndroidJavaObject ajcCurrentActivity;
+
+        // Ads helper plugin
+        private AndroidJavaObject ajcAlliances;
 
         private MATAndroid() {}
 
@@ -27,16 +32,15 @@ namespace MATSDK
                 }
                 return instance;
             }
-
         }
 
         /// <summary>
-        /// Initializes the reference to the AndroidJavaClass MobileAppTracker object.
+        /// Initializes the reference to the AndroidJavaClass Tune object.
         /// Does nothing if already initialized.
         /// </summary>
         public void Init(string advertiserId, string conversionKey)
         {
-            if(ajcMAT == null)
+            if (ajcMAT == null)
             {
                 ajcMAT = new AndroidJavaClass("com.mobileapptracker.MobileAppTracker");
                 ajcUnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -44,7 +48,72 @@ namespace MATSDK
 
                 ajcInstance = ajcMAT.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey);
                 ajcInstance.Call("setPluginName", "unity");
+
+                ajcAlliances = new AndroidJavaObject("com.tune.unityutils.CrossPromoUnityPlugin");
             }
+        }
+
+        public void ShowBanner(string placement)
+        {
+            ajcAlliances.Call("showBanner", placement);
+        }
+
+        public void ShowBanner(string placement, MATAdMetadata metadata)
+        {
+            AndroidJavaObject objRequest = GetAdMetadataJavaObject(metadata);
+            ajcAlliances.Call("showBanner", placement, objRequest);
+        }
+
+        public void ShowBanner(String placement, MATAdMetadata metadata, MATBannerPosition position)
+        {
+            AndroidJavaObject objRequest = GetAdMetadataJavaObject(metadata);
+            AndroidJavaObject objPosition;
+            if (position == MATBannerPosition.TOP_CENTER)
+            {
+                objPosition = new AndroidJavaClass("com.tune.crosspromo.TuneBannerPosition").GetStatic<AndroidJavaObject>("TOP_CENTER");
+            }
+            else
+            {
+                objPosition = new AndroidJavaClass("com.tune.crosspromo.TuneBannerPosition").GetStatic<AndroidJavaObject>("BOTTOM_CENTER");
+            }
+            ajcAlliances.Call("showBanner", placement, objRequest, objPosition);
+        }
+
+        public void HideBanner()
+        {
+            ajcAlliances.Call("hideBanner");
+        }
+
+        public void DestroyBanner()
+        {
+            ajcAlliances.Call("destroyBanner");
+        }
+
+        public void CacheInterstitial(string placement)
+        {
+            ajcAlliances.Call("cacheInterstitial", placement);
+        }
+
+        public void CacheInterstitial(string placement, MATAdMetadata metadata)
+        {
+            AndroidJavaObject objMetadata = GetAdMetadataJavaObject(metadata);
+            ajcAlliances.Call("cacheInterstitial", placement, objMetadata);
+        }
+
+        public void ShowInterstitial(string placement)
+        {
+            ajcAlliances.Call("showInterstitial", placement);
+        }
+
+        public void ShowInterstitial(string placement, MATAdMetadata metadata)
+        {
+            AndroidJavaObject objMetadata = GetAdMetadataJavaObject(metadata);
+            ajcAlliances.Call("showInterstitial", placement, objMetadata);
+        }
+
+        public void DestroyInterstitial()
+        {
+            ajcAlliances.Call("destroyInterstitial");
         }
 
         public void MeasureSession()
@@ -58,10 +127,22 @@ namespace MATSDK
             ajcInstance.Call("measureEvent", eventName);
         }
 
-        public void MeasureEvent(MATEvent matEvent)
+        public void MeasureEvent(int eventId)
         {
-            AndroidJavaObject objEvent = GetMATEventJavaObject(matEvent);
+            ajcInstance.Call("measureEvent", eventId);
+        }
+
+        public void MeasureEvent(MATEvent tuneEvent)
+        {
+            AndroidJavaObject objEvent = GetTuneEventJavaObject(tuneEvent);
             ajcInstance.Call("measureEvent", objEvent);
+        }
+
+        public void CheckForDeferredDeeplink()
+        {
+            // Get the predefined Unity MAT dplink listener
+            AndroidJavaObject objListener = new AndroidJavaObject("com.tune.unityutils.TUNEUnityDeeplinkListener");
+            ajcInstance.Call("checkForDeferredDeeplink", objListener);
         }
 
         public bool GetIsPayingUser()
@@ -124,11 +205,6 @@ namespace MATSDK
             ajcInstance.Call("setDebugMode", debugMode);
         }
 
-        public void SetDeferredDeeplink(bool enableDeferredDeeplink, int timeoutInMillis)
-        {
-            ajcInstance.Call("setDeferredDeeplink", enableDeferredDeeplink, timeoutInMillis);
-        }
-
         public void SetDeviceId(string deviceId)
         {
             ajcInstance.Call("setDeviceId", deviceId);
@@ -139,7 +215,7 @@ namespace MATSDK
             if (enable)
             {
                 // Get the predefined Unity MAT response and set it
-                AndroidJavaObject objResponse = new AndroidJavaObject("com.matunityutils.MATUnityResponse");
+                AndroidJavaObject objResponse = new AndroidJavaObject("com.tune.unityutils.TUNEUnityListener");
                 ajcInstance.Call("setMATResponse", objResponse);
             }
         }
@@ -195,15 +271,15 @@ namespace MATSDK
         {
             ajcInstance.Call("setPackageName", packageName);
         }
-
-        public void SetPhoneNumber(string phoneNumber)
-        {
-            ajcInstance.Call("setPhoneNumber", phoneNumber);
-        }
         
         public void SetPayingUser(bool isPayingUser)
         {
             ajcInstance.Call("setIsPayingUser", isPayingUser);
+        }
+
+        public void SetPhoneNumber(string phoneNumber)
+        {
+            ajcInstance.Call("setPhoneNumber", phoneNumber);
         }
 
         public void SetSiteId(string siteId)
@@ -239,8 +315,8 @@ namespace MATSDK
         // Preloaded app attribution
         public void SetPreloadedApp(MATPreloadData preloadData)
         {
-            // Convert C# MATPreloadData to Java MATPreloadData
-            AndroidJavaObject objPreloadData = new AndroidJavaObject("com.mobileapptracker.MATPreloadData", preloadData.publisherId);
+            // Convert C# MATPreloadData to Java TunePreloadData
+            AndroidJavaObject objPreloadData = new AndroidJavaObject("com.tune.TunePreloadData", preloadData.publisherId);
             if (preloadData.offerId != null) {
                 objPreloadData = objPreloadData.Call<AndroidJavaObject>("withOfferId", preloadData.offerId);
             }
@@ -305,32 +381,32 @@ namespace MATSDK
             ajcInstance.Call("setPreloadedApp", objPreloadData);
         }
 
-        private AndroidJavaObject GetMATEventJavaObject(MATEvent matEvent)
+        private AndroidJavaObject GetTuneEventJavaObject(MATEvent tuneEvent)
         {
-            // Convert C# MATEvent to new Java matEvent object
-            AndroidJavaObject objMatEvent;
-            if (matEvent.name == null) {
-                objMatEvent = new AndroidJavaObject("com.mobileapptracker.MATEvent", matEvent.id);
+            // Convert C# MATEvent to new Java TuneEvent object
+            AndroidJavaObject objTuneEvent;
+            if (tuneEvent.name == null) {
+                objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.id);
             } else {
-                objMatEvent = new AndroidJavaObject("com.mobileapptracker.MATEvent", matEvent.name);
+                objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.name);
             }
             // Set the optional params if they exist
-            if (matEvent.revenue != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withRevenue", matEvent.revenue);
+            if (tuneEvent.revenue != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withRevenue", tuneEvent.revenue);
             }
-            if (matEvent.currencyCode != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withCurrencyCode", matEvent.currencyCode);
+            if (tuneEvent.currencyCode != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withCurrencyCode", tuneEvent.currencyCode);
             }
-            if (matEvent.advertiserRefId != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAdvertiserRefId", matEvent.advertiserRefId);
+            if (tuneEvent.advertiserRefId != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAdvertiserRefId", tuneEvent.advertiserRefId);
             }
-            if (matEvent.eventItems != null) {
-                // Convert MATItem[] to Arraylist<MATEventItem>
+            if (tuneEvent.eventItems != null) {
+                // Convert MATItem[] to Arraylist<TuneEventItem>
                 AndroidJavaObject objArrayList = new AndroidJavaObject("java.util.ArrayList");
-                foreach (MATItem item in matEvent.eventItems)
+                foreach (MATItem item in tuneEvent.eventItems)
                 {
-                    // Convert MATItem to matEventItem
-                    AndroidJavaObject objEventItem = new AndroidJavaObject("com.mobileapptracker.MATEventItem", item.name);
+                    // Convert MATItem to TuneEventItem
+                    AndroidJavaObject objEventItem = new AndroidJavaObject("com.tune.TuneEventItem", item.name);
                     if (item.quantity != null) {
                         objEventItem = objEventItem.Call<AndroidJavaObject>("withQuantity", item.quantity);
                     }
@@ -355,67 +431,142 @@ namespace MATSDK
                     if (item.attribute5 != null) {
                         objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute5", item.attribute5);
                     }
-                    // Add to list of matEventItems
+                    // Add to list of TuneEventItems
                     objArrayList.Call<bool>("add", objEventItem);
                 }
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withEventItems", objArrayList);
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withEventItems", objArrayList);
             }
-            if (matEvent.receipt != null && matEvent.receiptSignature != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withReceipt", matEvent.receipt, matEvent.receiptSignature);
+            if (tuneEvent.receipt != null && tuneEvent.receiptSignature != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withReceipt", tuneEvent.receipt, tuneEvent.receiptSignature);
             }
-            if (matEvent.contentType != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withContentType", matEvent.contentType);
+            if (tuneEvent.contentType != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withContentType", tuneEvent.contentType);
             }
-            if (matEvent.contentId != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withContentId", matEvent.contentId);
+            if (tuneEvent.contentId != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withContentId", tuneEvent.contentId);
             }
-            if (matEvent.level != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withLevel", matEvent.level);
+            if (tuneEvent.level != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withLevel", tuneEvent.level);
             }
-            if (matEvent.quantity != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withQuantity", matEvent.quantity);
+            if (tuneEvent.quantity != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withQuantity", tuneEvent.quantity);
             }
-            if (matEvent.searchString != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withSearchString", matEvent.searchString);
+            if (tuneEvent.searchString != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withSearchString", tuneEvent.searchString);
             }
-            if (matEvent.date1 != null) {
-                double milliseconds = new TimeSpan(((DateTime)matEvent.date1).Ticks).TotalMilliseconds;
+            if (tuneEvent.date1 != null) {
+                double milliseconds = new TimeSpan(((DateTime)tuneEvent.date1).Ticks).TotalMilliseconds;
                 //datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 // Convert C# DateTime to Java Date
                 AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", millisecondsFrom1970);
-                long longDate = objDouble.Call<long>("longValue");
+                AndroidJavaObject longDate = objDouble.Call<AndroidJavaObject>("longValue");
                 AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withDate1", objDate);
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withDate1", objDate);
             }
-            if (matEvent.date2 != null) {
-                double milliseconds = new TimeSpan(((DateTime)matEvent.date2).Ticks).TotalMilliseconds;
+            if (tuneEvent.date2 != null) {
+                double milliseconds = new TimeSpan(((DateTime)tuneEvent.date2).Ticks).TotalMilliseconds;
                 //datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 // Convert C# DateTime to Java Date
                 AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", millisecondsFrom1970);
-                long longDate = objDouble.Call<long>("longValue");
+                AndroidJavaObject longDate = objDouble.Call<AndroidJavaObject>("longValue");
                 AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withDate2", objDate);
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withDate2", objDate);
             }
-            if (matEvent.attribute1 != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute1", matEvent.attribute1);
+            if (tuneEvent.attribute1 != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAttribute1", tuneEvent.attribute1);
             }
-            if (matEvent.attribute2 != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute2", matEvent.attribute2);
+            if (tuneEvent.attribute2 != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAttribute2", tuneEvent.attribute2);
             }
-            if (matEvent.attribute3 != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute3", matEvent.attribute3);
+            if (tuneEvent.attribute3 != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAttribute3", tuneEvent.attribute3);
             }
-            if (matEvent.attribute4 != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute4", matEvent.attribute4);
+            if (tuneEvent.attribute4 != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAttribute4", tuneEvent.attribute4);
             }
-            if (matEvent.attribute5 != null) {
-                objMatEvent = objMatEvent.Call<AndroidJavaObject>("withAttribute5", matEvent.attribute5);
+            if (tuneEvent.attribute5 != null) {
+                objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAttribute5", tuneEvent.attribute5);
             }
-            return objMatEvent;
+            return objTuneEvent;
+        }
+
+        private AndroidJavaObject GetAdMetadataJavaObject(MATAdMetadata metadata)
+        {
+            // Convert C# MATAdMetadata to new Java TuneAdRequest object
+            AndroidJavaObject objRequest = new AndroidJavaObject("com.tune.crosspromo.TuneAdMetadata");
+
+            // Set debug mode boolean
+            objRequest = objRequest.Call<AndroidJavaObject>("withDebugMode", metadata.getDebugMode());
+
+            // Set gender as MATAdGender enum value
+            AndroidJavaObject gender;
+            if (metadata.getGender() == MATAdGender.MALE)
+            {
+                gender = new AndroidJavaClass("com.mobileapptracker.MATGender").GetStatic<AndroidJavaObject>("MALE");
+            }
+            else if (metadata.getGender() == MATAdGender.FEMALE)
+            {
+                gender = new AndroidJavaClass("com.mobileapptracker.MATGender").GetStatic<AndroidJavaObject>("FEMALE");
+            }
+            else
+            {
+                gender = new AndroidJavaClass("com.mobileapptracker.MATGender").GetStatic<AndroidJavaObject>("UNKNOWN");
+            }
+            objRequest = objRequest.Call<AndroidJavaObject>("withGender", gender);
+
+            // Set latitude/longitude as doubles
+            if (metadata.getLatitude() != 0.0 && metadata.getLongitude() != 0.0)
+            {
+                double latitude = Convert.ToDouble(metadata.getLatitude());
+                double longitude = Convert.ToDouble(metadata.getLongitude());
+                objRequest = objRequest.Call<AndroidJavaObject>("withLocation", latitude, longitude);
+            }
+
+            // Set birthdate
+            if (metadata.getBirthDate().HasValue)
+            {
+                DateTime birthDate = metadata.getBirthDate().GetValueOrDefault();
+                int year = birthDate.Year;
+                int month = birthDate.Month;
+                int day = birthDate.Day;
+                objRequest = objRequest.Call<AndroidJavaObject>("withBirthDate", year, month, day);
+            }
+
+            // Set custom targets: create a new HashMap<String, String> and populate
+            if (metadata.getCustomTargets().Count != 0)
+            {
+                AndroidJavaObject objMap = new AndroidJavaObject("java.util.HashMap");
+                // Unity AndroidJavaObject Call doesn't support null responses, so use JNI to populate
+                IntPtr methodPut = AndroidJNIHelper.GetMethodID(objMap.GetRawClass(), "put",
+                                "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+                object[] args = new object[2];
+                foreach (KeyValuePair<string, string> target in metadata.getCustomTargets())
+                {
+                    AndroidJavaObject key = new AndroidJavaObject("java.lang.String", target.Key + "");
+                    AndroidJavaObject value = new AndroidJavaObject("java.lang.String", target.Value + "");
+                    args[0] = key;
+                    args[1] = value;
+                    AndroidJNI.CallObjectMethod(objMap.GetRawObject(),methodPut, AndroidJNIHelper.CreateJNIArgArray(args));
+                }
+                objRequest = objRequest.Call<AndroidJavaObject>("withCustomTargets", objMap);
+            }
+
+            // Set keywords: create a new Set<String> and populate
+            if (metadata.getKeywords().Count != 0)
+            {
+                AndroidJavaObject objSet = new AndroidJavaObject("java.util.HashSet");
+                foreach (string keyword in metadata.getKeywords())
+                {
+                    objSet.Call<bool>("add", keyword);
+                }
+                objRequest = objRequest.Call<AndroidJavaObject>("withKeywords", objSet);
+            }
+
+            return objRequest;
         }
     }
     #endif
