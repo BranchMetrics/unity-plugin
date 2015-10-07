@@ -11,7 +11,7 @@ namespace MATSDK
     {
         private static MATAndroid instance;
 
-        //Tune.java for Android is already encapsulated.
+        //MobileAppTracker.java for Android is already encapsulated.
         private AndroidJavaClass ajcMAT;
         public AndroidJavaObject ajcInstance;
         private AndroidJavaClass ajcUnityPlayer;
@@ -35,7 +35,7 @@ namespace MATSDK
         }
 
         /// <summary>
-        /// Initializes the reference to the AndroidJavaClass Tune object.
+        /// Initializes the reference to the AndroidJavaClass MobileAppTracker object.
         /// Does nothing if already initialized.
         /// </summary>
         public void Init(string advertiserId, string conversionKey)
@@ -315,8 +315,8 @@ namespace MATSDK
         // Preloaded app attribution
         public void SetPreloadedApp(MATPreloadData preloadData)
         {
-            // Convert C# MATPreloadData to Java TunePreloadData
-            AndroidJavaObject objPreloadData = new AndroidJavaObject("com.tune.TunePreloadData", preloadData.publisherId);
+            // Convert C# MATPreloadData to Java MATPreloadData
+            AndroidJavaObject objPreloadData = new AndroidJavaObject("com.mobileapptracker.MATPreloadData", preloadData.publisherId);
             if (preloadData.offerId != null) {
                 objPreloadData = objPreloadData.Call<AndroidJavaObject>("withOfferId", preloadData.offerId);
             }
@@ -383,12 +383,12 @@ namespace MATSDK
 
         private AndroidJavaObject GetTuneEventJavaObject(MATEvent tuneEvent)
         {
-            // Convert C# MATEvent to new Java TuneEvent object
+            // Convert C# MATEvent to new Java MATEvent object
             AndroidJavaObject objTuneEvent;
             if (tuneEvent.name == null) {
-                objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.id);
+                objTuneEvent = new AndroidJavaObject("com.mobileapptracker.MATEvent", tuneEvent.id);
             } else {
-                objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.name);
+                objTuneEvent = new AndroidJavaObject("com.mobileapptracker.MATEvent", tuneEvent.name);
             }
             // Set the optional params if they exist
             if (tuneEvent.revenue != null) {
@@ -401,12 +401,12 @@ namespace MATSDK
                 objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withAdvertiserRefId", tuneEvent.advertiserRefId);
             }
             if (tuneEvent.eventItems != null) {
-                // Convert MATItem[] to Arraylist<TuneEventItem>
+                // Convert MATItem[] to Arraylist<MATEventItem>
                 AndroidJavaObject objArrayList = new AndroidJavaObject("java.util.ArrayList");
                 foreach (MATItem item in tuneEvent.eventItems)
                 {
-                    // Convert MATItem to TuneEventItem
-                    AndroidJavaObject objEventItem = new AndroidJavaObject("com.tune.TuneEventItem", item.name);
+                    // Convert MATItem to MATEventItem
+                    AndroidJavaObject objEventItem = new AndroidJavaObject("com.mobileapptracker.MATEventItem", item.name);
                     if (item.quantity != null) {
                         objEventItem = objEventItem.Call<AndroidJavaObject>("withQuantity", item.quantity);
                     }
@@ -431,7 +431,7 @@ namespace MATSDK
                     if (item.attribute5 != null) {
                         objEventItem = objEventItem.Call<AndroidJavaObject>("withAttribute5", item.attribute5);
                     }
-                    // Add to list of TuneEventItems
+                    // Add to list of MATEventItems
                     objArrayList.Call<bool>("add", objEventItem);
                 }
                 objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withEventItems", objArrayList);
@@ -461,7 +461,7 @@ namespace MATSDK
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 // Convert C# DateTime to Java Date
                 AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", millisecondsFrom1970);
-                AndroidJavaObject longDate = objDouble.Call<AndroidJavaObject>("longValue");
+                long longDate = objDouble.Call<long>("longValue");
                 AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
                 objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withDate1", objDate);
             }
@@ -472,7 +472,7 @@ namespace MATSDK
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 // Convert C# DateTime to Java Date
                 AndroidJavaObject objDouble = new AndroidJavaObject("java.lang.Double", millisecondsFrom1970);
-                AndroidJavaObject longDate = objDouble.Call<AndroidJavaObject>("longValue");
+                long longDate = objDouble.Call<long>("longValue");
                 AndroidJavaObject objDate = new AndroidJavaObject("java.util.Date", longDate);
                 objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withDate2", objDate);
             }
