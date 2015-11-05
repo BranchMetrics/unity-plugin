@@ -259,12 +259,8 @@ static TuneAppDelegateListener *_instance = [TuneAppDelegateListener sharedInsta
     
     NSURL *url = [notification.userInfo objectForKey:@"url"];
     NSString *strSource = [notification.userInfo objectForKey:@"sourceApplication"];
-    NSString *appBundleId = [[[NSBundle mainBundle] infoDictionary] objectForKey:(__bridge NSString*)kCFBundleIdentifierKey];
     
-    if([strSource isEqualToString:appBundleId])
-    {
-        UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_DEEPLINK_RECEIVED, [[url absoluteString] UTF8String]);
-    }
+    [Tune applicationDidOpenURL:url.absoluteString sourceApplication:strSource];
 }
 
 @end
@@ -275,7 +271,7 @@ static TuneAppDelegateListener *_instance = [TuneAppDelegateListener sharedInsta
 // Converts C style string to NSString
 NSString* TuneCreateNSString (const char* string)
 {
-    return [NSString stringWithUTF8String:string ? string : ""];
+    return [NSString stringWithUTF8String:string ?: ""];
 }
 
 NSData* TuneCreateNSData (Byte bytes[], NSUInteger length)
@@ -836,7 +832,7 @@ extern "C" {
     {
         NSLog(@"Native: setAppleVendorIdentifier: %s", appleVendorId);
         
-        [Tune setAppleVendorIdentifier:[[[NSUUID alloc] initWithUUIDString:TuneCreateNSString(appleVendorId)] autorelease] ];
+        [Tune setAppleVendorIdentifier:[[[NSUUID alloc] initWithUUIDString:TuneCreateNSString(appleVendorId)] autorelease]];
     }
     
     void TuneSetAge(int age)
@@ -869,6 +865,13 @@ extern "C" {
         loc.longitude = @(longitude);
         loc.altitude = @(altitude);
         [Tune setLocation:loc];
+    }
+    
+    void TuneSetDeepLink(const char* deepLinkUrl)
+    {
+        NSLog(@"Native: setDeepLink: %s", deepLinkUrl);
+        
+        [Tune applicationDidOpenURL:TuneCreateNSString(deepLinkUrl) sourceApplication:nil];
     }
     
     

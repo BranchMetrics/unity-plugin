@@ -168,6 +168,7 @@ public class MATSample : MonoBehaviour {
             MATBinding.SetUserId("temp_user_id");
             MATBinding.SetUserName("temp_user_name");
             MATBinding.SetUserEmail("tempuser@tempcompany.com");
+            MATBinding.SetDeepLink("myapp://myval1/myval2");
 
             //iOS-specific Features
             #if UNITY_IPHONE

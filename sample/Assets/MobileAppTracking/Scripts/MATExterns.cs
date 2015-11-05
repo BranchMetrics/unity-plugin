@@ -83,6 +83,8 @@ namespace MATSDK
         internal static extern void TuneSetGender(int gender);
         [DllImport ("__Internal")]
         internal static extern void TuneSetLocation(double latitude, double longitude, double altitude);
+        [DllImport ("__Internal")]
+        internal static extern void TuneSetDeepLink(string deepLinkUrl);
         
         // Method to include publisher information in the Tune SDK requests
         [DllImport ("__Internal")]

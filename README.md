@@ -1,8 +1,8 @@
-# MAT Unity Plugin
+# MAT Unity Plugin v3.11.0
 
 Includes:
-* MAT Android SDK 3.11.1
-* MAT iOS SDK 3.13.0
+* MAT Android SDK 3.11.2
+* MAT iOS SDK 3.14.0
 * MAT Windows SDK 3.5.1
 
 Please see the Quick Start guide here:

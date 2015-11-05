@@ -200,6 +200,11 @@ namespace MATSDK
             ajcInstance.Call("setCurrencyCode", currencyCode);
         }
 
+        public void SetDeepLink(string deepLinkUrl)
+        {
+            ajcInstance.Call("setReferralUrl", deepLinkUrl);
+        }
+
         public void SetDebugMode(bool debugMode)
         {
             ajcInstance.Call("setDebugMode", debugMode);

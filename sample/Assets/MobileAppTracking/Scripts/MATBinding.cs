@@ -268,6 +268,23 @@ namespace MATSDK
         }
 
         /// <para>
+        /// Sets the deep link url that was used to launch this app and the bundle id of the source application.
+        /// </para>
+        /// <param name="deepLinkUrl">URL fired by the source application to launch this app</param>
+        public static void SetDeepLink(string deepLinkUrl)
+        {
+            if(!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                MATAndroid.Instance.SetDeepLink(deepLinkUrl);
+                #endif
+                #if UNITY_IPHONE
+                MATExterns.TuneSetDeepLink(deepLinkUrl);
+                #endif
+            }
+        }
+
+        /// <para>
         /// Event measurement function, by event name.
         /// </para>
         /// <param name="eventName">event name in MAT system</param>
@@ -1358,6 +1375,7 @@ namespace MATSDK
         /// Does nothing if not Android or iOS device.
         /// </para>
         /// <param name="siteId">MAT site ID to attribute to</param>
+        /// [Obsolete("SetSiteId is deprecated. Please use SetPackageName instead.")]
         public static void SetSiteId(string siteId)
         {
             if (!Application.isEditor) {
