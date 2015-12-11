@@ -1004,20 +1004,30 @@ namespace MATSDK
         /// Gets the MAT ID generated on install.
         /// </para>
         /// <returns>MAT ID</returns>
+        /// [Obsolete("GetMATId is deprecated. Please use GetTuneId instead.")]
         public static string GetMATId()
+        {
+            return GetTuneId();
+        }
+
+        /// <para>
+        /// Gets the TUNE ID generated on install.
+        /// </para>
+        /// <returns>TUNE ID</returns>
+        public static string GetTuneId()
         {
             if (!Application.isEditor) {
                 #if UNITY_ANDROID
                 return MATAndroid.Instance.GetMatId();
                 #endif
                 #if UNITY_IPHONE
-                return MATExterns.TuneGetMatId();
+                return MATExterns.TuneGetTuneId();
                 #endif
                 #if UNITY_METRO
                 return MobileAppTracker.Instance.GetMatId();
                 #endif
             }
-
+            
             return string.Empty;
         }
 

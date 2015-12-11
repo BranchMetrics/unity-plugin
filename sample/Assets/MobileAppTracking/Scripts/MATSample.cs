@@ -118,7 +118,6 @@ public class MATSample : MonoBehaviour {
             item2.revenue = 1.5;
             item2.attribute1 = "attrValue1";
             item2.attribute3 = "attrValue3";
-
             MATItem[] eventItems = { item1, item2 };
             
             MATEvent tuneEvent = new MATEvent("purchase");
@@ -213,7 +212,7 @@ public class MATSample : MonoBehaviour {
         {
             print ("Test Getter Methods clicked");
             print ("isPayingUser = " + MATBinding.GetIsPayingUser());
-            print ("matId     = " + MATBinding.GetMATId());
+            print ("tuneId     = " + MATBinding.GetTuneId());
             print ("openLogId = " + MATBinding.GetOpenLogId());
         }
     }

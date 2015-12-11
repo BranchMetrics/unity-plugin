@@ -118,7 +118,7 @@ namespace MATSDK
 
         // Getter Methods
         [DllImport ("__Internal")]
-        internal static extern string TuneGetMatId();
+        internal static extern string TuneGetTuneId();
         [DllImport ("__Internal")]
         internal static extern string TuneGetOpenLogId();
         [DllImport ("__Internal")]

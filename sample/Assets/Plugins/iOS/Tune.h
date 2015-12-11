@@ -29,7 +29,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"3.14.0"
+#define TUNEVERSION @"3.15.0"
 
 
 #pragma mark - enumerated types
@@ -136,7 +136,7 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 
 #if !TARGET_OS_WATCH
 /*!
- Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication.
+ Enable automatic measurement of app store in-app-purchase events. When enabled, your code should not explicitly measure events for successful purchases related to StoreKit to avoid event duplication. If your app provides subscription IAP items, please make sure you enter the iTunes Shared Secret on the TUNE dashboard, otherwise Apple receipt validation will fail and the events will be marked as rejected.
  @param automate Automate IAP purchase event measurement. Defaults to NO.
  */
 + (void)automateIapEventMeasurement:(BOOL)automate;
@@ -297,11 +297,11 @@ typedef NS_ENUM(NSInteger, TuneErrorCode)
 #if !TARGET_OS_IOS
 
 /** @name Gender type constants */
-typedef NS_ENUM(NSInteger) {
-    TuneGenderUnknown,
-    TuneGenderMale,
-    TuneGenderFemale
-} TuneGender;
+typedef NS_ENUM(NSInteger, TuneGender) {
+    TuneGenderMale       = 0,                // Gender type MALE. Equals 0.
+    TuneGenderFemale     = 1,                // Gender type FEMALE. Equals 1.
+    TuneGenderUnknown    = 2
+};
 
 #endif
 
@@ -343,10 +343,22 @@ typedef NS_ENUM(NSInteger) {
 /** @name Getter Methods */
 
 /*!
+ Get the Apple Advertising Identifier.
+ @return Apple Advertising Identifier (IFA)
+ */
++ (NSString*)appleAdvertisingIdentifier;
+
+/*!
  Get the MAT ID for this installation (mat_id).
  @return MAT ID
  */
-+ (NSString*)matId;
++ (NSString*)matId DEPRECATED_MSG_ATTRIBUTE("Please use +(NSString*)tuneId");
+
+/*!
+ Get the TUNE ID for this installation (mat_id).
+ @return TUNE ID
+ */
++ (NSString*)tuneId;
 
 /*!
  Get the Tune log ID for the first app open (open_log_id).
@@ -372,12 +384,12 @@ typedef NS_ENUM(NSInteger) {
  when an iAd is received or failed to display. The Tune's delegate
  object will receive notifications when this happens.
  */
-+ (void)displayiAdInView:(UIView *)view;
++ (void)displayiAdInView:(UIView *)view DEPRECATED_MSG_ATTRIBUTE("Please use an alternate implementation. The iAd helper methods provided by this class will be removed in the next major release.");
 
 /*!
  Removes the currently displayed iAd, if any.
  */
-+ (void)removeiAd;
++ (void)removeiAd DEPRECATED_MSG_ATTRIBUTE("Please use an alternate implementation. The iAd helper methods provided by this class will be removed in the next major release.");
 
 #endif
 
@@ -779,18 +791,18 @@ typedef NS_ENUM(NSInteger) {
 /*!
  Delegate method called when an iAd is displayed and its parent view is faded in.
  */
-- (void)tuneDidDisplayiAd;
+- (void)tuneDidDisplayiAd DEPRECATED_MSG_ATTRIBUTE("Please use an alternate implementation. The iAd helper methods provided by this class will be removed in the next major release.");
 
 /*!
  Delegate method called when an iAd failed to display and its parent view is faded out.
  */
-- (void)tuneDidRemoveiAd;
+- (void)tuneDidRemoveiAd DEPRECATED_MSG_ATTRIBUTE("Please use an alternate implementation. The iAd helper methods provided by this class will be removed in the next major release.");
 
 /*!
  Delegate method called to pass through an iAd display error.
  @param error Error object returned by the iAd framework.
  */
-- (void)tuneFailedToReceiveiAdWithError:(NSError *)error;
+- (void)tuneFailedToReceiveiAdWithError:(NSError *)error DEPRECATED_MSG_ATTRIBUTE("Please use an alternate implementation. The iAd helper methods provided by this class will be removed in the next major release.");
 
 #endif
 

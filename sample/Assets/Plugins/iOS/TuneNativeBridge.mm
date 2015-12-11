@@ -626,14 +626,14 @@ extern "C" {
     
 #pragma mark - Getter Methods
     
-    const char* TuneGetMatId()
+    const char* TuneGetTuneId()
     {
-        NSLog(@"Native: getMatId");
+        NSLog(@"Native: getTuneId");
         
-        NSString *matId = [Tune matId];
-        char *strMatId = TuneAutonomousStringCopy([matId UTF8String]);
+        NSString *tuneId = [Tune tuneId];
+        char *strTuneId = TuneAutonomousStringCopy([tuneId UTF8String]);
         
-        return strMatId;
+        return strTuneId;
     }
     
     bool TuneGetIsPayingUser()
