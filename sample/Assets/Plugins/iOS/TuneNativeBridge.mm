@@ -1,13 +1,9 @@
 #import "TuneNativeBridge.h"
-#import "TuneNativeBanner.h"
-#import "TuneNativeInterstitial.h"
-#import "TuneObjectCache.h"
-#import "TuneNativeMetadata.h"
 
 extern UIViewController *UnityGetGLViewController(); // Root view controller of Unity screen.
 
-// corresponds to GameObject named "MobileAppTracker" in the Unity Project
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER = "MobileAppTracker";
+// corresponds to GameObject named "TuneListener" in the Unity Project
+const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER = "TuneListener";
 
 // corresponds to the Tune callback methods defined in the script attached to the above GameObject
 const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_SUCCEEDED  = "trackerDidSucceed";
@@ -16,17 +12,8 @@ const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ENQUEUED = "trackerDidEnqueueReques
 const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_DEEPLINK_RECEIVED = "trackerDidReceiveDeeplink";
 const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_DEEPLINK_FAILED = "trackerDidFailDeeplink";
 
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_LOAD = "onAdLoad";
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_LOAD_FAILED = "onAdLoadFailed";
-//const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_CLICK = "onAdClick";
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_CLOSED = "onAdClosed";
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_ACTION_START = "onAdActionStart";
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_ACTION_END = "onAdActionEnd";
-const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_REQUEST_FIRED = "onAdRequestFired";
-
-
-TuneNativeInterstitial *interstitial;
-TuneNativeBanner *banner;
+const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_POWERHOOKS_CHANGED = "onPowerHooksChanged";
+const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_FIRST_PLAYLIST_DOWNLOAD = "onFirstPlaylistDownloaded";
 
 
 #pragma mark - Tune Plugin Helper Category
@@ -140,77 +127,6 @@ TuneNativeBanner *banner;
 @end
 
 
-@interface TuneAdSdkDelegate : NSObject <TuneAdDelegate>
-// empty
-@end
-
-@implementation TuneAdSdkDelegate
-
-
-#pragma mark - TuneAdSdkDelegate Methods
-
-- (void)tuneAdDidFetchAdForView:(TuneAdView *)adView placement:(NSString *)placement
-{
-    NSLog(@"Native: tuneAdDidFetchAdForView: placement = %@", placement);
-    
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_LOAD, nil != placement ? [placement UTF8String] : "");
-}
-
-- (void)tuneAdDidStartActionForView:(TuneAdView *)adView willLeaveApplication:(BOOL)willLeave
-{
-    NSLog(@"Native: tuneAdDidStartActionForView: willLeave = %d", willLeave);
-    
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_ACTION_START, [[@(willLeave) stringValue] UTF8String]);
-}
-
-- (void)tuneAdDidEndActionForView:(TuneAdView *)adView
-{
-    NSLog(@"Native: tuneAdDidEndActionForView");
-    
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_ACTION_END, "");
-}
-
-- (void)tuneAdDidCloseForView:(TuneAdView *)adView
-{
-    NSLog(@"Native: tuneAdDidCloseForView");
-    
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_CLOSED, "");
-}
-
-- (void)tuneAdDidFailWithError:(NSError *)error forView:(TuneAdView *)adView
-{
-    NSLog(@"Native: tuneAdDidFailWithError: error = %@", error);
-    
-    NSInteger errorCode = [error code];
-    NSString *errorDescr = [error localizedDescription];
-    
-    NSString *errorURLString = nil;
-    NSDictionary *dictError = [error userInfo];
-    
-    if(dictError)
-    {
-        errorURLString = [dictError objectForKey:NSURLErrorFailingURLStringErrorKey];
-    }
-    
-    errorURLString = nil == error ? @"" : errorURLString;
-    
-    NSString *strError = [NSString stringWithFormat:@"{\"code\":\"%zd\",\"localizedDescription\":\"%@\",\"failedURL\":\"%@\"}", errorCode, errorDescr, errorURLString];
-    
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_LOAD_FAILED, [strError UTF8String]);
-}
-
-- (void)tuneAdDidFireRequestWithUrl:(NSString *)url data:(NSString *)data forView:(TuneAdView *)adView
-{
-    NSLog(@"Native: tuneAdDidFireRequestWithUrl");
-    
-    NSString *strOutput = [NSString stringWithFormat:@"%@%@", url, data];
-    
-    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ON_AD_REQUEST_FIRED, [strOutput UTF8String]);
-}
-
-@end
-
-
 @interface TuneAppDelegateListener : NSObject<AppDelegateListener>
 
 +(TuneAppDelegateListener *)sharedInstance;
@@ -295,6 +211,35 @@ char* TuneAutonomousStringCopy (const char* string)
     char* res = (char*)malloc(strlen(string) + 1);
     strcpy(res, string);
     return res;
+}
+
+char* TuneSerializePowerHookOrExperimentDetails(NSDictionary *dict) {
+    NSString *jsonString = nil;
+    if (dict) {
+        NSMutableDictionary *detailsDictionary = [NSMutableDictionary new];
+        NSMutableArray *keys = [NSMutableArray new];
+        NSMutableArray *values = [NSMutableArray new];
+        
+        // Convert TunePowerHookExperimentDetails/TuneInAppMessageExperimentDetails values to NSDictionary in order to convert to string
+        [dict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            id innerDict = [obj toDictionary];
+            if ([NSJSONSerialization isValidJSONObject:innerDict]) {
+                [keys addObject:key];
+                [values addObject:innerDict];
+            }
+        }];
+        
+        detailsDictionary[@"keys"] = keys;
+        detailsDictionary[@"values"] = values;
+        
+        NSError *err;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:detailsDictionary options:0 error:&err]; 
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    } else {
+        jsonString = @"";
+    }
+    
+    return TuneAutonomousStringCopy([jsonString UTF8String]);
 }
 
 NSArray *arrayFromItems(TuneItemIos eventItems[], int eventItemCount)
@@ -563,11 +508,19 @@ TunePreloadData *convertIosPreloadData(TunePreloadDataIos preloadData)
     return tunePreloadData;
 }
 
-TuneSdkDelegate *matDelegate;
-TuneSdkDelegate *matDeeplinkDelegate;
+void (^firstPlaylistBlock)(void) = ^{
+    NSLog(@"Entered first playlist download block");
+    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_FIRST_PLAYLIST_DOWNLOAD, "");
+};
 
-TuneAdSdkDelegate *interstitialAdDelegate;
-TuneAdSdkDelegate *bannerAdDelegate;
+void (^powerhooksChangedBlock)(void) = ^{
+    NSLog(@"Entered power hooks changed block");
+    UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_POWERHOOKS_CHANGED, "");
+};
+
+
+TuneSdkDelegate *tuneDelegate;
+TuneSdkDelegate *tuneDeeplinkDelegate;
 
 
 // When native code plugin is implemented in .mm / .cpp file, then functions
@@ -580,7 +533,7 @@ extern "C" {
     void TuneInit (const char* advertiserId, const char* conversionKey)
     {
         NSLog(@"Native: initNativeCode = %s, %s", advertiserId, conversionKey);
-        
+
         [Tune initializeWithTuneAdvertiserId:TuneCreateNSString(advertiserId)
                            tuneConversionKey:TuneCreateNSString(conversionKey)];
         [Tune setPluginName:@"unity"];
@@ -604,9 +557,9 @@ extern "C" {
     {
         NSLog(@"Native: checkForDeferredDeeplink");
         
-        matDeeplinkDelegate = matDeeplinkDelegate ?: [TuneSdkDelegate new];
+        tuneDeeplinkDelegate = tuneDeeplinkDelegate ?: [TuneSdkDelegate new];
         
-        [Tune checkForDeferredDeeplink:matDeeplinkDelegate];
+        [Tune checkForDeferredDeeplink:tuneDeeplinkDelegate];
     }
     
     void TuneAutomateIapEventMeasurement(bool automate)
@@ -661,16 +614,9 @@ extern "C" {
         NSLog(@"Native: setDelegate = %d", enable);
         
         // When enabled, create/set TuneSdkDelegate object as the delegate for Tune.
-        matDelegate = enable ? (matDelegate ? nil : [TuneSdkDelegate new]) : nil;
+        tuneDelegate = enable ? (tuneDelegate ? nil : [TuneSdkDelegate new]) : nil;
         
-        [Tune setDelegate:matDelegate];
-    }
-    
-    void TuneSetAllowDuplicates(bool allowDuplicateRequests)
-    {
-        NSLog(@"Native: setAllowDuplicates = %d", allowDuplicateRequests);
-        
-        [Tune setAllowDuplicateRequests:allowDuplicateRequests];
+        [Tune setDelegate:tuneDelegate];
     }
     
     void TuneSetShouldAutoCollectAppleAdvertisingIdentifier(bool shouldAutoCollect)
@@ -765,13 +711,6 @@ extern "C" {
         [Tune setPhoneNumber:TuneCreateNSString(phoneNumber)];
     }
     
-    void TuneSetSiteId(const char* siteId)
-    {
-        NSLog(@"Native: setSiteId: %s", siteId);
-        
-        [Tune setSiteId:TuneCreateNSString(siteId)];
-    }
-    
     void TuneSetTRUSTeId(const char* tpid)
     {
         NSLog(@"Native: setTRUSTeId: %s", tpid);
@@ -825,14 +764,14 @@ extern "C" {
     {
         NSLog(@"Native: setAppleAdvertisingIdentifier: %s advertisingTrackingEnabled:%d", appleAdvertisingId, trackingEnabled);
         
-        [Tune setAppleAdvertisingIdentifier:[[[NSUUID alloc] initWithUUIDString:TuneCreateNSString(appleAdvertisingId)] autorelease] advertisingTrackingEnabled:trackingEnabled];
+        [Tune setAppleAdvertisingIdentifier:[[NSUUID alloc] initWithUUIDString:TuneCreateNSString(appleAdvertisingId)] advertisingTrackingEnabled:trackingEnabled];
     }
     
     void TuneSetAppleVendorIdentifier(const char* appleVendorId)
     {
         NSLog(@"Native: setAppleVendorIdentifier: %s", appleVendorId);
         
-        [Tune setAppleVendorIdentifier:[[[NSUUID alloc] initWithUUIDString:TuneCreateNSString(appleVendorId)] autorelease]];
+        [Tune setAppleVendorIdentifier:[[NSUUID alloc] initWithUUIDString:TuneCreateNSString(appleVendorId)]];
     }
     
     void TuneSetAge(int age)
@@ -908,207 +847,226 @@ extern "C" {
         TuneEvent *tuneEvent = convertIosEvent(event, eventItems, eventItemCount, receipt, receiptByteCount);
         [Tune measureEvent:tuneEvent];
     }
+
+#pragma mark - In-App Marketing Methods
+
+    // Custom Profile API
     
-    
-#pragma mark - Ad Methods
-    
-    /// Creates an empty TuneAdMetadata and returns its reference.
-    TuneTypeMetadataRef TuneCreateMetadata() {
-        TuneNativeMetadata *metadata = [[TuneNativeMetadata new] autorelease];
-        TuneObjectCache *cache = [TuneObjectCache sharedInstance];
-        [cache.references setObject:metadata forKey:[metadata Tune_referenceKey]];
-        return metadata;
-    }
-    
-    /// Adds a keyword to the TuneAdMetadata.
-    void TuneAddKeyword(TuneTypeMetadataRef metadata, const char *keyword) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata addKeyword:TuneCreateNSString(keyword)];
-    }
-    
-    /// Sets the user's birthDate on the TuneAdMetadata.
-    void TuneSetBirthDate(TuneTypeMetadataRef metadata, NSInteger year, NSInteger month, NSInteger day) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setBirthDateWithMonth:month day:day year:year];
-    }
-    
-    /// Sets the user's gender on the TuneAdMetadata.
-    void TuneAdSetGender(TuneTypeMetadataRef metadata, NSInteger genderCode) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setGenderWithCode:(TuneAdGender)genderCode];
-    }
-    
-    /// Sets the debugMode on the TuneAdMetadata.
-    void TuneAdSetDebugMode(TuneTypeMetadataRef metadata, BOOL debugMode) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setDebugMode:debugMode];
-    }
-    
-    void TuneSetLatitude(TuneTypeMetadataRef metadata, double latitude) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setLatitude:latitude];
-    }
-    
-    void TuneSetLongitude(TuneTypeMetadataRef metadata, double longitude) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setLongitude:longitude];
-    }
-    
-    void TuneSetAltitude(TuneTypeMetadataRef metadata, double altitude) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setAltitude:altitude];
-    }
-    
-    /// Sets an extra parameter to be included in the ad metadata.
-    void TuneSetCustomTargets(TuneTypeMetadataRef metadata, const char *key, const char *value) {
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        [internalMetadata setCustomTargetWithKey:TuneCreateNSString(key)
-                                           value:TuneCreateNSString(value)];
-    }
-    
-    /// Removes an object from the cache.
-    void TuneRelease(TuneTypeRef ref) {
-        if (ref) {
-            TuneObjectCache *cache = [TuneObjectCache sharedInstance];
-            [cache.references removeObjectForKey:[(NSObject *)ref Tune_referenceKey]];
-        }
-    }
-    
-    
-#pragma mark - Interstitial Ad Methods
-    
-    void TuneCreateInterstitial()
+    void TuneRegisterCustomProfileString(const char* variableName)
     {
-        if(!interstitial)
+        NSLog(@"Native: registerCustomProfileString");
+        [Tune registerCustomProfileString:TuneCreateNSString(variableName)];
+    }
+
+    void TuneRegisterCustomProfileStringWithDefault(const char* variableName, const char* defaultValue)
+    {
+        NSLog(@"Native: registerCustomProfileString");
+        [Tune registerCustomProfileString:TuneCreateNSString(variableName) withDefault:TuneCreateNSString(defaultValue)];
+    }
+
+    void TuneRegisterCustomProfileDate(const char* variableName)
+    {
+        NSLog(@"Native: registerCustomProfileDate");
+        [Tune registerCustomProfileDateTime:TuneCreateNSString(variableName)];
+    }
+
+    void TuneRegisterCustomProfileDateWithDefault(const char* variableName, const char* defaultValue)
+    {
+        NSLog(@"Native: registerCustomProfileDate");
+        // convert millis string to NSTimeInterval
+        NSTimeInterval ti = [TuneCreateNSString(defaultValue) doubleValue] / 1000.0f;
+        // convert NSTimeInterval to NSDate
+        NSDate *defaultDate = [NSDate dateWithTimeIntervalSince1970:ti];
+        [Tune registerCustomProfileDateTime:TuneCreateNSString(variableName) withDefault:defaultDate];
+    }
+
+    void TuneRegisterCustomProfileNumber(const char* variableName)
+    {
+        NSLog(@"Native: registerCustomProfileNumber");
+        [Tune registerCustomProfileNumber:TuneCreateNSString(variableName)];
+    }
+
+    void TuneRegisterCustomProfileNumberWithDefaultInt(const char* variableName, int defaultValue)
+    {
+        NSLog(@"Native: registerCustomProfileNumber");
+        [Tune registerCustomProfileNumber:TuneCreateNSString(variableName) withDefault:[NSNumber numberWithInteger:defaultValue]];
+    }
+
+    void TuneRegisterCustomProfileNumberWithDefaultDouble(const char* variableName, double defaultValue)
+    {
+        NSLog(@"Native: registerCustomProfileNumber");
+        [Tune registerCustomProfileNumber:TuneCreateNSString(variableName) withDefault:[NSNumber numberWithDouble:defaultValue]];
+    }
+
+    void TuneRegisterCustomProfileNumberWithDefaultFloat(const char* variableName, float defaultValue)
+    {
+        NSLog(@"Native: registerCustomProfileNumber");
+        [Tune registerCustomProfileNumber:TuneCreateNSString(variableName) withDefault:[NSNumber numberWithFloat:defaultValue]];
+    }
+
+    void TuneRegisterCustomProfileGeolocation(const char* variableName)
+    {
+        NSLog(@"Native: registerCustomProfileGeolocation");
+        [Tune registerCustomProfileGeolocation:TuneCreateNSString(variableName)];
+    }
+
+    void TuneRegisterCustomProfileGeolocationWithDefault(const char* variableName, double defaultLongitude, double defaultLatitude)
+    {
+        NSLog(@"Native: registerCustomProfileGeolocation");
+        TuneLocation *loc = [TuneLocation new];
+        loc.longitude = [NSNumber numberWithDouble:defaultLongitude];
+        loc.latitude = [NSNumber numberWithDouble:defaultLatitude];
+        [Tune registerCustomProfileGeolocation:TuneCreateNSString(variableName) withDefault:loc];
+    }
+
+    void TuneSetCustomProfileString(const char* variableName, const char* value)
+    {
+        NSLog(@"Native: setCustomProfileStringValue");
+        [Tune setCustomProfileStringValue:TuneCreateNSString(value) forVariable:TuneCreateNSString(variableName)];
+    }
+
+    void TuneSetCustomProfileDate(const char* variableName, const char* value)
+    {
+        NSLog(@"Native: setCustomProfileDateTimeValue");
+        // convert millis string to NSTimeInterval
+        NSTimeInterval ti = [TuneCreateNSString(value) doubleValue] / 1000.0f;
+        // convert NSTimeInterval to NSDate
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:ti];
+        [Tune setCustomProfileDateTimeValue:date forVariable:TuneCreateNSString(variableName)];
+    }
+
+    void TuneSetCustomProfileNumberWithInt(const char* variableName, int value)
+    {
+        NSLog(@"Native: setCustomProfileNumberValue");
+        [Tune setCustomProfileNumberValue:[NSNumber numberWithInt:value] forVariable:TuneCreateNSString(variableName)];
+    }
+
+    void TuneSetCustomProfileNumberWithDouble(const char* variableName, double value)
+    {
+        NSLog(@"Native: setCustomProfileNumberValue");
+        [Tune setCustomProfileNumberValue:[NSNumber numberWithDouble:value] forVariable:TuneCreateNSString(variableName)];
+    }
+
+    void TuneSetCustomProfileNumberWithFloat(const char* variableName, float value)
+    {
+        NSLog(@"Native: setCustomProfileNumberValue");
+        [Tune setCustomProfileNumberValue:[NSNumber numberWithFloat:value] forVariable:TuneCreateNSString(variableName)];
+    }
+
+    void TuneSetCustomProfileGeolocation(const char* variableName, double longitude, double latitude)
+    {
+        NSLog(@"Native: setCustomProfileGeolocationValue");
+        TuneLocation *loc = [TuneLocation new];
+        loc.longitude = [NSNumber numberWithDouble:longitude];
+        loc.latitude = [NSNumber numberWithDouble:latitude];
+        [Tune setCustomProfileGeolocationValue:loc forVariable:TuneCreateNSString(variableName)];
+    }
+
+    const char* TuneGetCustomProfileString(const char* variableName)
+    {
+        NSLog(@"Native: getCustomProfileString");
+        return TuneAutonomousStringCopy([[Tune getCustomProfileString:TuneCreateNSString(variableName)] UTF8String]);
+    }
+
+    const char* TuneGetCustomProfileDate(const char* variableName)
+    {
+        NSLog(@"Native: getCustomProfileDateTime");
+        NSDate *customDate = [Tune getCustomProfileDateTime:TuneCreateNSString(variableName)];
+        NSTimeInterval ti = [customDate timeIntervalSince1970];
+        double milliseconds = ti * 1000;
+        return TuneAutonomousStringCopy([[[NSNumber numberWithDouble:milliseconds] stringValue] UTF8String]);
+    }
+
+    const char* TuneGetCustomProfileNumber(const char* variableName)
+    {
+        NSLog(@"Native: getCustomProfileNumber");
+        NSNumber *customNumber = [Tune getCustomProfileNumber:TuneCreateNSString(variableName)];
+        return TuneAutonomousStringCopy([[customNumber stringValue] UTF8String]);
+    }
+
+    const char* TuneGetCustomProfileGeolocation(const char* variableName)
+    {
+        NSLog(@"Native: getCustomProfileGeolocation");
+        TuneLocation *customGeo = [Tune getCustomProfileGeolocation:TuneCreateNSString(variableName)];
+        NSMutableString *customGeoStr = [[customGeo.latitude stringValue] mutableCopy];
+        [customGeoStr appendString:@","];
+        [customGeoStr appendString:[customGeo.longitude stringValue]];
+        return TuneAutonomousStringCopy([customGeoStr UTF8String]);
+    }
+
+    void TuneClearCustomProfileVariable(const char* variableName)
+    {
+        NSLog(@"Native: clearCustomProfileVariable");
+        [Tune clearCustomProfileVariable:TuneCreateNSString(variableName)];
+    }
+
+    void TuneClearAllCustomProfileVariables()
+    {
+        NSLog(@"Native: clearAllCustomProfileVariables");
+        [Tune clearAllCustomProfileVariables];
+    }
+
+    // Power Hook API
+
+    void TuneRegisterHookWithId(const char* hookId, const char* friendlyName, const char* defaultValue)
+    {
+        NSLog(@"Native: registerHookWithId");
+        [Tune registerHookWithId:TuneCreateNSString(hookId) friendlyName:TuneCreateNSString(friendlyName) defaultValue:TuneCreateNSString(defaultValue)];
+    }
+
+    const char* TuneGetValueForHookById(const char* hookId)
+    {
+        NSLog(@"Native: getValueForHookById");
+        NSString *hookValue = [Tune getValueForHookById:TuneCreateNSString(hookId)];
+        char *strHookValue = TuneAutonomousStringCopy([hookValue UTF8String]);
+        return strHookValue;
+    }
+
+    void TuneSetValueForHookById(const char* hookId, const char* value)
+    {
+        NSLog(@"Native: setValueForHookById");
+        [Tune setValueForHookById:TuneCreateNSString(hookId) value:TuneCreateNSString(value)];
+    }
+
+    void TuneOnPowerHooksChanged(bool listenForPowerHooksChanged)
+    {
+        NSLog(@"Native: onPowerhooksChanged");
+        if (listenForPowerHooksChanged)
         {
-            interstitialAdDelegate = interstitialAdDelegate ?: [TuneAdSdkDelegate new];
-            
-            interstitial = [[[TuneNativeInterstitial alloc] initWithAdDelegate:interstitialAdDelegate] autorelease];
-            TuneObjectCache *cache = [TuneObjectCache sharedInstance];
-            [cache.references setObject:interstitial forKey:[interstitial Tune_referenceKey]];
+            // Send message to TuneListener Unity GameObject in block
+            [Tune onPowerHooksChanged:[powerhooksChangedBlock copy]];
         }
     }
-    
-    void TuneCacheInterstitialWithMetadata(const char *placement, TuneTypeMetadataRef metadata)
+
+    // Experiment Details API
+
+    const char* TuneGetPowerHookVariableExperimentDetails()
     {
-        NSLog(@"Native: cacheInterstitialMetadata");
-        
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        TuneAdMetadata *adMetadata = [internalMetadata metadata];
-        
-        TuneCreateInterstitial();
-        
-        [interstitial cacheForPlacement:[NSString stringWithUTF8String:placement] adMetadata:adMetadata];
+        NSLog(@"Native: getPowerHookVariableExperimentDetails");
+        return TuneSerializePowerHookOrExperimentDetails([Tune getPowerHookVariableExperimentDetails]);
     }
-    
-    void TuneCacheInterstitial(const char *placement)
+
+    const char* TuneGetInAppMessageExperimentDetails()
     {
-        NSLog(@"Native: cacheInterstitial");
-        
-        TuneCacheInterstitialWithMetadata(placement, NULL);
+        NSLog(@"Native: getInAppMessageExperimentDetails");
+        return TuneSerializePowerHookOrExperimentDetails([Tune getInAppMessageExperimentDetails]);
     }
-    
-    void TuneShowInterstitialWithMetadata(const char *placement, TuneTypeMetadataRef metadata)
+
+    // Playlist API
+
+    void TuneOnFirstPlaylistDownloaded(bool listenForFirstPlaylist)
     {
-        NSLog(@"Native: showInterstitialWithMetadata");
-        
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        TuneAdMetadata *adMetadata = [internalMetadata metadata];
-        
-        TuneCreateInterstitial();
-        
-        [interstitial showForPlacement:[NSString stringWithUTF8String:placement] adMetadata:adMetadata];
-    }
-    
-    void TuneShowInterstitial(const char *placement)
-    {
-        NSLog(@"Native: showInterstitial");
-        
-        TuneShowInterstitialWithMetadata(placement, NULL);
-    }
-    
-    void TuneDestroyInterstitial()
-    {
-        NSLog(@"Native: destroyInterstitial");
-        
-        [interstitial destroy];
-        
-        TuneRelease(interstitial);
-        interstitial = nil;
-        interstitialAdDelegate = nil;
-    }
-    
-    void TuneLayoutInterstitial()
-    {
-        //NSLog(@"Native: layoutInterstitial");
-        
-        [interstitial layout];
-    }
-    
-    
-#pragma mark - Banner Ad Methods
-    
-    void TuneCreateBanner(TuneAdPosition adPosition)
-    {
-        if(!banner)
+        if (listenForFirstPlaylist)
         {
-            bannerAdDelegate = bannerAdDelegate ?: [TuneAdSdkDelegate new];
-            
-            banner = [[[TuneNativeBanner alloc] initWithAdDelegate:bannerAdDelegate adPosition:adPosition] autorelease];
-            TuneObjectCache *cache = [TuneObjectCache sharedInstance];
-            [cache.references setObject:banner forKey:[banner Tune_referenceKey]];
+            [Tune onFirstPlaylistDownloaded:[firstPlaylistBlock copy]];
         }
     }
-    
-    void TuneShowBannerWithPosition(const char *placement, TuneTypeMetadataRef metadata, TuneAdPosition position)
+
+    void TuneOnFirstPlaylistDownloadedWithTimeout(bool listenForFirstPlaylist, long timeout)
     {
-        NSLog(@"Native: showBannerWithPosition");
-        
-        TuneNativeMetadata *internalMetadata = (TuneNativeMetadata *)metadata;
-        TuneAdMetadata *adMetadata = [internalMetadata metadata];
-        
-        TuneCreateBanner(position);
-        banner.adPosition = position;
-        
-        [banner showForPlacement:[NSString stringWithUTF8String:placement] adMetadata:adMetadata];
-    }
-    
-    void TuneShowBannerWithMetadata(const char *placement, TuneTypeMetadataRef metadata)
-    {
-        NSLog(@"Native: showBannerWithMetadata");
-        
-        TuneShowBannerWithPosition(placement, metadata, kTuneAdPositionBottomOfScreen);
-    }
-    
-    void TuneShowBanner(const char *placement)
-    {
-        NSLog(@"Native: showBanner");
-        
-        TuneShowBannerWithMetadata(placement, NULL);
-    }
-    
-    void TuneHideBanner()
-    {
-        NSLog(@"Native: hideBanner");
-        
-        [banner hide];
-    }
-    
-    void TuneDestroyBanner()
-    {
-        NSLog(@"Native: destroyBanner");
-        
-        [banner destroy];
-        
-        TuneRelease(banner);
-        banner = nil;
-        bannerAdDelegate = nil;
-    }
-    
-    void TuneLayoutBanner()
-    {
-        //NSLog(@"Native: layoutBanner");
-        
-        [banner layout];
+        if (listenForFirstPlaylist)
+        {
+            [Tune onFirstPlaylistDownloaded:[firstPlaylistBlock copy] withTimeout:timeout];
+        }
     }
 }

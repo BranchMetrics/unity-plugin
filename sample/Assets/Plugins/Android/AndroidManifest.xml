@@ -32,17 +32,13 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="true" />
         </activity>
-        <receiver android:name="com.mobileapptracker.Tracker" android:exported="true">
+        <receiver android:name="com.tune.TuneTracker" android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
         <meta-data android:name="com.google.android.gms.version"
                    android:value="@integer/google_play_services_version" />
-        <activity
-            android:name="com.tune.crosspromo.TuneAdActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
     </application>
 </manifest>
 

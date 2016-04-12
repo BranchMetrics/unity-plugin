@@ -3,8 +3,7 @@
 #import <map>
 
 #import "AppDelegateListener.h"
-#import "TuneAdView.h"
-#import "MobileAppTracker.h"
+#import "Tune.h"
 
 typedef struct TuneItemIos
 {
