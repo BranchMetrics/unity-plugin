@@ -1,9 +1,9 @@
-# MAT Unity Plugin v3.12.1
+# TUNE Unity Plugin v4.0.0
 
 Includes:
-* MAT Android SDK 3.11.4
-* MAT iOS SDK 3.15.1
-* MAT Windows SDK 3.5.1
+* TUNE Android SDK 4.0.3
+* TUNE iOS SDK 4.2.0
+* TUNE Windows SDK 3.5.1
 
 Please see the Quick Start guide here:
 
