@@ -20,7 +20,6 @@ namespace TuneSDK
 
         private TuneAndroid()
         {
-            ajcInstance = ajcTune.CallStatic<AndroidJavaObject>("getInstance");
             ajcCurrentActivity = ajcUnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
         }
 
@@ -42,11 +41,8 @@ namespace TuneSDK
         /// </summary>
         public void Init(string advertiserId, string conversionKey)
         {
-            if (ajcInstance == null)
-            {
-                ajcInstance = ajcTune.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey);
-                ajcInstance.Call("setPluginName", "unity");
-            }
+            ajcInstance = ajcTune.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey);
+            ajcInstance.Call("setPluginName", "unity");
         }
 
         /// <summary>
@@ -55,11 +51,8 @@ namespace TuneSDK
         /// </summary>
         public void Init(string advertiserId, string conversionKey, bool turnOnTMA)
         {
-            if (ajcInstance == null)
-            {
-                ajcInstance = ajcTune.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey, turnOnTMA);
-                ajcInstance.Call("setPluginName", "unity");
-            }
+            ajcInstance = ajcTune.CallStatic<AndroidJavaObject>("init", ajcCurrentActivity, advertiserId, conversionKey, turnOnTMA);
+            ajcInstance.Call("setPluginName", "unity");
         }
 
         public void MeasureSession()
