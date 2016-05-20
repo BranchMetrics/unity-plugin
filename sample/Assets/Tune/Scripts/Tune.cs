@@ -731,6 +731,22 @@ namespace TuneSDK
                 #endif
             }
         }
+
+        /// <para>
+        /// Specifies if the sdk should auto-collect the geo location of the device.
+        /// </para>
+        /// <param name="shouldAutoCollect">Will auto-collect if true. Defaults to true.</param>
+        public static void SetShouldAutoCollectDeviceLocation(bool shouldAutoCollect)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                TuneAndroid.Instance.SetShouldAutoCollectDeviceLocation(shouldAutoCollect);
+                #endif
+                #if UNITY_IOS
+                TuneExterns.TuneSetShouldAutoCollectDeviceLocation(shouldAutoCollect);
+                #endif
+            }
+        }
         
         /// <para>
         /// Sets the user ID to associate with Twitter.
@@ -1629,20 +1645,6 @@ namespace TuneSDK
             if (!Application.isEditor) {
                 #if UNITY_IOS
                 TuneExterns.TuneSetShouldAutoCollectAppleAdvertisingIdentifier(shouldAutoCollect);
-                #endif
-            }
-        }
-
-        /// <para>
-        /// Specifies if the sdk should auto-collect the geo location of the device.
-        /// Does nothing if not iOS device.
-        /// </para>
-        /// <param name="shouldAutoCollect">Will auto-collect if true. Defaults to true.</param>
-        public static void SetShouldAutoCollectDeviceLocation(bool shouldAutoCollect)
-        {
-            if (!Application.isEditor) {
-                #if UNITY_IOS
-                TuneExterns.TuneSetShouldAutoCollectDeviceLocation(shouldAutoCollect);
                 #endif
             }
         }

@@ -234,6 +234,11 @@ namespace TuneSDK
             ajcInstance.Call("setPhoneNumber", phoneNumber);
         }
 
+        public void SetShouldAutoCollectDeviceLocation(bool shouldAutoCollect)
+        {
+            ajcInstance.Call("setShouldAutoCollectDeviceLocation", shouldAutoCollect);
+        }
+
         public void SetTRUSTeId(string tpid)
         {
             ajcInstance.Call("setTRUSTeId", tpid);
