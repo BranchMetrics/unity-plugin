@@ -11,9 +11,6 @@ namespace TuneSDK
     [InitializeOnLoad]
     [CustomEditor(typeof(TuneSettings))]
     public class TuneSettingsEditor : Editor {
-        // Minimum version of Google Play Services required for Google Advertising Id collection
-        private static long MinGPSVersion = 4030530;
-
         private static string AdvertiserIdKey = "TUNE_AdvertiserId";
         private static string ConversionKeyKey = "TUNE_ConversionKey";
         private static string PackageNameKey = "TUNE_PackageName";
@@ -25,9 +22,7 @@ namespace TuneSDK
         private static string ShowDelegateFoldoutKey = "TUNE_ShowDelegate";
 
         private static string sOk = "OK";
-        private static string sCancel = "Cancel";
         private static string sSuccess = "Success";
-        private static string sWarning = "Warning";
 
         private static string advertiserId;
         private static string conversionKey;
@@ -412,10 +407,12 @@ namespace TuneSDK
         private void ImportGooglePlayServices()
         {
             string sdkPath = GetAndroidSdkPath();
-            string gpsLibPath = FixSlashes(sdkPath) + FixSlashes("/extras/google/google_play_services/libproject/google-play-services_lib");
-            string gpsLibVersion = gpsLibPath + FixSlashes("/res/values/version.xml");
-            string gpsLibDestDir = FixSlashes("Assets/Plugins/Android/google-play-services_lib");
-    
+            string gpsLibPathOld = FixSlashes(sdkPath) + FixSlashes("/extras/google/google_play_services/libproject/google-play-services_lib");
+            string gpsLibDestDirOld = FixSlashes("Assets/Plugins/Android/google-play-services_lib");
+
+            string gpsLibPathNew = FixSlashes(sdkPath) + FixSlashes("/extras/google/m2repository/com/google/android/gms/play-services-basement/9.0.1/play-services-basement-9.0.1.aar");
+            string gpsLibDestDirNew = FixSlashes("Assets/Plugins/Android/play-services-basement-9.0.1.aar");
+
             // Check that Android SDK is there
             if (!HasAndroidSdk())
             {
@@ -425,20 +422,27 @@ namespace TuneSDK
                     sOk);
                 return;
             }
-            
+
+            string gpsLibPath;
+            string gpsLibDestDir;
+            if (System.IO.Directory.Exists(gpsLibPathOld))
+            {
+                gpsLibPath = gpsLibPathOld;
+                gpsLibDestDir = gpsLibDestDirOld;
+            }
+            else
+            {
+                gpsLibPath = gpsLibPathNew;
+                gpsLibDestDir = gpsLibDestDirNew;
+            }
+
             // Check that the Google Play Services lib project is there
-            if (!System.IO.Directory.Exists(gpsLibPath) || !System.IO.File.Exists(gpsLibVersion))
+            if (!System.IO.Directory.Exists(gpsLibPath) && !System.IO.File.Exists(gpsLibPath))
             {
                 UnityEngine.Debug.LogError("Google Play Services lib project not found at: " + gpsLibPath);
                 EditorUtility.DisplayDialog("Google Play Services library not found",
                     "Google Play Services could not be found in your Android SDK installation.\n" +
                     "Install from the SDK Manager under Extras > Google Play Services.", sOk);
-                return;
-            }
-            
-            // Check GPS lib version for 4.0+ to support Advertising Id
-            if (!CheckForLibVersion(gpsLibVersion))
-            {
                 return;
             }
             
@@ -448,6 +452,7 @@ namespace TuneSDK
 
             // Delete any existing google_play_services_lib destination directory
             DeleteDirIfExists(gpsLibDestDir);
+            DeleteFileIfExists(gpsLibDestDir);
             
             // Copy Google Play Services library
             FileUtil.CopyFileOrDirectory(gpsLibPath, gpsLibDestDir);
@@ -456,46 +461,6 @@ namespace TuneSDK
             AssetDatabase.Refresh();
             EditorUtility.DisplayDialog(sSuccess,
                 "Google Play Services imported successfully to Assets/Plugins/Android.", sOk);
-        }
-        
-        private bool CheckForLibVersion(string gpsLibVersionFile)
-        {
-            var root = new XmlDocument();
-            root.Load(gpsLibVersionFile);
-
-            // Read the version number from the res/values/version.xml
-            var versionNode = root.SelectSingleNode("resources/integer[@name='google_play_services_version']");
-            if (versionNode != null)
-            {
-                var version = versionNode.InnerText;
-                if (version == null || version == "")
-                {
-                    UnityEngine.Debug.LogError("Google Play Services lib version could not be read from: " + gpsLibVersionFile);
-                    return EditorUtility.DisplayDialog(sWarning,
-                        string.Format(
-                            "The version of your Google Play Services could not be determined. Please make sure it is " +
-                            "at least version {0}. Continue?",
-                            MinGPSVersion),
-                        sOk, sCancel);
-                } 
-                else
-                {
-                    // Convert version to long and compare to min version
-                    long versionNum = System.Convert.ToInt64(version);
-                    if (versionNum < MinGPSVersion)
-                    {
-                        return EditorUtility.DisplayDialog(sWarning,
-                            string.Format(
-                                "Your version of Google Play Services does not support Google Advertising Id." +
-                                "Please update your Google Play Services to 4.0+." +
-                                "Your version: {0}; required version: {1}). Proceed anyway?",
-                                versionNum,
-                                MinGPSVersion),
-                            sOk, sCancel);
-                    }
-                }
-            }
-            return true;
         }
         
         private string GetAndroidSdkPath()
@@ -529,6 +494,14 @@ namespace TuneSDK
             if (System.IO.Directory.Exists(dir))
             {
                 System.IO.Directory.Delete(dir, true);
+            }
+        }
+
+        private void DeleteFileIfExists(string file)
+        {
+            if (System.IO.File.Exists(file))
+            {
+                System.IO.File.Delete(file);
             }
         }
         
