@@ -22,10 +22,15 @@ namespace TuneSDK
         {
             print ("TuneListener trackerDidFail: " + error);
         }
-        
+
         public void trackerDidEnqueueRequest (string refId)
         {
             print ("TuneListener trackerDidEnqueueRequest: " + refId);
+        }
+
+        public void trackerDidEnqueueUrl (string url)
+        {
+            print ("TuneListener trackerDidEnqueueUrl: " + url);
         }
 
         public void trackerDidReceiveDeeplink (string url)
@@ -64,7 +69,7 @@ namespace TuneSDK
 
             //this line causes the following error when building for Windows 8 phones:
             //Error building Player: Exception: Error: method `System.String System.Text.Encoding::GetString(System.Byte[])` doesn't exist in target framework. It is referenced from Assembly-CSharp.dll at System.String MATDelegateScript::DecodeFrom64(System.String).
-            //Because of this, I'm currently choosing to disable it when Windows 8 phones are used. I'll see if I can find 
+            //Because of this, I'm currently choosing to disable it when Windows 8 phones are used. I'll see if I can find
             //something better later. Until then, I'll probably use an else branch to take care of the UNITY_WP8 case.
             decodedString = System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
             #endif

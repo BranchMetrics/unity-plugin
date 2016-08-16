@@ -46,7 +46,7 @@ namespace TuneSDK
         /// </para>
         /// <param name="advertiserId">the TUNE advertiser ID for your app</param>
         /// <param name="conversionKey">the TUNE conversion key for your app</param>
-        /// <param name="turnOnTMA">enables In-App Marketing for Android</param> 
+        /// <param name="turnOnTMA">enables In-App Marketing for Android</param>
         public static void Init(string advertiserId, string conversionKey, bool turnOnTMA)
         {
             if(!Application.isEditor)
@@ -157,28 +157,6 @@ namespace TuneSDK
             }
         }
 
-        #if (UNITY_ANDROID || UNITY_IOS)
-        /// <para>
-        /// Event measurement function, by event id.
-        /// </para>
-        /// <param name="eventId">event id in TUNE system</param>
-        public static void MeasureEvent(int eventId)
-        {
-            if (!Application.isEditor)
-            {
-                #if UNITY_ANDROID
-                TuneAndroid.Instance.MeasureEvent(eventId);
-                #endif
-                #if UNITY_IOS
-                TuneExterns.TuneMeasureEventId(eventId);
-                #endif
-//                #if UNITY_METRO
-//                MATWinStore.MobileAppTracker.Instance.MeasureAction(eventId);
-//                #endif
-            }
-        }
-        #endif
-
         /// <para>
         /// Measures the event with TuneEvent.
         /// </para>
@@ -190,7 +168,7 @@ namespace TuneSDK
                 #if UNITY_ANDROID
                 TuneAndroid.Instance.MeasureEvent(tuneEvent);
                 #endif
-                
+
                 #if UNITY_METRO
                 // Set event characteristic values separately
                 SetEventContentType(tuneEvent.contentType);
@@ -226,7 +204,7 @@ namespace TuneSDK
                 SetEventAttribute4(tuneEvent.attribute4);
                 SetEventAttribute5(tuneEvent.attribute5);
                 #endif
-                
+
                 #if UNITY_IOS
                 int itemCount = null == tuneEvent.eventItems ? 0 : tuneEvent.eventItems.Length;
                 TuneEventIos eventIos = new TuneEventIos(tuneEvent);
@@ -456,12 +434,12 @@ namespace TuneSDK
             {
                 #if UNITY_METRO
                 double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
-                
+
                 // datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
-                
+
                 //Update to current time for c#
                 datetime = datetime.Add(timeFrom1970);
                 MobileAppTracker.Instance.SetEventDate1(datetime);
@@ -481,7 +459,7 @@ namespace TuneSDK
                 //datetime starts in 1970
                 DateTime datetime = new DateTime(1970, 1, 1);
                 double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
-                
+
                 TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
                 //Update to current time for c#
                 datetime = datetime.Add(timeFrom1970);
@@ -711,7 +689,7 @@ namespace TuneSDK
                 #endif
             }
         }
-        
+
         ///<para>
         ///Sets the custom user phone number.
         ///</para>
@@ -747,7 +725,7 @@ namespace TuneSDK
                 #endif
             }
         }
-        
+
         /// <para>
         /// Sets the user ID to associate with Twitter.
         /// </para>
@@ -877,7 +855,7 @@ namespace TuneSDK
                 return MobileAppTracker.Instance.GetMatId();
                 #endif
             }
-            
+
             return string.Empty;
         }
 
@@ -911,7 +889,7 @@ namespace TuneSDK
         /// <summary>
         /// Registers a custom profile string.
         /// </summary>
-        /// <param name="name="variableName">Variable name.</param>"> 
+        /// <param name="name="variableName">Variable name.</param>">
         public static void RegisterCustomProfileString(string variableName)
         {
             if (!Application.isEditor)
@@ -1565,6 +1543,103 @@ namespace TuneSDK
                 #endif
             }
             return false;
+        }
+
+        /// <summary>
+        /// Returns whether the current session was caused by a TUNE push notification.
+        /// </summary>
+        /// <returns><c>true</c>, if session was opened via TUNE push notification, <c>false</c> otherwise.</returns>
+        public static bool DidSessionStartFromTunePush()
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.DidSessionStartFromTunePush();
+                #endif
+                #if UNITY_IOS
+                return TuneExterns.TuneDidSessionStartFromTunePush();
+                #endif
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns TUNE push information if session was opened by a TUNE push notification.
+        /// </summary>
+        /// <returns>TunePushInfo object of push information. On iOS, the extrasPayload field will be empty.</returns>
+        public static TunePushInfo GetTunePushInfoForSession()
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.GetTunePushInfoForSession();
+                #endif
+                #if UNITY_IOS
+                string campaignId = TuneExterns.TuneGetTuneCampaignIdForSession();
+                string pushId = TuneExterns.TuneGetTunePushIdForSession();
+                // TODO: convert Objective-C NSDictionary to C# Dictionary for extrasPayload
+                return new TunePushInfo(campaignId, pushId, new Dictionary<string, string>());
+                #endif
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns whether the user belongs to the given segment.
+        /// </summary>
+        /// <param name="segmentId">Segment ID to check for a match.</param>
+        /// <returns>Whether the user is in the given segment.</returns>
+        public static bool IsUserInSegmentId(string segmentId)
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.IsUserInSegmentId(segmentId);
+                #endif
+                #if UNITY_IOS
+                return TuneExterns.TuneIsUserInSegmentId(segmentId);
+                #endif
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns whether the user belongs to any of the given segments.
+        /// </summary>
+        /// <param name="segmentId">Segment IDs to check for a match.</param>
+        /// <returns>Whether the user is in any of the given segments.</returns>
+        public static bool IsUserInAnySegmentIds(string[] segmentIds)
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.IsUserInAnySegmentIds(segmentIds);
+                #endif
+                #if UNITY_IOS
+                return TuneExterns.TuneIsUserInAnySegmentIds(segmentIds, segmentIds.Length);
+                #endif
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Sets the status of the user in the given segment, for testing IsUserInSegmentId or IsUserInAnySegmentIds.
+        /// Only affects segment status locally, for testing. Does not update segments server-side.
+        /// This call should be removed prior to shipping to production.
+        /// </summary>
+        /// <param name="segmentId">Segment to modify status for.</param>
+        /// <param name="isInSegment">Status to modify of whether user is in the segment.</param>
+        public static void ForceSetUserInSegmentId(string segmentId, bool isInSegment)
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                TuneAndroid.Instance.ForceSetUserInSegmentId(segmentId, isInSegment);
+                #endif
+                #if UNITY_IOS
+                TuneExterns.TuneForceSetUserInSegmentId(segmentId, isInSegment);
+                #endif
+            }
         }
 
         /////////////////////////////////////////////////////////////////////////////

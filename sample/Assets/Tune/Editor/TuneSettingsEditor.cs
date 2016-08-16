@@ -313,8 +313,8 @@ namespace TuneSDK
             p.StartInfo.RedirectStandardError=true;
             p.StartInfo.RedirectStandardOutput=true;
             p.StartInfo.CreateNoWindow = true;
-            
-            p.StartInfo.WorkingDirectory = Application.dataPath+"/Tune"; 
+
+            p.StartInfo.WorkingDirectory = Application.dataPath+"/Tune";
             p.StartInfo.UseShellExecute = false;
             p.Start();
             // Read the output - this will show as a single entry in the console
@@ -354,8 +354,8 @@ namespace TuneSDK
             p.StartInfo.RedirectStandardError=true;
             p.StartInfo.RedirectStandardOutput=true;
             p.StartInfo.CreateNoWindow = true;
-            
-            p.StartInfo.WorkingDirectory = Application.dataPath+"/Tune"; 
+
+            p.StartInfo.WorkingDirectory = Application.dataPath+"/Tune";
             p.StartInfo.UseShellExecute = false;
             p.Start();
             // Read the output - this will show as a single entry in the console
@@ -394,8 +394,8 @@ namespace TuneSDK
             p.StartInfo.RedirectStandardError=true;
             p.StartInfo.RedirectStandardOutput=true;
             p.StartInfo.CreateNoWindow = true;
-            
-            p.StartInfo.WorkingDirectory = Application.dataPath+"/Tune"; 
+
+            p.StartInfo.WorkingDirectory = Application.dataPath+"/Tune";
             p.StartInfo.UseShellExecute = false;
             p.Start();
             // Read the output - this will show as a single entry in the console
@@ -410,8 +410,8 @@ namespace TuneSDK
             string gpsLibPathOld = FixSlashes(sdkPath) + FixSlashes("/extras/google/google_play_services/libproject/google-play-services_lib");
             string gpsLibDestDirOld = FixSlashes("Assets/Plugins/Android/google-play-services_lib");
 
-            string gpsLibPathNew = FixSlashes(sdkPath) + FixSlashes("/extras/google/m2repository/com/google/android/gms/play-services-basement/9.0.1/play-services-basement-9.0.1.aar");
-            string gpsLibDestDirNew = FixSlashes("Assets/Plugins/Android/play-services-basement-9.0.1.aar");
+            string gpsLibPathNew = FixSlashes(sdkPath) + FixSlashes("/extras/google/m2repository/com/google/android/gms/play-services-basement/8.4.0/play-services-basement-8.4.0.aar");
+            string gpsLibDestDirNew = FixSlashes("Assets/Plugins/Android/play-services-basement-8.4.0.aar");
 
             // Check that Android SDK is there
             if (!HasAndroidSdk())
@@ -445,7 +445,7 @@ namespace TuneSDK
                     "Install from the SDK Manager under Extras > Google Play Services.", sOk);
                 return;
             }
-            
+
             // Create Assets/Plugins and Assets/Plugins/Android if not existing
             CheckDirExists("Assets/Plugins");
             CheckDirExists("Assets/Plugins/Android");
@@ -453,16 +453,16 @@ namespace TuneSDK
             // Delete any existing google_play_services_lib destination directory
             DeleteDirIfExists(gpsLibDestDir);
             DeleteFileIfExists(gpsLibDestDir);
-            
+
             // Copy Google Play Services library
             FileUtil.CopyFileOrDirectory(gpsLibPath, gpsLibDestDir);
-            
+
             // Refresh assets, and we're done
             AssetDatabase.Refresh();
             EditorUtility.DisplayDialog(sSuccess,
                 "Google Play Services imported successfully to Assets/Plugins/Android.", sOk);
         }
-        
+
         private string GetAndroidSdkPath()
         {
             string sdkPath = EditorPrefs.GetString("AndroidSdkRoot");
@@ -473,7 +473,7 @@ namespace TuneSDK
             }
             return sdkPath;
         }
-        
+
         private bool HasAndroidSdk()
         {
             string sdkPath = GetAndroidSdkPath();
@@ -488,7 +488,7 @@ namespace TuneSDK
                 System.IO.Directory.CreateDirectory(dir);
             }
         }
-        
+
         private void DeleteDirIfExists(string dir)
         {
             if (System.IO.Directory.Exists(dir))
@@ -504,7 +504,7 @@ namespace TuneSDK
                 System.IO.File.Delete(file);
             }
         }
-        
+
         private string FixSlashes(string path)
         {
             return path.Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());

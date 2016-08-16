@@ -20,11 +20,12 @@ def compile_java(package_name, sdk_path, api_level):
 
     java_file = package_name_path + '/MyApplication.java'
 
-    success = subprocess.call('javac -classpath android-support-v4.jar:' +
+    success = subprocess.call('javac -source 1.7 -target 1.7 ' +
+        '-classpath android-support-v4.jar:' +
         'eventbus-2.4.0.jar:' +
-        'TuneMarketingConsoleSDK-4.1.2.jar:' +
-        sdk_path + '/platforms/android-' + api_level + '/android.jar' +
-        ' ' + java_file, shell=True, env=os.environ)
+        'TuneMarketingConsoleSDK-4.5.0.jar:' +
+        sdk_path + '/platforms/android-' + api_level + '/android.jar ' +
+        java_file, shell=True, env=os.environ)
 
     if success != 0:
         raise Exception('Failed compiling MyApplication.java')

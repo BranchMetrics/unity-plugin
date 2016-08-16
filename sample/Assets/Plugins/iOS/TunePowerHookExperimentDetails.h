@@ -42,6 +42,9 @@
  */
 @property (NS_NONATOMIC_IOSONLY, getter=isRunning, readonly) BOOL running;
 
-- (NSDictionary*) toDictionary;
+/**
+ * Return the experiment details as a dictionary
+ */
+- (NSDictionary *)toDictionary;
 
 @end

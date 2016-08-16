@@ -22,7 +22,7 @@ namespace TuneSDK
         [MenuItem ("TUNE/Plugin Guide", false, 200)] //Open menu for Android configuration
         static void OpenPluginGuide()
         {
-            Application.OpenURL("https://developers.mobileapptracking.com/unity-plugin/");
+            Application.OpenURL("https://developers.tune.com/sdk/unity-quick-start/");
         }
 
         private static TuneSettings instance;

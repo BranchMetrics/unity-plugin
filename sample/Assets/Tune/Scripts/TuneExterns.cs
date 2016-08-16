@@ -81,11 +81,11 @@ namespace TuneSDK
         internal static extern void TuneSetLocation(double latitude, double longitude, double altitude);
         [DllImport ("__Internal")]
         internal static extern void TuneSetDeepLink(string deepLinkUrl);
-        
+
         // Method to include publisher information in the Tune SDK requests
         [DllImport ("__Internal")]
         internal static extern void TuneSetPreloadData(TunePreloadData preloadData);
-        
+
         // Method to enable cookie based tracking
         [DllImport ("__Internal")]
         internal static extern void TuneSetUseCookieTracking(bool useCookieTracking);
@@ -104,9 +104,7 @@ namespace TuneSDK
         [DllImport ("__Internal")]
         internal static extern void TuneMeasureEventName(string eventName);
         [DllImport ("__Internal")]
-        internal static extern void TuneMeasureEventId(int eventId);
-        [DllImport ("__Internal")]
-        internal static extern void TuneMeasureEvent(TuneEventIos tuneEvent, TuneItemIos[] items, int itemCount, Byte[] receipt, int receiptLength);
+        internal static extern void TuneMeasureEvent(TuneEventIos tuneEvent, TuneItemIos[] eventItems, int eventItemCount, Byte[] receipt, int receiptByteCount);
 
         // Method to measure session
         [DllImport ("__Internal")]
@@ -196,6 +194,24 @@ namespace TuneSDK
         internal static extern void TuneOnFirstPlaylistDownloaded(bool listenForFirstPlaylist);
         [DllImport ("__Internal")]
         internal static extern void TuneOnFirstPlaylistDownloadedWithTimeout(bool listenForFirstPlaylist, long timeout);
+
+        // Push API
+        [DllImport ("__Internal")]
+        internal static extern bool TuneDidSessionStartFromTunePush();
+        [DllImport ("__Internal")]
+        [return: MarshalAs(UnmanagedType.LPStr)]
+        internal static extern string TuneGetTuneCampaignIdForSession();
+        [DllImport ("__Internal")]
+        [return: MarshalAs(UnmanagedType.LPStr)]
+        internal static extern string TuneGetTunePushIdForSession();
+
+        // Segment API
+        [DllImport ("__Internal")]
+        internal static extern bool TuneIsUserInSegmentId(string segmentId);
+        [DllImport ("__Internal")]
+        internal static extern bool TuneIsUserInAnySegmentIds(string[] segmentIds, int segmentCount);
+        [DllImport ("__Internal")]
+        internal static extern void TuneForceSetUserInSegmentId(string segmentId, bool isInSegment);
 
         #endif
     }

@@ -44,7 +44,7 @@ public class TuneSample : MonoBehaviour {
             if (dt == 0 || float.IsNaN(dt) || float.IsInfinity(dt))
                 dt = 1.0f;
             Vector2 glassDelta = touch.deltaPosition * dt;
-            
+
             scrollPosition.y += glassDelta.y;
         }
     }
@@ -56,11 +56,11 @@ public class TuneSample : MonoBehaviour {
         headingLabelStyle.fontSize = 50;
         headingLabelStyle.alignment = TextAnchor.MiddleCenter;
         headingLabelStyle.normal.textColor = Color.white;
-        
+
         GUI.skin.button.fontSize = 40;
 
         scrollPosition = GUI.BeginScrollView(new Rect(10, 0, Screen.width - 20, Screen.height), scrollPosition, new Rect(10, 0, Screen.width - 20, Screen.height * 1.1f), GUIStyle.none, GUIStyle.none);
-        
+
         GUI.Label(new Rect(10, 5, Screen.width - 20, Screen.height/10), "TUNE Unity Test App", headingLabelStyle);
 
         if (GUI.Button (new Rect (10, Screen.height/10, Screen.width - 20, Screen.height/10), "Start TUNE SDK"))
@@ -129,9 +129,8 @@ public class TuneSample : MonoBehaviour {
         else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event With Event Items"))
         {
             print ("Measure Event With Event Items clicked");
-            
-            TuneItem item1 = new TuneItem();
-            item1.name = "subitem1";
+
+            TuneItem item1 = new TuneItem("subitem1");
             item1.unitPrice = 5;
             item1.quantity = 5;
             item1.revenue = 3;
@@ -139,16 +138,15 @@ public class TuneSample : MonoBehaviour {
             item1.attribute3 = "attrValue3";
             item1.attribute4 = "attrValue4";
             item1.attribute5 = "attrValue5";
-            
-            TuneItem item2 = new TuneItem();
-            item2.name = "subitem2";
+
+            TuneItem item2 = new TuneItem("subitem2");
             item2.unitPrice = 1;
             item2.quantity = 3;
             item2.revenue = 1.5;
             item2.attribute1 = "attrValue1";
             item2.attribute3 = "attrValue3";
             TuneItem[] eventItems = { item1, item2 };
-            
+
             TuneEvent tuneEvent = new TuneEvent("purchase");
             tuneEvent.revenue = 10;
             tuneEvent.currencyCode = "AUD";
@@ -173,7 +171,7 @@ public class TuneSample : MonoBehaviour {
             #if UNITY_IOS
             tuneEvent.receipt = getSampleiTunesIAPReceipt();
             #endif
-            
+
             Tune.MeasureEvent(tuneEvent);
         }
 

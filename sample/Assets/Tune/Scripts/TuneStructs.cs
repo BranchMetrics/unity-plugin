@@ -6,12 +6,11 @@ using System.Collections.Generic;
 namespace TuneSDK
 {
     /// <para>
-    /// Struct used for TUNE events.
+    /// Class used for TUNE events.
     /// </para>
-    public struct TuneEvent
+    public class TuneEvent
     {
         public string       name;
-        public int?         id;
         public double?      revenue;
         public string       currencyCode;
         public string       advertiserRefId;
@@ -35,7 +34,6 @@ namespace TuneSDK
 
         private TuneEvent(int dummy1, int dummy2) {
             this.name               = null;
-            this.id                 = null;
             this.revenue            = null;
             this.currencyCode       = null;
             this.advertiserRefId    = null;
@@ -61,16 +59,11 @@ namespace TuneSDK
         public TuneEvent(string name) : this(0, 0) {
             this.name               = name;
         }
-
-        public TuneEvent(int id) : this(0, 0) {
-            this.id                 = id;
-        }
     }
 
-    internal struct TuneEventIos
+    internal class TuneEventIos
     {
         public string        name;
-        public string        eventId;
         public string        revenue;
         public string        currencyCode;
         public string        advertiserRefId;
@@ -88,9 +81,8 @@ namespace TuneSDK
         public string        attribute3;
         public string        attribute4;
         public string        attribute5;
-        
+
         private TuneEventIos(int dummy1, int dummy2) {
-            this.eventId            = null;
             this.name               = null;
             this.revenue            = null;
             this.currencyCode       = null;
@@ -114,15 +106,10 @@ namespace TuneSDK
         public TuneEventIos(string name) : this(0, 0) {
             this.name = name;
         }
-        
-        public TuneEventIos(int id) : this(0, 0) {
-            this.eventId = id.ToString();
-        }
 
         public TuneEventIos(TuneEvent tuneEvent)
         {
             name                = tuneEvent.name;
-            eventId             = null == tuneEvent.name ? tuneEvent.id.ToString() : null;
             advertiserRefId     = tuneEvent.advertiserRefId;
             attribute1          = tuneEvent.attribute1;
             attribute2          = tuneEvent.attribute2;
@@ -143,14 +130,14 @@ namespace TuneSDK
 
             // datetime starts in 1970
             DateTime datetime = new DateTime(1970, 1, 1);
-            
+
             if(tuneEvent.date1.HasValue)
             {
                 double millis = new TimeSpan(tuneEvent.date1.Value.Ticks).TotalMilliseconds;
                 double millisFrom1970 = millis - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
                 date1 = millisFrom1970.ToString();
             }
-            
+
             if(tuneEvent.date2.HasValue)
             {
                 double millis = new TimeSpan(tuneEvent.date2.Value.Ticks).TotalMilliseconds;
@@ -159,11 +146,11 @@ namespace TuneSDK
             }
         }
     }
-    
+
     /// <para>
-    /// Struct used for TUNE event items.
+    /// Class used for TUNE event items.
     /// </para>
-    public struct TuneItem
+    public class TuneItem
     {
         public string   name;
         public double?  unitPrice;
@@ -174,7 +161,7 @@ namespace TuneSDK
         public string   attribute3;
         public string   attribute4;
         public string   attribute5;
-        
+
         public TuneItem(string name)
         {
             this.name       = name;
@@ -189,7 +176,7 @@ namespace TuneSDK
         }
     }
 
-    internal struct TuneItemIos
+    internal class TuneItemIos
     {
         public string   name;
         public double   unitPrice;
@@ -229,9 +216,9 @@ namespace TuneSDK
     }
 
     /// <para>
-    /// Struct used for preloaded app attribution.
+    /// Class used for preloaded app attribution.
     /// </para>
-    public struct TunePreloadData
+    public class TunePreloadData
     {
         public string advertiserSubAd;
         public string advertiserSubAdgroup;
@@ -391,5 +378,19 @@ namespace TuneSDK
         public string id;
         public string name;
         public string letter;
+    }
+
+    public class TunePushInfo
+    {
+        public string campaignId;
+        public string pushId;
+        public Dictionary<string, string> extrasPayload;
+
+        public TunePushInfo(string campaignId, string pushId, Dictionary<string, string> extrasPayload)
+        {
+            this.campaignId = campaignId;
+            this.pushId = pushId;
+            this.extrasPayload = extrasPayload;
+        }
     }
 }

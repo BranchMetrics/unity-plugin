@@ -15,9 +15,11 @@
 #import "TuneEventItem.h"
 #import "TuneLocation.h"
 #import "TunePreloadData.h"
+#import "TunePushInfo.h"
 
 #if TARGET_OS_IOS
 
+#import "TuneDebugUtilities.h"
 #import "TuneInAppMessageExperimentDetails.h"
 #import "TunePowerHookExperimentDetails.h"
 
@@ -28,7 +30,7 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 #endif
 
-#define TUNEVERSION @"4.2.0"
+#define TUNEVERSION @"4.7.0"
 
 
 @protocol TuneDelegate;
@@ -114,10 +116,10 @@
  Check for a deferred deeplink entry point upon app installation.
  On completion, this method does not auto-open the deferred deeplink,
  only the success/failure delegate callbacks are fired.
- 
+
  This is safe to call at every app launch, since the function does nothing
  unless this is the first launch.
- 
+
  @param delegate Delegate that implements the TuneDelegate deferred deeplink related callbacks.
  */
 + (void)checkForDeferredDeeplink:(id<TuneDelegate>)delegate;
@@ -526,9 +528,9 @@
 
 /*!
  Gets the current device token for push notifications.
- 
+
  NOTE: This should be called after application:didRegisterForRemoteNotificationsWithDeviceToken: finishes. If called before it will be nil.
- 
+
  @return device token, nil if there isn't one
  */
 + (NSString *)getPushToken;
@@ -611,11 +613,27 @@
 #pragma mark - Push Notifications API
 
 /**
+ * Returns true if the current session is because the user opened a Tune push notification. Otherwise returns false.
+ * This is set back to false on application background.
+ *
+ * NOTE: This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
+ */
++ (BOOL)didSessionStartFromTunePush;
+
+/**
+ * Returns information about the received Tune push if this session was started through opening a Tune push. Otherwise returns nil.
+ * This is set back to nil on application background.
+ *
+ * NOTE: This method should be called AFTER the `didReceiveRemoteNotification:` or `didReceiveRemoteNotification:fetchCompletionHandler:` method of your app delegate is called, in order to receive an accurate value.
+ */
++ (TunePushInfo *)getTunePushInfoForSession;
+
+/**
  * Manage all Push Notification events used with TUNE.
- * 
+ *
  * Push notification events are auto-instrumented by the TUNE SDK if your UIApplicationDelegate is named 'AppDelegate',
  * or you have set the name for 'AppDelegateClassName' in 'TuneConfiguration.plist'.
- * 
+ *
  * If you are not using TUNE's auto-instrumentation setup, you may instead invoke the following methods manually from the UIApplicationDelegate methods.
  *
  * WARNING: If you enable the swizzle, do not call these methods.
@@ -659,13 +677,23 @@
 
 #pragma mark - Playlist API
 
-/** Register block for callback when the very first play list is downloaded.
+/** Register block for callback when the very first playlist is downloaded.
  *
- * Use this method to register a block for callback the first time a playlist is downloaded.
- * 
- * The thread calling the block of code is not gaurenteed to be the main thread. If the code inside of the block requires executing on the main thread you will need to implement this logic.
+ * Use this method to register a block for callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
  *
  * If the first playlist has already been downloaded when this call is made this becomes a blocking call and the block of code is executed immediately on a background thread.
+ *
+ * Otherwise the callback will fire after 3 seconds or when the first playlist is downloaded, whichever comes first.
+ *
+ * <b>IMPORTANT</b>: The thread calling the block of code is not guaranteed to be the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
+ *
+ * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
+ * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
+ * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
+ *
+ * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
+ *
+ * NOTE: Only the latest callback registered will be executed. Subsequent calls to onFirstPlaylistDownloaded will replace the callback to be executed.
  *
  * WARNING: If TMA is not enabled then this callback will never fire.
  *
@@ -674,20 +702,47 @@
  */
 + (void)onFirstPlaylistDownloaded:(void (^)())block;
 
-/** Register block for callback when the very first play list is downloaded.
+/** Register block for callback when the very first playlist is downloaded.
  *
- * Use this method to register a block for callback the first time a playlist is downloaded.  This call is non-blocking so code execution will continue immediately to the next line of code.
- *
- * The thread calling the block of code is not gaurenteed to be the main thread. If the code inside of the block requires executing on the main thread you will need to implement this logic.
+ * Use this method to register a block for callback the first time a playlist is downloaded. This call is non-blocking so code execution will continue immediately to the next line of code.
  *
  * If the first playlist has already been downloaded when this call is made this becomes a blocking call and the block of code is executed immediately on a background thread.
  *
- * If the timeout is greater than zero, the block of code will fire when the timeout expires or the first playlist is downloaded, whichever comes first.
+ * The timeout provided overrides the default timeout of 3 seconds. If the given timeout is greater than zero, the block of code will fire when the timeout expires or the first playlist is downloaded, whichever comes first.
+ *
+ * <b>IMPORTANT</b>: The thread calling the block of code is not guaranteed to be the main thread. You will need to implement custom logic if you want to ensure that the block of code always executes on the main thread.
+ *
+ * NOTE: This callback will fire upon first playlist download from the application start and upon each callback registration call.
+ * If registered more than once, the latest callback will always fire, regardless of whether a previously registered callback already executed.
+ * We do not recommend registering more than once but if you do so, please make sure that executing the callback more than once will not cause any issues in your app.
+ *
+ * NOTE: Pending callbacks will be canceled upon app background and resumed upon app foreground.
+ *
+ * NOTE: Only the latest callback registered will be executed. Subsequent calls to onFirstPlaylistDownloaded will replace the callback to be executed.
+ *
+ * WARNING: If TMA is not enabled then this callback will never fire.
  *
  * @param block The block of code to be executed.
+ * @param timeout The amount of time in seconds to wait before executing the callback if the Playlist hasn't been downloaded yet. We recommend this is not over 5 seconds at a maximum and is over 1 second at a minimum.
  *
  */
 + (void)onFirstPlaylistDownloaded:(void (^)())block withTimeout:(NSTimeInterval)timeout;
+
+#pragma mark - User in Segment API
+
+/*!
+ * Returns whether the user belongs to the given segment
+ * @param segmentId Segment ID to check for a match
+ * @return whether the user belongs to the given segment
+ */
++ (BOOL)isUserInSegmentId:(NSString *)segmentId;
+
+/*!
+ * Returns whether the user belongs to any of the given segments
+ * @param segmentIds Segment IDs to check for a match
+ * @return whether the user belongs to any of the given segments
+ */
++ (BOOL)isUserInAnySegmentIds:(NSArray<NSString *> *)segmentIds;
 
 #endif
 
@@ -715,7 +770,7 @@
  Record an event by providing the equivalent Event ID defined on the TUNE dashboard.
  @param eventId The event ID.
  */
-+ (void)measureEventId:(NSInteger)eventId;
++ (void)measureEventId:(NSInteger)eventId DEPRECATED_MSG_ATTRIBUTE("Tune does not support measuring events using event IDs. Please use measureEventName: or measureEvent: instead.");
 
 /*!
  Record an event with a TuneEvent.
@@ -753,7 +808,7 @@
  @param targetAppAdvertiserId The Tune advertiser ID of the target app.
  @param targetAdvertiserOfferId The Tune offer ID of the target app.
  @param targetAdvertiserPublisherId The Tune publisher ID of the target app.
- @param shouldRedirect Should redirect to the download url if the measurement session was 
+ @param shouldRedirect Should redirect to the download url if the measurement session was
    successfully created. See setRedirectUrl:.
  */
 + (void)startAppToAppMeasurement:(NSString *)targetAppPackageName
@@ -772,7 +827,7 @@
  This typically occurs during OAUTH or when an app exits and is returned
  to via a URL. The data will be sent to the HasOffers server when the next
  measureXXX method is called so that a Re-Engagement can be recorded.
- 
+
  WARNING: You don't need to call this method if you have the swizzle enabled.
  @param urlString the url string used to open your app.
  @param sourceApplication the source used to open your app. For example, mobile safari.
@@ -788,10 +843,10 @@
 /*!
  Begin monitoring for an iBeacon region. Boundary-crossing events will be recorded
  by the Tune servers for event attribution.
- 
+
  When the first region is added, the user will immediately be prompted for use of
  their location, unless they have already granted it to the app.
- 
+
  @param UUID The region's universal unique identifier (required).
  @param nameId The region's name, as programmed into the beacon (required).
  @param majorId A subregion's major identifier (optional, send 0)
@@ -822,7 +877,14 @@
  Delegate method called when an action is enqueued.
  @param referenceId The reference ID of the enqueue action.
  */
-- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId;
+- (void)tuneEnqueuedActionWithReferenceId:(NSString *)referenceId DEPRECATED_MSG_ATTRIBUTE("Please use tuneEnqueuedRequest:postData: instead.");
+
+/*!
+ Delegate method called when Tune SDK enqueues a web request.
+ @param url The request url string.
+ @param post The request post data string.
+ */
+- (void)tuneEnqueuedRequest:(NSString *)url postData:(NSString *)post;
 
 /*!
  Delegate method called when an action succeeds.

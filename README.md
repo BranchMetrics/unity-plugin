@@ -1,10 +1,10 @@
-# TUNE Unity Plugin v4.1.1
+# TUNE Unity Plugin v4.2.0
 
 Includes:
-* TUNE Android SDK 4.1.2
-* TUNE iOS SDK 4.3.0
+* TUNE Android SDK 4.5.0
+* TUNE iOS SDK 4.7.0
 * TUNE Windows SDK 3.5.1
 
 Please see the Quick Start guide here:
 
-[Unity Quick Start](https://developers.mobileapptracking.com/unity-plugin/)
+[Unity Quick Start](https://developers.tune.com/sdk/unity-quick-start/)

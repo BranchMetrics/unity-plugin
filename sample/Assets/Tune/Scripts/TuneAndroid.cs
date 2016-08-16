@@ -185,7 +185,7 @@ namespace TuneSDK
             if (gender == 0)
             {
                 tuneGender = new AndroidJavaClass("com.tune.TuneGender").GetStatic<AndroidJavaObject>("MALE");
-            } 
+            }
             else if (gender == 1)
             {
                 tuneGender = new AndroidJavaClass("com.tune.TuneGender").GetStatic<AndroidJavaObject>("FEMALE");
@@ -223,7 +223,7 @@ namespace TuneSDK
         {
             ajcInstance.Call("setPackageName", packageName);
         }
-        
+
         public void SetPayingUser(bool isPayingUser)
         {
             ajcInstance.Call("setIsPayingUser", isPayingUser);
@@ -577,7 +577,73 @@ namespace TuneSDK
             return ajcInstance.Call<bool>("didUserManuallyDisablePush");
         }
 
+        public bool DidSessionStartFromTunePush()
+        {
+            return ajcInstance.Call<bool>("didSessionStartFromTunePush");
+        }
+
+        public TunePushInfo GetTunePushInfoForSession()
+        {
+            string campaignId = "";
+            string pushId = "";
+            Dictionary<string, string> extrasPayload = new Dictionary<string, string>();
+            // AndroidJavaObject cannot be null, catch Exception:
+            // https://github.com/nraboy/unity3d-floppy-clone-game/blob/master/Assets/GooglePlayGames/Platforms/Android/JavaUtil.cs#L73
+            try {
+                AndroidJavaObject tunePushInfoJava = ajcInstance.Call<AndroidJavaObject>("getTunePushInfoForSession");
+                // TODO: convert AndroidJavaObject to TunePushInfo
+                campaignId = tunePushInfoJava.Call<string>("getCampaignId");
+                pushId = tunePushInfoJava.Call<string>("getPushId");
+                AndroidJavaObject extrasPayloadJava = tunePushInfoJava.Call<AndroidJavaObject>("getExtrasPayload");
+                extrasPayload = JsonToDictionary(extrasPayloadJava);
+            } catch (Exception) {
+            }
+            TunePushInfo pushInfo = new TunePushInfo(campaignId, pushId, extrasPayload);
+            return pushInfo;
+        }
+
+        // Segment API
+
+        public bool IsUserInSegmentId(string segmentId)
+        {
+            return ajcInstance.Call<bool>("isUserInSegmentId", segmentId);
+        }
+
+        public bool IsUserInAnySegmentIds(string[] segmentIds)
+        {
+            // Convert string[] to Java ArrayList
+            AndroidJavaObject objArrayList = new AndroidJavaObject("java.util.ArrayList");
+            foreach (string segmentId in segmentIds)
+            {
+                // Add to list of segment ids
+                objArrayList.Call<bool>("add", segmentId);
+            }
+            return ajcInstance.Call<bool>("isUserInAnySegmentIds", objArrayList);
+        }
+
+        public void ForceSetUserInSegmentId(string segmentId, bool isInSegment)
+        {
+            AndroidJavaClass ajcDebugUtilities = new AndroidJavaClass("com.tune.TuneDebugUtilities");
+            ajcDebugUtilities.CallStatic("forceSetUserInSegmentId", segmentId, isInSegment);
+        }
+
         // Helper functions
+
+        private Dictionary<string, string> JsonToDictionary(AndroidJavaObject jsonObject)
+        {
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+
+            // Iterate through JSONObject's keys
+            AndroidJavaObject keys = jsonObject.Call<AndroidJavaObject>("keys");
+
+            while (keys.Call<bool>("hasNext"))
+            {
+                string key = keys.Call<string>("next");
+                dict.Add(key, jsonObject.Call<string>("get", key));
+            }
+
+            return dict;
+        }
 
         private AndroidJavaObject DictionaryToMap(Dictionary<string, string> dict)
         {
@@ -595,12 +661,8 @@ namespace TuneSDK
         private AndroidJavaObject GetTuneEventJavaObject(TuneEvent tuneEvent)
         {
             // Convert C# TuneEvent to new Java TuneEvent object
-            AndroidJavaObject objTuneEvent;
-            if (tuneEvent.name == null) {
-                objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.id);
-            } else {
-                objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.name);
-            }
+            AndroidJavaObject objTuneEvent = new AndroidJavaObject("com.tune.TuneEvent", tuneEvent.name);
+
             // Set the optional params if they exist
             if (tuneEvent.revenue != null) {
                 objTuneEvent = objTuneEvent.Call<AndroidJavaObject>("withRevenue", tuneEvent.revenue);
