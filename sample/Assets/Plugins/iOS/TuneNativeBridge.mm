@@ -82,7 +82,7 @@ const char * UNITY_SENDMESSAGE_CALLBACK_TUNE_FIRST_PLAYLIST_DOWNLOAD = "onFirstP
 {
     NSLog(@"Native: TuneSdkDelegate: enqueued request");
 
-    NSString *strRequest = [NSString stringWithFormat:@"{\"url\":\"%@\",\"post\":%@\"}", url, post];
+    NSString *strRequest = [NSString stringWithFormat:@"{\"url\":\"%@\",\"post\":%@}", url, post];
 
     UnitySendMessage(UNITY_SENDMESSAGE_CALLBACK_TUNE_RECEIVER, UNITY_SENDMESSAGE_CALLBACK_TUNE_ENQUEUED_URL, [strRequest UTF8String]);
 }
@@ -291,10 +291,9 @@ NSArray *arrayFromItems(TuneItemIos eventItems[], int eventItemCount)
 
 TuneEvent *convertIosEvent(TuneEventIos event, TuneItemIos eventItems[], int eventItemCount, Byte receipt[], int receiptByteCount)
 {
-
     TuneEvent *evt = nil;
 
-    if(event.name || event.eventId)
+    if(event.name)
     {
         evt = [TuneEvent eventWithName:TuneCreateNSString(event.name)];
 

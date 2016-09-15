@@ -6,9 +6,9 @@ using System.Collections.Generic;
 namespace TuneSDK
 {
     /// <para>
-    /// Class used for TUNE events.
+    /// Struct used for TUNE events.
     /// </para>
-    public class TuneEvent
+    public struct TuneEvent
     {
         public string       name;
         public double?      revenue;
@@ -61,7 +61,7 @@ namespace TuneSDK
         }
     }
 
-    internal class TuneEventIos
+    internal struct TuneEventIos
     {
         public string        name;
         public string        revenue;
@@ -148,9 +148,9 @@ namespace TuneSDK
     }
 
     /// <para>
-    /// Class used for TUNE event items.
+    /// Struct used for TUNE event items.
     /// </para>
-    public class TuneItem
+    public struct TuneItem
     {
         public string   name;
         public double?  unitPrice;
@@ -176,7 +176,7 @@ namespace TuneSDK
         }
     }
 
-    internal class TuneItemIos
+    internal struct TuneItemIos
     {
         public string   name;
         public double   unitPrice;
@@ -216,9 +216,9 @@ namespace TuneSDK
     }
 
     /// <para>
-    /// Class used for preloaded app attribution.
+    /// Struct used for preloaded app attribution.
     /// </para>
-    public class TunePreloadData
+    public struct TunePreloadData
     {
         public string advertiserSubAd;
         public string advertiserSubAdgroup;

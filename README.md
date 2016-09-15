@@ -1,8 +1,8 @@
-# TUNE Unity Plugin v4.2.0
+# TUNE Unity Plugin v4.3.0
 
 Includes:
-* TUNE Android SDK 4.5.0
-* TUNE iOS SDK 4.7.0
+* TUNE Android SDK 4.6.0
+* TUNE iOS SDK 4.9.0
 * TUNE Windows SDK 3.5.1
 
 Please see the Quick Start guide here:

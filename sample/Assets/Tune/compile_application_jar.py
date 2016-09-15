@@ -23,7 +23,7 @@ def compile_java(package_name, sdk_path, api_level):
     success = subprocess.call('javac -source 1.7 -target 1.7 ' +
         '-classpath android-support-v4.jar:' +
         'eventbus-2.4.0.jar:' +
-        'TuneMarketingConsoleSDK-4.5.0.jar:' +
+        'TuneMarketingConsoleSDK-4.6.0.jar:' +
         sdk_path + '/platforms/android-' + api_level + '/android.jar ' +
         java_file, shell=True, env=os.environ)
 
