@@ -1,4 +1,4 @@
-# TUNE Unity Plugin v4.3.0
+# TUNE Unity Plugin v4.3.1
 
 Includes:
 * TUNE Android SDK 4.6.0

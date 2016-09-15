@@ -21,7 +21,6 @@ typedef struct TuneItemIos
 typedef struct TuneEventIos
 {
     const char* name;
-    const char* eventId;
     const char* revenue;
     const char* currencyCode;
     const char* advertiserRefId;

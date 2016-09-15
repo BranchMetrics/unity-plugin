@@ -134,17 +134,17 @@ public class TuneSample : MonoBehaviour {
             item1.unitPrice = 5;
             item1.quantity = 5;
             item1.revenue = 3;
-            item1.attribute2 = "attrValue2";
-            item1.attribute3 = "attrValue3";
-            item1.attribute4 = "attrValue4";
-            item1.attribute5 = "attrValue5";
+            item1.attribute2 = "attrValue12";
+            item1.attribute3 = "attrValue13";
+            item1.attribute4 = "attrValue14";
+            item1.attribute5 = "attrValue15";
 
             TuneItem item2 = new TuneItem("subitem2");
             item2.unitPrice = 1;
             item2.quantity = 3;
             item2.revenue = 1.5;
-            item2.attribute1 = "attrValue1";
-            item2.attribute3 = "attrValue3";
+            item2.attribute1 = "attrValue21";
+            item2.attribute3 = "attrValue23";
             TuneItem[] eventItems = { item1, item2 };
 
             TuneEvent tuneEvent = new TuneEvent("purchase");

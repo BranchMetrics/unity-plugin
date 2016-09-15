@@ -66,11 +66,6 @@ namespace TuneSDK
             ajcInstance.Call("measureEvent", eventName);
         }
 
-        public void MeasureEvent(int eventId)
-        {
-            ajcInstance.Call("measureEvent", eventId);
-        }
-
         public void MeasureEvent(TuneEvent tuneEvent)
         {
             AndroidJavaObject objEvent = GetTuneEventJavaObject(tuneEvent);
