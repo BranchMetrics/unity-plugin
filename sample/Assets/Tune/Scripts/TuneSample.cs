@@ -17,6 +17,9 @@ public class TuneSample : MonoBehaviour {
     string TUNE_CONVERSION_KEY = null;
     string TUNE_PACKAGE_NAME = null;
 
+    static int titleFontSize = 50;
+    static bool isTitleBold = true;
+
     Vector2 scrollPosition = Vector2.zero;
 
     void Awake ()
@@ -52,18 +55,18 @@ public class TuneSample : MonoBehaviour {
     void OnGUI ()
     {
         GUIStyle headingLabelStyle = new GUIStyle();
-        headingLabelStyle.fontStyle = FontStyle.Bold;
-        headingLabelStyle.fontSize = 50;
+        headingLabelStyle.fontStyle = isTitleBold ? FontStyle.Bold : FontStyle.Normal;
+        headingLabelStyle.fontSize = titleFontSize;
         headingLabelStyle.alignment = TextAnchor.MiddleCenter;
         headingLabelStyle.normal.textColor = Color.white;
 
         GUI.skin.button.fontSize = 40;
 
-        scrollPosition = GUI.BeginScrollView(new Rect(10, 0, Screen.width - 20, Screen.height), scrollPosition, new Rect(10, 0, Screen.width - 20, Screen.height * 1.1f), GUIStyle.none, GUIStyle.none);
-
         GUI.Label(new Rect(10, 5, Screen.width - 20, Screen.height/10), "TUNE Unity Test App", headingLabelStyle);
 
-        if (GUI.Button (new Rect (10, Screen.height/10, Screen.width - 20, Screen.height/10), "Start TUNE SDK"))
+        scrollPosition = GUI.BeginScrollView(new Rect(10, 5 + Screen.height/10, Screen.width - 20, Screen.height), scrollPosition, new Rect(10, 0, Screen.width - 20, Screen.height * 1.2f), GUIStyle.none, GUIStyle.none);
+
+        if (GUI.Button (new Rect (10, 0, Screen.width - 20, Screen.height/10), "Start TUNE SDK"))
         {
             print ("Start TUNE SDK clicked");
             #if (UNITY_ANDROID || UNITY_IOS || UNITY_METRO)
@@ -88,10 +91,14 @@ public class TuneSample : MonoBehaviour {
             loc.latitude = 55.2;
             loc.longitude = 122.44;
             Tune.RegisterCustomProfileGeoLocation("customGeo", loc);
+
+            Tune.RegisterPowerHook("titleFontBold", "Is Title Text Font Bold", "false");
+            Tune.RegisterPowerHook("titleFontSize", "Title Text Font Size", "25");
+
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
+        else if (GUI.Button (new Rect (10, 1*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
         {
             print ("Set Delegate clicked");
             #if (UNITY_ANDROID || UNITY_IOS)
@@ -104,7 +111,7 @@ public class TuneSample : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 3*Screen.height/10, Screen.width - 20, Screen.height/10), "Enable Debug Mode"))
+        else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Enable Debug Mode"))
         {
             print ("Enable Debug Mode clicked");
             // NOTE: !!! ONLY FOR DEBUG !!!
@@ -114,19 +121,19 @@ public class TuneSample : MonoBehaviour {
             Tune.SetDebugMode(true);
         }
 
-        else if (GUI.Button (new Rect (10, 4*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Session"))
+        else if (GUI.Button (new Rect (10, 3*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Session"))
         {
             print ("Measure Session clicked");
             Tune.MeasureSession();
         }
 
-        else if (GUI.Button (new Rect (10, 5*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event"))
+        else if (GUI.Button (new Rect (10, 4*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event"))
         {
             print ("Measure Event clicked");
             Tune.MeasureEvent("evt11");
         }
 
-        else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event With Event Items"))
+        else if (GUI.Button (new Rect (10, 5*Screen.height/10, Screen.width - 20, Screen.height/10), "Measure Event With Event Items"))
         {
             print ("Measure Event With Event Items clicked");
 
@@ -175,7 +182,7 @@ public class TuneSample : MonoBehaviour {
             Tune.MeasureEvent(tuneEvent);
         }
 
-        else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Setter Methods"))
+        else if (GUI.Button (new Rect (10, 6*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Setter Methods"))
         {
             print ("Test Setter Methods clicked");
             Tune.SetAge(34);
@@ -234,7 +241,7 @@ public class TuneSample : MonoBehaviour {
             #endif
         }
 
-        else if (GUI.Button (new Rect (10, 8*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Getter Methods"))
+        else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Getter Methods"))
         {
             print ("Test Getter Methods clicked");
             print ("isPayingUser = " + Tune.GetIsPayingUser());
@@ -242,7 +249,7 @@ public class TuneSample : MonoBehaviour {
             print ("openLogId = " + Tune.GetOpenLogId());
         }
 
-        else if (GUI.Button (new Rect (10, 9*Screen.height/10, Screen.width - 20, Screen.height/10), "Get Custom Profile Variables"))
+        else if (GUI.Button (new Rect (10, 8*Screen.height/10, Screen.width - 20, Screen.height/10), "Get Custom Profile Variables"))
         {
             print ("Get Custom Profile Variables clicked");
             print ("Custom string = " + Tune.GetCustomProfileString("customString"));
@@ -255,7 +262,7 @@ public class TuneSample : MonoBehaviour {
             print ("Custom location = " + customLoc.latitude.ToString() + ", " + customLoc.longitude.ToString());
         }
 
-        else if (GUI.Button (new Rect (10, 10*Screen.height/10, Screen.width - 20, Screen.height/10), "Get Experiment Details"))
+        else if (GUI.Button (new Rect (10, 9*Screen.height/10, Screen.width - 20, Screen.height/10), "Get Experiment Details"))
         {
             print ("Get Experiment Details clicked");
             Dictionary<string, TunePowerHookExperimentDetails> dict = Tune.GetPowerHookExperimentDetails();
@@ -271,6 +278,21 @@ public class TuneSample : MonoBehaviour {
                 print("variant letter is " + entry.Value.currentVariantLetter);
                 print("running is " + entry.Value.isRunning);
             }
+        }
+
+        else if (GUI.Button (new Rect (10, 10*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Power Hooks"))
+        {
+            string titleFontBoldPowerHookVariable = Tune.GetValueForHookById("titleFontBold");
+            string titleFontSizePowerHookVariable = Tune.GetValueForHookById("titleFontSize");
+
+            string sampleHook = Tune.GetValueForHookById("hookId");
+            print ("power hook values1: sample hook = " + sampleHook);
+            print ("power hook values2: sample hook = " + Tune.GetValueForHookById("hookId"));
+
+            print ("power hook values: isBold = " + titleFontBoldPowerHookVariable + ", size = " + titleFontSizePowerHookVariable);
+
+            isTitleBold = titleFontBoldPowerHookVariable.Equals("true");
+            titleFontSize = int.Parse(titleFontSizePowerHookVariable);
         }
 
         GUI.EndScrollView();

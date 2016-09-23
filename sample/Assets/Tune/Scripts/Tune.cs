@@ -1324,7 +1324,7 @@ namespace TuneSDK
                 return TuneAndroid.Instance.GetValueForHookById(hookId);
                 #endif
                 #if UNITY_IOS
-                TuneExterns.TuneGetValueForHookById(hookId);
+                return TuneExterns.TuneGetValueForHookById(hookId);
                 #endif
             }
             return string.Empty;

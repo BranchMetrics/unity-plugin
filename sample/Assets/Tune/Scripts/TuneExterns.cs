@@ -156,16 +156,12 @@ namespace TuneSDK
         internal static extern void TuneSetCustomProfileGeolocation(string variableName, double longitude, double latitude);
 
         [DllImport ("__Internal")]
-        [return: MarshalAs(UnmanagedType.LPStr)]
         internal static extern string TuneGetCustomProfileString(string variableName);
         [DllImport ("__Internal")]
-        [return: MarshalAs(UnmanagedType.LPStr)]
         internal static extern string TuneGetCustomProfileDate(string variableName);
         [DllImport ("__Internal")]
-        [return: MarshalAs(UnmanagedType.LPStr)]
         internal static extern string TuneGetCustomProfileNumber(string variableName);
         [DllImport ("__Internal")]
-        [return: MarshalAs(UnmanagedType.LPStr)]
         internal static extern string TuneGetCustomProfileGeolocation(string variableName);
 
         [DllImport ("__Internal")]
@@ -199,10 +195,8 @@ namespace TuneSDK
         [DllImport ("__Internal")]
         internal static extern bool TuneDidSessionStartFromTunePush();
         [DllImport ("__Internal")]
-        [return: MarshalAs(UnmanagedType.LPStr)]
         internal static extern string TuneGetTuneCampaignIdForSession();
         [DllImport ("__Internal")]
-        [return: MarshalAs(UnmanagedType.LPStr)]
         internal static extern string TuneGetTunePushIdForSession();
 
         // Segment API
