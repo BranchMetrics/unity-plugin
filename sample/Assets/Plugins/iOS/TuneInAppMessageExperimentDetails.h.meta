@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: deb552bf5bb2d45de8ebff5bd500cfc8
-timeCreated: 1461623123
+timeCreated: 1476489816
 licenseType: Free
 PluginImporter:
   serializedVersion: 1
@@ -9,6 +9,13 @@ PluginImporter:
   isPreloaded: 0
   platformData:
     Any:
+      enabled: 0
+      settings: {}
+    Editor:
+      enabled: 0
+      settings:
+        DefaultValueInitialized: true
+    iOS:
       enabled: 1
       settings: {}
   userData: 
