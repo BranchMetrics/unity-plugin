@@ -56,7 +56,7 @@ namespace TuneSDK
 
         private static void LoadSettings()
         {
-            packageName = PlayerSettings.bundleIdentifier;
+            packageName = PlayerSettings.applicationIdentifier;
             if (EditorPrefs.HasKey(AdvertiserIdKey))
                 advertiserId = EditorPrefs.GetString(AdvertiserIdKey);
             if (EditorPrefs.HasKey(ConversionKeyKey))

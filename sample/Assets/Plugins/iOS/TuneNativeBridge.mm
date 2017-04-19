@@ -819,7 +819,7 @@ extern "C" {
     {
         NSLog(@"Native: setDeepLink: %s", deepLinkUrl);
 
-        [Tune applicationDidOpenURL:TuneCreateNSString(deepLinkUrl) sourceApplication:nil];
+        [Tune handleOpenURL:[NSURL URLWithString:TuneCreateNSString(deepLinkUrl)] sourceApplication:nil];
     }
 
 
@@ -848,6 +848,38 @@ extern "C" {
 
         TuneEvent *event = convertIosEvent(tuneEvent, eventItems, eventItemCount, receipt, receiptByteCount);
         [Tune measureEvent:event];
+    }
+
+#pragma mark - Deeplinking
+
+    void TuneRegisterDeeplinkListener()
+    {
+        NSLog(@"Native: registerDeeplinkListener");
+
+        tuneDeeplinkDelegate = tuneDeeplinkDelegate ?: [TuneSdkDelegate new];
+
+        [Tune registerDeeplinkListener:tuneDeeplinkDelegate];
+    }
+
+    void TuneUnregisterDeeplinkListener()
+    {
+        NSLog(@"Native: unregisterDeeplinkListener");
+
+        [Tune unregisterDeeplinkListener];
+    }
+
+    bool TuneIsTuneLink(const char* linkUrl)
+    {
+        NSLog(@"Native: isTuneLink");
+
+        return [Tune isTuneLink:TuneCreateNSString(linkUrl)];
+    }
+
+    void TuneRegisterCustomTuneLinkDomain(const char* domain)
+    {
+        NSLog(@"Native: registerCustomTuneLinkDomain");
+
+        [Tune registerCustomTuneLinkDomain:TuneCreateNSString(domain)];
     }
 
 #pragma mark - In-App Marketing Methods

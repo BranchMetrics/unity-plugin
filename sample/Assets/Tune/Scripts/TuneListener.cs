@@ -55,6 +55,16 @@ namespace TuneSDK
             print ("TuneListener onFirstPlaylistDownloaded");
         }
 
+        public void onReceive (string extraPushPayload)
+        {
+            print ("TuneListener onReceive: " + extraPushPayload);
+        }
+
+        public void onReceiveIsSilentPush (string isSilentPush)
+        {
+            print ("TuneListener onReceiveIsSilentPush " + isSilentPush);
+        }
+
         /// <summary>
         /// The method to decode base64 strings.
         /// </summary>

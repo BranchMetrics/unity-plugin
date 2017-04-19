@@ -75,7 +75,7 @@ public class TuneSample : MonoBehaviour {
             Tune.SetFacebookEventLogging(true, false);
             #endif
             #if (UNITY_ANDROID || UNITY_IOS)
-            Tune.CheckForDeferredDeeplink();
+            Tune.RegisterDeeplinkListener();
             Tune.AutomateIapEventMeasurement(true);
 
             // Demo In-App Marketing API calls

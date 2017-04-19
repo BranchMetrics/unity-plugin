@@ -106,6 +106,16 @@ namespace TuneSDK
         [DllImport ("__Internal")]
         internal static extern void TuneMeasureEvent(TuneEventIos tuneEvent, TuneItemIos[] eventItems, int eventItemCount, Byte[] receipt, int receiptByteCount);
 
+        // Methods for deeplinking
+        [DllImport ("__Internal")]
+        internal static extern void TuneRegisterDeeplinkListener();
+        [DllImport ("__Internal")]
+        internal static extern void TuneUnregisterDeeplinkListener();
+        [DllImport ("__Internal")]
+        internal static extern bool TuneIsTuneLink(string linkUrl);
+        [DllImport ("__Internal")]
+        internal static extern void TuneRegisterCustomTuneLinkDomain(string domain);
+
         // Method to measure session
         [DllImport ("__Internal")]
         internal static extern void TuneMeasureSession();

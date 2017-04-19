@@ -58,7 +58,7 @@ namespace TuneSDK
         public void MeasureSession()
         {
             ajcInstance.Call("setReferralSources", ajcCurrentActivity);
-            ajcInstance.Call("measureSession");
+            ajcInstance.Call("measureSessionInternal");
         }
 
         public void MeasureEvent(string eventName)
@@ -70,6 +70,28 @@ namespace TuneSDK
         {
             AndroidJavaObject objEvent = GetTuneEventJavaObject(tuneEvent);
             ajcInstance.Call("measureEvent", objEvent);
+        }
+
+        public void UnregisterDeeplinkListener()
+        {
+            ajcInstance.Call("unregisterDeeplinkListener");
+        }
+
+        public void RegisterDeeplinkListener()
+        {
+            AndroidJavaObject objListener = new AndroidJavaObject("com.tune.unityutils.TuneUnityDeeplinkListener");
+
+            ajcInstance.Call("registerDeeplinkListener", objListener);
+        }
+
+        public void RegisterCustomTuneLinkDomain(string domainSuffix)
+        {
+            ajcInstance.Call("registerCustomTuneLinkDomain", domainSuffix);
+        }
+
+		public bool IsTuneLink(string appLinkUrl)
+        {
+			return ajcInstance.Call<bool>("isTuneLink", appLinkUrl);
         }
 
         public void CheckForDeferredDeeplink()
@@ -555,6 +577,13 @@ namespace TuneSDK
         public void SetPushNotificationRegistrationId(string registrationId)
         {
             ajcInstance.Call("setPushNotificationRegistrationId", registrationId);
+        }
+
+        public void SetPushListener()
+        {
+            AndroidJavaObject objListener = new AndroidJavaObject("com.tune.unityutils.TuneUnityPushListener");
+
+            ajcInstance.Call("setPushListener", objListener);
         }
 
         public void SetOptedOutOfPush(bool optedOutOfPush)

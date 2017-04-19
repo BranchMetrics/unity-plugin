@@ -253,6 +253,70 @@ namespace TuneSDK
         }
 
         /// <para>
+        /// Registering a deeplink listener will trigger an asynchronous calls to TuneListener
+        /// </para>
+        public static void RegisterDeeplinkListener()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                TuneAndroid.Instance.RegisterDeeplinkListener();
+                #endif
+                #if UNITY_IOS
+                TuneExterns.TuneRegisterDeeplinkListener();
+                #endif
+            }
+        }
+
+        /// <para>
+        /// Registering the deeplink listener
+        /// </para>
+        public static void UnregisterDeeplinkListener()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                TuneAndroid.Instance.UnregisterDeeplinkListener();
+                #endif
+                #if UNITY_IOS
+                TuneExterns.TuneUnregisterDeeplinkListener();
+                #endif
+            }
+        }
+
+        /// <para>
+        /// Test if your custom Tune Link domain is registered with Tune.
+        /// </para>
+        /// <param name="linkUrl">url to test if it is a Tune Link. Must not be null.</param>
+        public static bool IsTuneLink(string linkUrl)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.IsTuneLink(linkUrl);
+                #endif
+                #if UNITY_IOS
+                return TuneExterns.TuneIsTuneLink(linkUrl);
+                #endif
+            }
+
+            return false;
+        }
+
+        /// <para>
+        /// If you have set up a custom domain for use with Tune Links (cname to a *.tlnk.io domain), then register it with this method.
+        /// </para>
+        /// <param name="domain">domain which you are using for Tune Links. Must not be null.</param>
+        public static void RegisterCustomTuneLinkDomain(string domain)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                TuneAndroid.Instance.RegisterCustomTuneLinkDomain(domain);
+                #endif
+                #if UNITY_IOS
+                TuneExterns.TuneRegisterCustomTuneLinkDomain(domain);
+                #endif
+            }
+        }
+
+        /// <para>
         /// Main session measurement function; this function should be called at every app open.
         /// </para>
         public static void MeasureSession()
@@ -1497,6 +1561,19 @@ namespace TuneSDK
             {
                 #if UNITY_ANDROID
                 TuneAndroid.Instance.SetPushNotificationRegistrationId(registrationId);
+                #endif
+            }
+        }
+
+        /// <summary>
+        /// Enables push listener to access extraPushPayload
+        /// </summary>
+        public static void SetPushListener()
+        {
+            if (!Application.isEditor)
+            {
+                #if UNITY_ANDROID
+                TuneAndroid.Instance.SetPushListener();
                 #endif
             }
         }
