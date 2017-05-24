@@ -27,7 +27,8 @@
     
     return [super application:app
                       openURL:url
-                      options:options];
+            sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]
+                   annotation:nil];
 }
 
 @end
