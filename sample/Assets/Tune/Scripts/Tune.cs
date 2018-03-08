@@ -5,9 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Linq;
-#if UNITY_METRO
-using MATWinStore;
-#endif
 
 namespace TuneSDK
 {
@@ -34,9 +31,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneInit(advertiserId, conversionKey);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.InitializeValues(advertiserId, conversionKey);
-                #endif
             }
         }
 
@@ -56,9 +50,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneInit(advertiserId, conversionKey);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.InitializeValues(advertiserId, conversionKey);
                 #endif
             }
         }
@@ -81,9 +72,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneInitForWearable(advertiserId, conversionKey, packageName, wearable);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.InitializeValues(advertiserId, conversionKey);
-                #endif
             }
         }
 
@@ -99,9 +87,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneCheckForDeferredDeeplink();
-                #endif
-                #if UNITY_METRO
-                //MATWinStore.MobileAppTracker.Instance.CheckForDeferredDeeplink();
                 #endif
             }
         }
@@ -151,9 +136,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneMeasureEventName(eventName);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.MeasureAction(eventName);
-                #endif
             }
         }
 
@@ -167,42 +149,6 @@ namespace TuneSDK
             {
                 #if UNITY_ANDROID
                 TuneAndroid.Instance.MeasureEvent(tuneEvent);
-                #endif
-
-                #if UNITY_METRO
-                // Set event characteristic values separately
-                SetEventContentType(tuneEvent.contentType);
-                SetEventContentId(tuneEvent.contentId);
-
-                // Set event characteristic values separately
-                SetEventContentType(tuneEvent.contentType);
-                SetEventContentId(tuneEvent.contentId);
-                if (tuneEvent.level != null)
-                {
-                    SetEventLevel((int)tuneEvent.level);
-                }
-                if (tuneEvent.quantity != null)
-                {
-                    SetEventQuantity((int)tuneEvent.quantity);
-                }
-                SetEventSearchString(tuneEvent.searchString);
-                if (tuneEvent.rating != null)
-                {
-                    SetEventRating((float)tuneEvent.rating);
-                }
-                if (tuneEvent.date1 != null)
-                {
-                    SetEventDate1((DateTime)tuneEvent.date1);
-                }
-                if (tuneEvent.date2 != null)
-                {
-                    SetEventDate2((DateTime)tuneEvent.date2);
-                }
-                SetEventAttribute1(tuneEvent.attribute1);
-                SetEventAttribute2(tuneEvent.attribute2);
-                SetEventAttribute3(tuneEvent.attribute3);
-                SetEventAttribute4(tuneEvent.attribute4);
-                SetEventAttribute5(tuneEvent.attribute5);
                 #endif
 
                 #if UNITY_IOS
@@ -220,34 +166,6 @@ namespace TuneSDK
                 }
 
                 TuneExterns.TuneMeasureEvent(eventIos, items, itemCount, receiptBytes, receiptByteCount);
-                #endif
-
-                #if UNITY_METRO
-                int itemCount = null == tuneEvent.eventItems ? 0 : tuneEvent.eventItems.Length;
-                //Convert MATItem[] to MATEventItem[]. These are the same things, but must be converted for recognition of
-                //MobileAppTracker.cs.
-                MATEventItem[] newarr = new MATEventItem[itemCount];
-                //Conversion is necessary to prevent the need of referencing a separate class.
-                for(int i = 0; i < itemCount; i++)
-                {
-                    MATItem item = tuneEvent.eventItems[i];
-                    newarr[i] = new MATEventItem(item.name,
-                                                 item.quantity == null ? 0 : (int)item.quantity,
-                                                 item.unitPrice == null ? 0 : (double)item.unitPrice,
-                                                 item.revenue == null ? 0 : (double)item.revenue,
-                                                 item.attribute1,
-                                                 item.attribute2,
-                                                 item.attribute3,
-                                                 item.attribute4,
-                                                 item.attribute5);
-                }
-
-                List<MATEventItem> list =  newarr.ToList();
-                MobileAppTracker.Instance.MeasureAction(tuneEvent.name,
-                                                        tuneEvent.revenue == null ? 0 : (double)tuneEvent.revenue,
-                                                        tuneEvent.currencyCode,
-                                                        tuneEvent.advertiserRefId,
-                                                        list);
                 #endif
             }
         }
@@ -328,9 +246,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneMeasureSession();
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.MeasureSession();
-                #endif
             }
         }
 
@@ -353,9 +268,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetAge(age);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetAge(age);
-                #endif
             }
         }
 
@@ -369,9 +281,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetAppAdTracking(adTrackingEnabled);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetAppAdTracking(adTrackingEnabled);
                 #endif
             }
         }
@@ -388,198 +297,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetDebugMode(debug);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetDebugMode(debug);
-                #endif
-            }
-        }
-
-
-        /// <para>
-        /// Sets the first attribute associated with an app event.
-        /// </para>
-        /// <param name="eventAttribute">the attribute</param>
-        private static void SetEventAttribute1(string eventAttribute)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventAttribute1(eventAttribute);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the second attribute associated with an app event.
-        /// </para>
-        /// <param name="eventAttribute">the attribute</param>
-        private static void SetEventAttribute2(string eventAttribute)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventAttribute2(eventAttribute);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the third attribute associated with an app event.
-        /// </para>
-        /// <param name="eventAttribute">the attribute</param>
-        private static void SetEventAttribute3(string eventAttribute)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventAttribute3(eventAttribute);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the fourth attribute associated with an app event.
-        /// </para>
-        /// <param name="eventAttribute">the attribute</param>
-        private static void SetEventAttribute4(string eventAttribute)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventAttribute4(eventAttribute);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the fifth attribute associated with an app event.
-        /// </para>
-        /// <param name="eventAttribute">the attribute</param>
-        private static void SetEventAttribute5(string eventAttribute)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventAttribute5(eventAttribute);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the content ID associated with an app event.
-        /// </para>
-        /// <param name="eventContentId">the content ID</param>
-        private static void SetEventContentId(string eventContentId)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventContentId(eventContentId);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the content type associated with an app event.
-        /// </para>
-        /// <param name="eventContentType">the content type</param>
-        private static void SetEventContentType(string eventContentType)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventContentType(eventContentType);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the first date associated with an app event.
-        /// Should be 1/1/1970 and after.
-        /// </para>
-        /// <param name="eventDate">the date</param>
-        private static void SetEventDate1(DateTime eventDate)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
-
-                // datetime starts in 1970
-                DateTime datetime = new DateTime(1970, 1, 1);
-                double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
-                TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
-
-                //Update to current time for c#
-                datetime = datetime.Add(timeFrom1970);
-                MobileAppTracker.Instance.SetEventDate1(datetime);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the second date associated with an app event.
-        /// </para>
-        /// <param name="eventDate">the date.</param>
-        private static void SetEventDate2(DateTime eventDate)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                double milliseconds = new TimeSpan(eventDate.Ticks).TotalMilliseconds;
-                //datetime starts in 1970
-                DateTime datetime = new DateTime(1970, 1, 1);
-                double millisecondsFrom1970 = milliseconds - (new TimeSpan(datetime.Ticks)).TotalMilliseconds;
-
-                TimeSpan timeFrom1970 = TimeSpan.FromMilliseconds(millisecondsFrom1970);
-                //Update to current time for c#
-                datetime = datetime.Add(timeFrom1970);
-                MobileAppTracker.Instance.SetEventDate2(datetime);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the level associated with an app event.
-        /// </para>
-        /// <param name="eventLevel">the level</param>
-        private static void SetEventLevel(int eventLevel)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventLevel(eventLevel);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the quantity associated with an app event.
-        /// </para>
-        /// <param name="eventQuantity">the quantity</param>
-        private static void SetEventQuantity(int eventQuantity)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventQuantity(eventQuantity);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the rating associated with an app event.
-        /// </para>
-        /// <param name="eventRating">the rating</param>
-        private static void SetEventRating(float eventRating)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventRating(eventRating);
-                #endif
-            }
-        }
-        /// <para>
-        /// Sets the search string associated with an app event.
-        /// </para>
-        /// <param name="eventSearchString">the search string</param>
-        private static void SetEventSearchString(string eventSearchString)
-        {
-            if(!Application.isEditor)
-            {
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetEventSearchString(eventSearchString);
                 #endif
             }
         }
@@ -599,9 +316,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetExistingUser(isExistingUser);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetExistingUser(isExistingUser);
-                #endif
             }
         }
 
@@ -620,9 +334,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetFacebookEventLogging(enable, limit);
                 #endif
-                #if UNITY_METRO
-                //MobileAppTracker.Instance.SetFacebookEventLogging(enable, limit);
-                #endif
             }
         }
 
@@ -638,9 +349,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetFacebookUserId(fbUserId);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetFacebookUserId(fbUserId);
                 #endif
             }
         }
@@ -658,18 +366,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetGender(gender);
                 #endif
-
-                #if UNITY_METRO
-                MATGender gender_temp;
-                if(gender == 0)
-                    gender_temp = MATGender.MALE;
-                else if (gender == 1)
-                    gender_temp = MATGender.FEMALE;
-                else
-                    gender_temp = MATGender.NONE;
-
-                MobileAppTracker.Instance.SetGender(gender_temp);
-                #endif
             }
         }
 
@@ -685,9 +381,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetGoogleUserId(googleUserId);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetGoogleUserId(googleUserId);
                 #endif
             }
         }
@@ -707,11 +400,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetLocation(latitude, longitude, altitude);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetLatitude(latitude);
-                MobileAppTracker.Instance.SetLongitude(longitude);
-                MobileAppTracker.Instance.SetAltitude(altitude);
-                #endif
             }
         }
 
@@ -727,9 +415,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetPackageName(packageName);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetPackageName(packageName);
                 #endif
             }
         }
@@ -748,9 +433,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetPayingUser(isPayingUser);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetIsPayingUser(isPayingUser);
-                #endif
             }
         }
 
@@ -768,10 +450,28 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetPhoneNumber(phoneNumber);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetPhoneNumber(phoneNumber);
+            }
+        }
+
+        /// <para>
+        /// Set this device profile as privacy protected for the purposes of the protection of children
+        /// from ad targeting and personal data collection. In the US this is part of the COPPA law.
+        /// This method is related to SetAge(int).
+        /// </para>
+        /// <param name="isPrivacyProtected">True if privacy should be protected for this user.</param>
+        /// <returns>True if age requirements are met.  For example, you cannot turn privacy protection "off" for children who meet the COPPA standard. On iOS, always returns true.</returns>
+        public static bool SetPrivacyProtectedDueToAge(bool isPrivacyProtected)
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.SetPrivacyProtectedDueToAge(isPrivacyProtected);
+                #endif
+                #if (UNITY_IOS)
+                TuneExterns.TuneSetPrivacyProtectedDueToAge(isPrivacyProtected);
+                return true;
                 #endif
             }
+            return false;
         }
 
         /// <para>
@@ -803,9 +503,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetTwitterUserId(twitterUserId);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetTwitterUserId(twitterUserId);
-                #endif
             }
         }
 
@@ -821,9 +518,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetUserEmail(userEmail);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetUserEmail(userEmail);
                 #endif
             }
         }
@@ -841,9 +535,6 @@ namespace TuneSDK
                 #if UNITY_IOS
                 TuneExterns.TuneSetUserId(userId);
                 #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetUserId(userId);
-                #endif
             }
         }
 
@@ -859,9 +550,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 TuneExterns.TuneSetUserName(userName);
-                #endif
-                #if UNITY_METRO
-                MobileAppTracker.Instance.SetUserName(userName);
                 #endif
             }
         }
@@ -885,21 +573,8 @@ namespace TuneSDK
                 #if UNITY_IOS
                 return TuneExterns.TuneGetIsPayingUser();
                 #endif
-                #if UNITY_METRO
-                return MobileAppTracker.Instance.GetIsPayingUser();
-                #endif
             }
             return false;
-        }
-
-        /// <para>
-        /// Gets the MAT ID generated on install.
-        /// </para>
-        /// <returns>MAT ID</returns>
-        /// [Obsolete("GetMATId is deprecated. Please use GetTuneId instead.")]
-        public static string GetMATId()
-        {
-            return GetTuneId();
         }
 
         /// <para>
@@ -914,9 +589,6 @@ namespace TuneSDK
                 #endif
                 #if UNITY_IOS
                 return TuneExterns.TuneGetTuneId();
-                #endif
-                #if UNITY_METRO
-                return MobileAppTracker.Instance.GetMatId();
                 #endif
             }
 
@@ -936,12 +608,27 @@ namespace TuneSDK
                 #if UNITY_IOS
                 return TuneExterns.TuneGetOpenLogId();
                 #endif
-                #if UNITY_METRO
-                return MobileAppTracker.Instance.GetOpenLogId();
-                #endif
             }
 
             return string.Empty;
+        }
+
+        /// <para>
+        /// Returns whether this device profile is flagged as privacy protected.
+        /// </para>
+        /// <returns>true if either the age is set to less than 13 or if SetPrivacyProtectedDueToAge(boolean) is set to true.</returns>
+        public static bool IsPrivacyProtectedDueToAge()
+        {
+            if (!Application.isEditor) {
+                #if UNITY_ANDROID
+                return TuneAndroid.Instance.IsPrivacyProtectedDueToAge();
+                #endif
+                #if UNITY_IOS
+                return TuneExterns.TuneIsPrivacyProtectedDueToAge();
+                #endif
+            }
+
+            return false;
         }
 
         /////////////////////////////////////////////////////////////////////////////
@@ -1954,25 +1641,6 @@ namespace TuneSDK
                 #endif
             }
         }
-
-        /////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////
-        /*---------------------Windows Specific Features-------------------*/
-        /////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////
-        #if UNITY_METRO
-        /// <para>
-        /// Sets the MAT response.
-        /// Does nothing if not a Windows device.
-        /// </para>
-        /// <param name="matResponse">MAT response</param>
-        public static void SetMATResponse(MATResponse matResponse)
-        {
-            if (!Application.isEditor) {
-                MobileAppTracker.Instance.SetMATResponse(matResponse);
-            }
-        }
-        #endif
 
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////

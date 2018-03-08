@@ -6,14 +6,14 @@ import shutil
 import subprocess
 
 def create_java_file(advertiser_id, conversion_key, package_name):
-    os.chdir('../Plugins/Android')
+    os.chdir('./Plugins/Android')
 
     # Convert package name to folder path
     package_name_path = package_name.replace('.', '/')
 
     application_java_path = package_name_path + '/MyApplication.java'
 
-    print 'Creating /Plugins/Android/' + application_java_path + '...',
+    print 'Creating /Tune/Plugins/Android/' + application_java_path + '...',
 
     # If package name folders do not exist, create them
     if not os.path.exists(os.path.dirname(application_java_path)):
@@ -41,16 +41,16 @@ def create_java_file(advertiser_id, conversion_key, package_name):
             file.write('    }\n')
             file.write('}\n')
         file.close()
-        print 'Successfully created /Plugins/Android/' + application_java_path + '!'
+        print 'Successfully created /Tune/Plugins/Android/' + application_java_path + '!'
     else:
-        print '/Plugins/Android/' + application_java_path + ' already exists, exiting'
+        print '/Tune/Plugins/Android/' + application_java_path + ' already exists, exiting'
 
 def create_lifecycle_listener(advertiser_id, conversion_key, package_name):
-    os.chdir('../Plugins/iOS')
+    os.chdir('./Plugins/iOS')
 
     filename = 'MyAppDelegate.mm'
 
-    print 'Creating /Plugins/iOS/' + filename + '...',
+    print 'Creating /Tune/Plugins/iOS/' + filename + '...',
 
     # If MyAppDelegate.mm does not exist, create it
     if not os.path.isfile(filename):
@@ -58,7 +58,7 @@ def create_lifecycle_listener(advertiser_id, conversion_key, package_name):
         with open(filename, 'w') as file:
             # Write a default LifecycleListener implementation
             file.write('#import "LifeCycleListener.h"\n')
-            file.write('#import "Tune.h"\n\n')
+            file.write('#import "Tune/Tune.h"\n\n')
             file.write('#pragma mark - Tune Plugin Helper Category\n\n')
             file.write('@interface Tune (TuneUnityPlugin)\n\n')
             file.write('+ (void)setPluginName:(NSString *)pluginName;\n\n')
@@ -98,9 +98,9 @@ def create_lifecycle_listener(advertiser_id, conversion_key, package_name):
             file.write('}\n\n')
             file.write('@end\n')
         file.close()
-        print 'Successfully created /Plugins/iOS/' + filename + '!'
+        print 'Successfully created /Tune/Plugins/iOS/' + filename + '!'
     else:
-        print '/Plugins/iOS/' + filename + ' already exists, exiting'
+        print '/Tune/Plugins/iOS/' + filename + ' already exists, exiting'
 
 if __name__ == '__main__':
     '''

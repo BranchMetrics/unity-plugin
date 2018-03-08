@@ -4,9 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using TuneSDK;
-#if UNITY_METRO
-using MATWinStore;
-#endif
 
 /// <para>
 /// This class demonstrates the basic features of the TUNE Unity Plugin and
@@ -22,6 +19,8 @@ public class TuneSample : MonoBehaviour {
 
     Vector2 scrollPosition = Vector2.zero;
 
+    static bool isInitialized = false;
+
     void Awake ()
     {
         TUNE_ADVERTISER_ID = "877";
@@ -31,7 +30,7 @@ public class TuneSample : MonoBehaviour {
         print ("Awake called: " + TUNE_ADVERTISER_ID + ", " + TUNE_CONVERSION_KEY);
 
         #if UNITY_IOS
-        UnityEngine.iOS.NotificationServices.RegisterForNotifications (UnityEngine.iOS.NotificationType.Alert |  UnityEngine.iOS.NotificationType.Badge |  UnityEngine.iOS.NotificationType.Sound);
+        UnityEngine.iOS.NotificationServices.RegisterForNotifications (UnityEngine.iOS.NotificationType.Alert |  UnityEngine.iOS.NotificationType.Badge |  UnityEngine.iOS.NotificationType.Sound, true);
         #endif
 
         return;
@@ -68,15 +67,19 @@ public class TuneSample : MonoBehaviour {
 
         if (GUI.Button (new Rect (10, 0, Screen.width - 20, Screen.height/10), "Start TUNE SDK"))
         {
+            if (isInitialized)
+            {
+                print("Already Initialized");
+                return;
+            }
+
             print ("Start TUNE SDK clicked");
-            #if (UNITY_ANDROID || UNITY_IOS || UNITY_METRO)
-            Tune.Init(TUNE_ADVERTISER_ID, TUNE_CONVERSION_KEY);
+            Tune.Init(TUNE_ADVERTISER_ID, TUNE_CONVERSION_KEY, true);
             Tune.SetPackageName(TUNE_PACKAGE_NAME);
             Tune.SetFacebookEventLogging(true, false);
-            #endif
-            #if (UNITY_ANDROID || UNITY_IOS)
             Tune.RegisterDeeplinkListener();
             Tune.AutomateIapEventMeasurement(true);
+            Tune.SetPrivacyProtectedDueToAge(true);
 
             // Demo In-App Marketing API calls
             Tune.RegisterPowerHook("hookId", "friendlyName", "defaultValue");
@@ -95,20 +98,15 @@ public class TuneSample : MonoBehaviour {
             Tune.RegisterPowerHook("titleFontBold", "Is Title Text Font Bold", "false");
             Tune.RegisterPowerHook("titleFontSize", "Title Text Font Size", "25");
 
-            #endif
+            isInitialized = true;
         }
 
         else if (GUI.Button (new Rect (10, 1*Screen.height/10, Screen.width - 20, Screen.height/10), "Set Delegate"))
         {
             print ("Set Delegate clicked");
-            #if (UNITY_ANDROID || UNITY_IOS)
             Tune.SetDelegate(true);
             Tune.OnPowerHooksChanged(true);
             Tune.OnFirstPlaylistDownloaded(true);
-            #endif
-            #if UNITY_METRO
-            Tune.SetMATResponse(new SampleWinMATResponse());
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 2*Screen.height/10, Screen.width - 20, Screen.height/10), "Enable Debug Mode"))
@@ -209,8 +207,8 @@ public class TuneSample : MonoBehaviour {
             Tune.SetAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
             Tune.SetAppleVendorIdentifier(UnityEngine.iOS.Device.vendorIdentifier);
             #else
-            Tune.SetAppleAdvertisingIdentifier(UnityEngine.iPhone.advertisingIdentifier, UnityEngine.iPhone.advertisingTrackingEnabled);
-            Tune.SetAppleVendorIdentifier(UnityEngine.iPhone.vendorIdentifier);
+            Tune.SetAppleAdvertisingIdentifier(UnityEngine.iOS.Device.advertisingIdentifier, UnityEngine.iOS.Device.advertisingTrackingEnabled);
+            Tune.SetAppleVendorIdentifier(UnityEngine.iOS.Device.vendorIdentifier);
             #endif
 
             Tune.SetDelegate(true);
@@ -229,8 +227,7 @@ public class TuneSample : MonoBehaviour {
             Tune.SetGoogleAdvertisingId("12345678-1234-1234-1234-123456789012", true);
             Tune.SetMacAddress("AA:BB:CC:DD:EE:FF");
             #endif
-            //Android and iOS-specific Features
-            #if (UNITY_ANDROID || UNITY_IOS)
+
             Tune.SetCurrencyCode("CAD");
             Tune.SetTRUSTeId("1234567890");
 
@@ -238,7 +235,6 @@ public class TuneSample : MonoBehaviour {
             pd.advertiserSubAd = "some_adv_sub_ad_id";
             pd.publisherSub3 = "some_pub_sub3";
             Tune.SetPreloadedApp(pd);
-            #endif
         }
 
         else if (GUI.Button (new Rect (10, 7*Screen.height/10, Screen.width - 20, Screen.height/10), "Test Getter Methods"))
@@ -247,6 +243,7 @@ public class TuneSample : MonoBehaviour {
             print ("isPayingUser = " + Tune.GetIsPayingUser());
             print ("tuneId     = " + Tune.GetTuneId());
             print ("openLogId = " + Tune.GetOpenLogId());
+            print ("privacyProtected: " + Tune.IsPrivacyProtectedDueToAge());
         }
 
         else if (GUI.Button (new Rect (10, 8*Screen.height/10, Screen.width - 20, Screen.height/10), "Get Custom Profile Variables"))
@@ -303,30 +300,3 @@ public class TuneSample : MonoBehaviour {
         return "dGhpcyBpcyBhIHNhbXBsZSBpb3MgYXBwIHN0b3JlIHJlY2VpcHQ=";
     }
 }
-
-#if UNITY_METRO
-// Used to test Windows MATResponse functionality
-public class SampleWinMATResponse : MATResponse
-{
-    // Make sure to attach MATDelegate.cs to the empty "MobileAppTracker" object
-    MATDelegate message_receiver = GameObject.Find("MobileAppTracker").GetComponent<MATDelegate>();
-
-    public void DidSucceedWithData(string response)
-    {
-        if (message_receiver != null)
-            message_receiver.trackerDidSucceed("" + response);
-    }
-
-    public void DidFailWithError(string error)
-    {
-        if (message_receiver != null)
-            message_receiver.trackerDidFail("" + error);
-    }
-
-    public void EnqueuedActionWithRefId(string refId)
-    {
-        if (message_receiver != null)
-            message_receiver.trackerDidEnqueueRequest("" + refId);
-    }
-}
-#endif

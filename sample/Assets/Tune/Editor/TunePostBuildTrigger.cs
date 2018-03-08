@@ -30,14 +30,15 @@ namespace TuneSDK
 
                 // Add required frameworks
                 UnityEngine.Debug.Log("Adding frameworks");
-                proj.AddFrameworkToProject(target, "AdSupport.framework", true);
-                proj.AddFrameworkToProject(target, "CoreSpotlight.framework", true);
-                proj.AddFrameworkToProject(target, "CoreTelephony.framework", true);
-                proj.AddFrameworkToProject(target, "iAd.framework", true);
-                proj.AddFrameworkToProject(target, "MobileCoreServices.framework", true);
-                proj.AddFrameworkToProject(target, "Security.framework", true);
-                proj.AddFrameworkToProject(target, "StoreKit.framework", true);
-                proj.AddFrameworkToProject(target, "SystemConfiguration.framework", true);
+                proj.AddFrameworkToProject(target, "AdSupport.framework", false);
+                proj.AddFrameworkToProject(target, "CoreSpotlight.framework", false);
+                proj.AddFrameworkToProject(target, "CoreTelephony.framework", false);
+                proj.AddFrameworkToProject(target, "iAd.framework", false);
+                proj.AddFrameworkToProject(target, "MobileCoreServices.framework", false);
+                proj.AddFrameworkToProject(target, "Security.framework", false);
+                proj.AddFrameworkToProject(target, "StoreKit.framework", false);
+                proj.AddFrameworkToProject(target, "SystemConfiguration.framework", false);
+                proj.AddFrameworkToProject(target, "UserNotifications.framework", true);
 
                 // Add libz.dylib
                 proj.AddFileToBuild(target, proj.AddFile("usr/lib/libz.dylib", "Frameworks/libz.dylib", PBXSourceTree.Sdk));
@@ -56,12 +57,9 @@ namespace TuneSDK
                     // Add TuneConfiguration.plist
                     UnityEngine.Debug.Log("Adding TuneConfiguration.plist");
                     // Copy TuneConfiguration.plist from the project folder to the build folder
-                    FileUtil.CopyFileOrDirectory("Assets/Plugins/iOS/TuneConfiguration.plist", path + "/TuneConfiguration.plist");
+                    FileUtil.ReplaceFile("Assets/Tune/Plugins/iOS/TuneConfiguration.plist", path + "/TuneConfiguration.plist");
                     proj.AddFileToBuild(target, proj.AddFile("TuneConfiguration.plist", "TuneConfiguration.plist"));
                 }
-
-                // Write PBXProject object back to the file
-                proj.WriteToFile (projPath);
 
                 // If IAM is enabled in the Editor
                 if (TuneSettingsEditor.enabledIamIos)
@@ -81,7 +79,13 @@ namespace TuneSDK
 
                     // Write to file
                     File.WriteAllText(plistPath, plist.WriteToString());
+
+                    // Enable push capabilities in the project
+                    proj.AddCapability(target, PBXCapabilityType.PushNotifications);
                 }
+
+                // Write PBXProject object back to the file
+                proj.WriteToFile (projPath);
 
                 UnityEngine.Debug.Log("Finished TUNE iOS post build script.");
             }

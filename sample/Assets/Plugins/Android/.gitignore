@@ -1,0 +1,8 @@
+# Built application files
+*.aar
+*.jar
+*.meta
+com.*
+
+# Keep these
+!TUNE*.jar

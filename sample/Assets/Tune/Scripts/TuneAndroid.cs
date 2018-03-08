@@ -57,7 +57,6 @@ namespace TuneSDK
 
         public void MeasureSession()
         {
-            ajcInstance.Call("setReferralSources", ajcCurrentActivity);
             ajcInstance.Call("measureSessionInternal");
         }
 
@@ -89,9 +88,9 @@ namespace TuneSDK
             ajcInstance.Call("registerCustomTuneLinkDomain", domainSuffix);
         }
 
-		public bool IsTuneLink(string appLinkUrl)
+        public bool IsTuneLink(string appLinkUrl)
         {
-			return ajcInstance.Call<bool>("isTuneLink", appLinkUrl);
+            return ajcInstance.Call<bool>("isTuneLink", appLinkUrl);
         }
 
         public void CheckForDeferredDeeplink()
@@ -114,6 +113,11 @@ namespace TuneSDK
         public string GetOpenLogId()
         {
             return ajcInstance.Call<string>("getOpenLogId");
+        }
+
+        public bool IsPrivacyProtectedDueToAge()
+        {
+            return ajcInstance.Call<bool>("isPrivacyProtectedDueToAge");
         }
 
         public void SetAge(int age)
@@ -249,6 +253,11 @@ namespace TuneSDK
         public void SetPhoneNumber(string phoneNumber)
         {
             ajcInstance.Call("setPhoneNumber", phoneNumber);
+        }
+
+        public bool SetPrivacyProtectedDueToAge(bool isPrivacyProtected)
+        {
+            return ajcInstance.Call<bool>("setPrivacyProtectedDueToAge", isPrivacyProtected);
         }
 
         public void SetShouldAutoCollectDeviceLocation(bool shouldAutoCollect)

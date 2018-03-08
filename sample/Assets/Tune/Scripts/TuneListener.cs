@@ -13,7 +13,7 @@ namespace TuneSDK
             #if UNITY_IOS
             print ("TuneListener trackerDidSucceed: " + DecodeFrom64 (data));
             #endif
-            #if (UNITY_ANDROID || UNITY_WP8 || UNITY_METRO)
+            #if UNITY_ANDROID
             print ("TuneListener trackerDidSucceed: " + data);
             #endif
         }
@@ -74,7 +74,6 @@ namespace TuneSDK
         {
             string decodedString = null;
 
-            #if !(UNITY_WP8) && !(UNITY_METRO)
             print ("TuneListener.DecodeFrom64(string)");
 
             //this line causes the following error when building for Windows 8 phones:
@@ -82,7 +81,6 @@ namespace TuneSDK
             //Because of this, I'm currently choosing to disable it when Windows 8 phones are used. I'll see if I can find
             //something better later. Until then, I'll probably use an else branch to take care of the UNITY_WP8 case.
             decodedString = System.Text.Encoding.UTF8.GetString (System.Convert.FromBase64String (encodedString));
-            #endif
 
             return decodedString;
         }

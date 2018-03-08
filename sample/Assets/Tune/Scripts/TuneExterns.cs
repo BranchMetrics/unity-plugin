@@ -217,6 +217,12 @@ namespace TuneSDK
         [DllImport ("__Internal")]
         internal static extern void TuneForceSetUserInSegmentId(string segmentId, bool isInSegment);
 
+        // COPPA API
+        [DllImport ("__Internal")]
+        internal static extern void TuneSetPrivacyProtectedDueToAge(bool isPrivacyProtected);
+        [DllImport ("__Internal")]
+        internal static extern bool TuneIsPrivacyProtectedDueToAge();
+
         #endif
     }
 }

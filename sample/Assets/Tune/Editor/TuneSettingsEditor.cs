@@ -17,12 +17,10 @@ namespace TuneSDK
         private static string ApiLevelKey = "TUNE_ApiLevel";
         private static string IosEnableIamKey = "TUNE_EnableIamIos";
 
-        private static string ShowAndroidFoldoutKey = "TUNE_ShowAndroid";
         private static string ShowIamFoldoutKey = "TUNE_ShowIam";
         private static string ShowDelegateFoldoutKey = "TUNE_ShowDelegate";
 
         private static string sOk = "OK";
-        private static string sSuccess = "Success";
 
         private static string advertiserId;
         private static string conversionKey;
@@ -31,7 +29,6 @@ namespace TuneSDK
 
         public static bool enabledIamIos;
 
-        private static bool showAndroid;
         private static bool showIam;
         private static bool showDelegate;
 
@@ -68,8 +65,6 @@ namespace TuneSDK
             if (EditorPrefs.HasKey(IosEnableIamKey))
                 enabledIamIos = EditorPrefs.GetBool(IosEnableIamKey);
 
-            if (EditorPrefs.HasKey(ShowAndroidFoldoutKey))
-                showAndroid = EditorPrefs.GetBool(ShowAndroidFoldoutKey);
             if (EditorPrefs.HasKey(ShowIamFoldoutKey))
                 showIam = EditorPrefs.GetBool(ShowIamFoldoutKey);
             if (EditorPrefs.HasKey(ShowDelegateFoldoutKey))
@@ -83,7 +78,6 @@ namespace TuneSDK
             EditorPrefs.SetString(PackageNameKey, packageName);
             EditorPrefs.SetString(ApiLevelKey, apiLevel);
             EditorPrefs.SetBool(IosEnableIamKey, enabledIamIos);
-            EditorPrefs.SetBool(ShowAndroidFoldoutKey, showAndroid);
             EditorPrefs.SetBool(ShowIamFoldoutKey, showIam);
             EditorPrefs.SetBool(ShowDelegateFoldoutKey, showDelegate);
         }
@@ -99,11 +93,6 @@ namespace TuneSDK
             GUIStyle myFoldoutStyle = new GUIStyle(EditorStyles.foldout);
             myFoldoutStyle.fontStyle = FontStyle.Bold;
 
-            showAndroid = EditorGUILayout.Foldout(showAndroid, "Android", myFoldoutStyle);
-            if (showAndroid)
-            {
-                ShowAndroidUI();
-            }
             showIam = EditorGUILayout.Foldout(showIam, "In-App Marketing", myFoldoutStyle);
             if (showIam)
             {
@@ -114,21 +103,6 @@ namespace TuneSDK
             {
                 ShowDelegateCallbacks();
             }
-        }
-
-        private void ShowAndroidUI()
-        {
-            EditorGUILayout.LabelField("For Android builds, the TUNE plugin requires a copy of the Google Play Services 4.0+ library.\n");
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Import Google Play Services"))
-            {
-                ImportGooglePlayServices();
-            }
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space();
-            EditorGUILayout.Space();
-            EditorGUILayout.Space();
-            EditorGUILayout.Space();
         }
 
         private void ShowIamUI()
@@ -179,7 +153,7 @@ namespace TuneSDK
                 CreateApplicationJava();
             }
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.HelpBox("Creates a file at /Plugins/Android/" + packagePath + "/MyApplication.java.\n" +
+            EditorGUILayout.HelpBox("Creates a file at /Tune/Plugins/Android/" + packagePath + "/MyApplication.java.\n" +
                 "Our script will look for this file to generate the JAR.", MessageType.Info);
             EditorGUILayout.Space();
             EditorGUILayout.Space();
@@ -201,7 +175,7 @@ namespace TuneSDK
                 GenerateApplicationJar();
             }
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.HelpBox("Creates a JAR at /Plugins/Android/MyApplication.jar.\n" +
+            EditorGUILayout.HelpBox("Creates a JAR at /Tune/Plugins/Android/MyApplication.jar.\n" +
                 "Unity will use this JAR when building your app.", MessageType.Info);
             EditorGUILayout.Space();
             EditorGUILayout.Space();
@@ -231,7 +205,7 @@ namespace TuneSDK
             EditorGUILayout.Space();
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
-            enabledIamIos = EditorGUILayout.Toggle("Enable iOS In-App Marketing", enabledIamIos);
+            enabledIamIos = EditorGUILayout.ToggleLeft("Enable iOS In-App Marketing", enabledIamIos);
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.HelpBox("Checking this checkbox to add In-App Marketing post-build processing to your Xcode project.", MessageType.None);
@@ -404,65 +378,6 @@ namespace TuneSDK
             p.Close();
         }
 
-        private void ImportGooglePlayServices()
-        {
-            string sdkPath = GetAndroidSdkPath();
-            string gpsLibPathOld = FixSlashes(sdkPath) + FixSlashes("/extras/google/google_play_services/libproject/google-play-services_lib");
-            string gpsLibDestDirOld = FixSlashes("Assets/Plugins/Android/google-play-services_lib");
-
-            string gpsLibPathNew = FixSlashes(sdkPath) + FixSlashes("/extras/google/m2repository/com/google/android/gms/play-services-basement/8.4.0/play-services-basement-8.4.0.aar");
-            string gpsLibDestDirNew = FixSlashes("Assets/Plugins/Android/play-services-basement-8.4.0.aar");
-
-            // Check that Android SDK is there
-            if (!HasAndroidSdk())
-            {
-                UnityEngine.Debug.LogError("Android SDK not found.");
-                EditorUtility.DisplayDialog("Android SDK not found",
-                    "The Android SDK path was not found. Please configure it in Unity > Edit > Preferences > External Tools.",
-                    sOk);
-                return;
-            }
-
-            string gpsLibPath;
-            string gpsLibDestDir;
-            if (System.IO.Directory.Exists(gpsLibPathOld))
-            {
-                gpsLibPath = gpsLibPathOld;
-                gpsLibDestDir = gpsLibDestDirOld;
-            }
-            else
-            {
-                gpsLibPath = gpsLibPathNew;
-                gpsLibDestDir = gpsLibDestDirNew;
-            }
-
-            // Check that the Google Play Services lib project is there
-            if (!System.IO.Directory.Exists(gpsLibPath) && !System.IO.File.Exists(gpsLibPath))
-            {
-                UnityEngine.Debug.LogError("Google Play Services lib project not found at: " + gpsLibPath);
-                EditorUtility.DisplayDialog("Google Play Services library not found",
-                    "Google Play Services could not be found in your Android SDK installation.\n" +
-                    "Install from the SDK Manager under Extras > Google Play Services.", sOk);
-                return;
-            }
-
-            // Create Assets/Plugins and Assets/Plugins/Android if not existing
-            CheckDirExists("Assets/Plugins");
-            CheckDirExists("Assets/Plugins/Android");
-
-            // Delete any existing google_play_services_lib destination directory
-            DeleteDirIfExists(gpsLibDestDir);
-            DeleteFileIfExists(gpsLibDestDir);
-
-            // Copy Google Play Services library
-            FileUtil.CopyFileOrDirectory(gpsLibPath, gpsLibDestDir);
-
-            // Refresh assets, and we're done
-            AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog(sSuccess,
-                "Google Play Services imported successfully to Assets/Plugins/Android.", sOk);
-        }
-
         private string GetAndroidSdkPath()
         {
             string sdkPath = EditorPrefs.GetString("AndroidSdkRoot");
@@ -472,42 +387,6 @@ namespace TuneSDK
                 sdkPath = sdkPath.Substring(0, sdkPath.Length - 1);
             }
             return sdkPath;
-        }
-
-        private bool HasAndroidSdk()
-        {
-            string sdkPath = GetAndroidSdkPath();
-            return sdkPath != null && sdkPath.Trim() != "" && System.IO.Directory.Exists(sdkPath);
-        }
-
-        private void CheckDirExists(string dir)
-        {
-            dir = dir.Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());
-            if (!System.IO.Directory.Exists(dir))
-            {
-                System.IO.Directory.CreateDirectory(dir);
-            }
-        }
-
-        private void DeleteDirIfExists(string dir)
-        {
-            if (System.IO.Directory.Exists(dir))
-            {
-                System.IO.Directory.Delete(dir, true);
-            }
-        }
-
-        private void DeleteFileIfExists(string file)
-        {
-            if (System.IO.File.Exists(file))
-            {
-                System.IO.File.Delete(file);
-            }
-        }
-
-        private string FixSlashes(string path)
-        {
-            return path.Replace("/", System.IO.Path.DirectorySeparatorChar.ToString());
         }
     }
 }
