@@ -1,7 +1,4 @@
-using UnityEngine;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace TuneSDK
 {
@@ -31,6 +28,7 @@ namespace TuneSDK
         public string       attribute3;
         public string       attribute4;
         public string       attribute5;
+        public string       deviceForm;
 
         private TuneEvent(int dummy1, int dummy2) {
             this.name               = null;
@@ -54,6 +52,7 @@ namespace TuneSDK
             this.attribute3         = null;
             this.attribute4         = null;
             this.attribute5         = null;
+            this.deviceForm         = null;
         }
 
         public TuneEvent(string name) : this(0, 0) {
@@ -265,132 +264,6 @@ namespace TuneSDK
             this.publisherSubKeyword = null;
             this.publisherSubPublisher = null;
             this.publisherSubSite = null;
-        }
-    }
-
-    /* In-App Marketing classes */
-    public class TuneLocation
-    {
-        public double altitude;
-        public double latitude;
-        public double longitude;
-    }
-
-    public class TuneExperimentDetails
-    {
-        public string experimentId;
-        public string experimentName;
-        public string experimentType;
-        public string currentVariantId;
-        public string currentVariantName;
-        public string currentVariantLetter;
-
-        public TuneExperimentDetails(AndroidJavaObject experimentDetails)
-        {
-            experimentId = experimentDetails.Call<string>("getExperimentId");
-            experimentName = experimentDetails.Call<string>("getExperimentName");
-            experimentType = experimentDetails.Call<string>("getExperimentType");
-            currentVariantId = experimentDetails.Call<string>("getCurrentVariantId");
-            currentVariantName = experimentDetails.Call<string>("getCurrentVariantName");
-            currentVariantLetter = experimentDetails.Call<string>("getCurrentVariantLetter");
-        }
-
-        public TuneExperimentDetails(TuneExperimentDetailsIos experimentDetails)
-        {
-            experimentId = experimentDetails.id;
-            experimentName = experimentDetails.name;
-            experimentType = experimentDetails.type;
-            currentVariantId = experimentDetails.current_variation.id;
-            currentVariantName = experimentDetails.current_variation.name;
-            currentVariantLetter = experimentDetails.current_variation.letter;
-        }
-    }
-
-    public class TunePowerHookExperimentDetails : TuneExperimentDetails
-    {
-        public bool isRunning;
-        // TODO: expose start, end date
-
-        public TunePowerHookExperimentDetails(AndroidJavaObject experimentDetails) : base(experimentDetails)
-        {
-            isRunning = experimentDetails.Call<bool>("isRunning");
-        }
-
-        public TunePowerHookExperimentDetails(TunePowerHookExperimentDetailsIos experimentDetails) : base(experimentDetails)
-        {
-            if (experimentDetails.is_running.Equals("true"))
-            {
-                isRunning = true;
-            }
-        }
-    }
-
-    public class TuneInAppMessageExperimentDetails : TuneExperimentDetails
-    {
-        public TuneInAppMessageExperimentDetails(AndroidJavaObject experimentDetails) : base(experimentDetails)
-        {
-        }
-
-        public TuneInAppMessageExperimentDetails(TuneInAppMessageExperimentDetailsIos experimentDetails) : base(experimentDetails)
-        {
-        }
-    }
-
-    [Serializable]
-    public class TuneSerializablePowerHookDictionaryIos
-    {
-        public string[] keys;
-        public TunePowerHookExperimentDetailsIos[] values;
-    }
-
-    [Serializable]
-    public class TuneSerializableInAppMessageDictionaryIos
-    {
-        public string[] keys;
-        public TuneInAppMessageExperimentDetailsIos[] values;
-    }
-
-    [Serializable]
-    public class TuneExperimentDetailsIos
-    {
-        public string type;
-        public string id;
-        public string name;
-        public string experiment_end_date;
-        public string experiment_start_date;
-        public Variation current_variation;
-    }
-
-    [Serializable]
-    public class TunePowerHookExperimentDetailsIos : TuneExperimentDetailsIos
-    {
-        public string is_running;
-    }
-
-    [Serializable]
-    public class TuneInAppMessageExperimentDetailsIos : TuneExperimentDetailsIos
-    {
-    }
-
-    [Serializable]
-    public class Variation
-    {
-        public string id;
-        public string name;
-        public string letter;
-    }
-
-    public class TunePushInfo
-    {
-        public string campaignId;
-        public string pushId;
-        public Dictionary<string, string> extrasPayload;
-
-        public TunePushInfo(string campaignId, string pushId, Dictionary<string, string> extrasPayload)
-        {
-            this.campaignId = campaignId;
-            this.pushId = pushId;
-            this.extrasPayload = extrasPayload;
         }
     }
 }

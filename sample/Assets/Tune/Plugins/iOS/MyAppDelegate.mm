@@ -3,6 +3,7 @@
 
 #pragma mark - Tune Plugin Helper Category
 
+// expose a private Tune method
 @interface Tune (TuneUnityPlugin)
 
 + (void)setPluginName:(NSString *)pluginName;
@@ -11,50 +12,36 @@
 
 @interface MyAppDelegate : NSObject<LifeCycleListener>
 
-+(MyAppDelegate *)sharedInstance;
-
 @end
-
-static MyAppDelegate *_instance = [MyAppDelegate sharedInstance];
 
 @implementation MyAppDelegate
 
 #pragma mark - MyAppDelegate Methods
 
-+(MyAppDelegate *)sharedInstance {
-    return _instance;
++ (MyAppDelegate *)sharedInstance {
+    static MyAppDelegate *delegate;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        delegate = [MyAppDelegate new];
+    });
+    
+    return delegate;
 }
 
-+ (void)initialize {
-    if (!_instance) {
-        _instance = [MyAppDelegate new];
-    }
-}
-
-- (id)init {
-    if (_instance != nil) {
-        return _instance;
-    }
-
+- (instancetype)init {
     self = [super init];
     if (!self) {
-        return nil;
+        UnityRegisterLifeCycleListener(self);
     }
-
-    _instance = self;
-
-    UnityRegisterLifeCycleListener(self);
-
     return self;
 }
 
 #pragma mark - Unity LifeCycleListener Callback Methods
 
 - (void)didFinishLaunching:(NSNotification*)notification {
-    [Tune initializeWithTuneAdvertiserId:@"877"
-                       tuneConversionKey:@"8c14d6bbe466b65211e781d62e301eec"];
+    [Tune initializeWithTuneAdvertiserId:@"877" tuneConversionKey:@"8c14d6bbe466b65211e781d62e301eec" tunePackageName:@"com.hasoffers.unitytestapp"];
     [Tune setPluginName:@"unity"];
-    [Tune setPackageName:@"com.hasoffers.unitytestapp"];
 }
 
 @end

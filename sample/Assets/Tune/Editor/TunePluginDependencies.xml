@@ -6,21 +6,14 @@
   <androidPackages>
 
     <!-- Tune SDK -->
-    <androidPackage spec="com.tune:tune-marketing-console-sdk:5.0.2" />
+    <androidPackage spec="com.tune:tune-marketing-console-sdk:6.0.2" />
 
     <!-- Google Install Referrer -->
     <androidPackage spec="com.android.installreferrer:installreferrer:1.0" />
 
-    <!-- Google Play Services -->
-    <androidPackage spec="com.google.android.gms:play-services-gcm:11.8.0">
-      <androidSdkPackageIds>
-        <androidSdkPackageId>extra-google-m2repository</androidSdkPackageId>
-      </androidSdkPackageIds>
-    </androidPackage>
-
   </androidPackages>
 
   <iosPods>
-    <iosPod name="Tune" version="5.0.2" bitcodeEnabled="true" minTargetSdk="8.0" />
+    <iosPod name="Tune" version="6.0.3" bitcodeEnabled="true" minTargetSdk="8.0" />
   </iosPods>
 </dependencies>
