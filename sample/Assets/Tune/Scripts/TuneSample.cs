@@ -132,25 +132,14 @@ public class TuneSample : MonoBehaviour {
         else if (GUI.Button(new Rect(10, 6 * Screen.height / 10, Screen.width - 20, Screen.height / 10), "Test Setter Methods"))
         {
             print("Test Setter Methods clicked");
-            Tune.SetAge(34);
             Tune.SetAppAdTracking(true);
             Tune.SetDebugMode(true);
             Tune.SetExistingUser(false);
-            Tune.SetFacebookUserId("temp_facebook_user_id");
-            Tune.SetGender(0);
-            Tune.SetGoogleUserId("temp_google_user_id");
-            Tune.SetLocation(111, 222, 333);
             Tune.SetPayingUser(true);
-            Tune.SetPhoneNumber("111-222-3333");
-            Tune.SetTwitterUserId("twitter_user_id");
-            Tune.SetUserId("temp_user_id");
-            Tune.SetUserName("temp_user_name");
-            Tune.SetUserEmail("tempuser@tempcompany.com");
 
             // iOS-specific Features
 #if UNITY_IOS
             Tune.SetJailbroken(false);
-            Tune.DisableLocationAutoCollection();
 #endif
 
             // Android-specific Features

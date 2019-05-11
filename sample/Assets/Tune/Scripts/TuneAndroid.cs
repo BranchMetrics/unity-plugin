@@ -98,24 +98,9 @@ namespace TuneSDK
             return tune.Call<bool>("isPrivacyProtectedDueToAge");
         }
 
-        public void SetAge(int age)
-        {
-            tune.Call("setAge", age);
-        }
-
         public void SetAppAdTracking(bool adTrackingEnabled)
         {
             tune.Call("setAppAdTrackingEnabled", adTrackingEnabled);
-        }
-
-        public void CollectEmails()
-        {
-            tune.Call("collectEmails");
-        }
-
-        public void ClearEmails()
-        {
-            tune.Call("clearEmails");
         }
 
         public void SetExistingUser(bool isExistingUser)
@@ -128,33 +113,9 @@ namespace TuneSDK
             tune.Call("setFacebookEventLogging", fbEventLogging, limitEventAndDataUsage);
         }
 
-        public void SetFacebookUserId(string facebookUserId)
-        {
-            tune.Call("setFacebookUserId", facebookUserId);
-        }
-       
-        public void SetGender(int gender)
-        {
-            AndroidJavaObject tuneGender;
-            if (gender == 0) {
-                tuneGender = new AndroidJavaClass("com.tune.TuneGender").GetStatic<AndroidJavaObject>("MALE");
-            } else if (gender == 1) {
-                tuneGender = new AndroidJavaClass("com.tune.TuneGender").GetStatic<AndroidJavaObject>("FEMALE");
-            } else {
-                tuneGender = new AndroidJavaClass("com.tune.TuneGender").GetStatic<AndroidJavaObject>("UNKNOWN");
-            }
-
-            tune.Call("setGender", tuneGender);
-        }
-
         public void SetPayingUser(bool isPayingUser)
         {
             tune.Call("setPayingUser", isPayingUser);
-        }
-
-        public void SetGoogleUserId(string googleUserId)
-        {
-            tune.Call("setGoogleUserId", googleUserId);
         }
 
         public void SetPhoneNumber(string phoneNumber)
@@ -165,11 +126,6 @@ namespace TuneSDK
         public bool SetPrivacyProtectedDueToAge(bool isPrivacyProtected)
         {
             return tune.Call<bool>("setPrivacyProtectedDueToAge", isPrivacyProtected);
-        }
-
-        public void SetTwitterUserId(string twitterUserId)
-        {
-            tune.Call("setTwitterUserId", twitterUserId);
         }
 
         public void SetUserEmail(string userEmail)
@@ -185,16 +141,6 @@ namespace TuneSDK
         public void SetUserName(string userName)
         {
             tune.Call("setUserName", userName);
-        }
-
-        public void SetLocation(double latitude, double longitude, double altitude)
-        {
-            tune.Call("setLocation", latitude, longitude, altitude);
-        }
-
-        public void DisableLocationAutoCollection()
-        {
-            tune.Call("disableLocationAutoCollection");
         }
 
         // Preloaded app attribution

@@ -452,11 +452,6 @@ extern "C" {
 
 #pragma mark - Setter Methods
 
-    void TuneDisableLocationAutoCollection()
-    {
-        [Tune disableLocationAutoCollection];
-    }
-
     void TuneSetExistingUser(bool isExisting)
     {
         [Tune setExistingUser:isExisting];
@@ -494,56 +489,6 @@ extern "C" {
     void TuneSetAppAdTracking(bool enable)
     {
         [Tune setAppAdTrackingEnabled:enable];
-    }
-
-    void TuneSetPhoneNumber(const char* phoneNumber)
-    {
-        [Tune setPhoneNumber:TuneCreateNSString(phoneNumber)];
-    }
-
-    void TuneSetUserEmail(const char* userEmail)
-    {
-        [Tune setUserEmail:TuneCreateNSString(userEmail)];
-    }
-
-    void TuneSetUserId(const char* userId)
-    {
-        [Tune setUserId:TuneCreateNSString(userId)];
-    }
-
-    void TuneSetUserName(const char* userName)
-    {
-        [Tune setUserName:TuneCreateNSString(userName)];
-    }
-
-    void TuneSetFacebookUserId(const char* userId)
-    {
-        [Tune setFacebookUserId:TuneCreateNSString(userId)];
-    }
-
-    void TuneSetTwitterUserId(const char* userId)
-    {
-        [Tune setTwitterUserId:TuneCreateNSString(userId)];
-    }
-
-    void TuneSetGoogleUserId(const char* userId)
-    {
-        [Tune setGoogleUserId:TuneCreateNSString(userId)];
-    }
-
-    void TuneSetAge(int age)
-    {
-        [Tune setAge:age];
-    }
-
-    void TuneSetGender(TuneGender gender)
-    {
-        [Tune setGender:gender];
-    }
-
-    void TuneSetLocation(double latitude, double longitude, double altitude)
-    {
-        [Tune setLocationWithLatitude:@(latitude) longitude:@(longitude) altitude:@(altitude)];
     }
 
 #pragma mark - Measure Session

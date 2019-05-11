@@ -154,17 +154,6 @@ namespace TuneSDK
             }
         }
 
-        /// <para>
-        /// Sets the user's age.
-        /// </para>
-        /// <param name="age">User age to track in TUNE</param>
-        public static void SetAge(int age)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetAge(age);
-            }
-        }
-
         /// <para>Sets whether app-level ad tracking is enabled.</para>
         /// <param name="adTrackingEnabled">true if user has opted out of ad tracking at the app-level, false if not</param>
         public static void SetAppAdTracking(bool adTrackingEnabled)
@@ -200,52 +189,6 @@ namespace TuneSDK
         }
 
         /// <para>
-        /// Sets the user ID to associate with Facebook.
-        /// </para>
-        /// <param name="fbUserId">Facebook User ID</param>
-        public static void SetFacebookUserId(string fbUserId)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetFacebookUserId(fbUserId);
-            }
-        }
-
-        /// <para>
-        /// Sets the user gender.
-        /// </para>
-        /// <param name="gender">use TuneGenderMale, TuneGenderFemale, TuneGenderUnknown</param>
-        public static void SetGender(int gender)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetGender(gender);
-            }
-        }
-
-        /// <para>
-        /// Sets the user ID to associate with Google.
-        /// </para>
-        /// <param name="googleUserId">Google user ID.</param>
-        public static void SetGoogleUserId(string googleUserId)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetGoogleUserId(googleUserId);
-            }
-        }
-
-        /// <para>
-        /// Sets the user's latitude, longitude, and altitude.
-        /// </para>
-        /// <param name="latitude">user's latitude</param>
-        /// <param name="longitude">user's longitude</param>
-        /// <param name="altitude">user's altitude</param>
-        public static void SetLocation(double latitude, double longitude, double altitude)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetLocation(latitude, longitude, altitude);
-            }
-        }
-
-        /// <para>
         /// Set whether the user is generating revenue for the app or not.
         /// If measureAction is called with a non-zero revenue, this is automatically set to true.
         /// </para>
@@ -254,17 +197,6 @@ namespace TuneSDK
         {
             if (!Application.isEditor && instance != null) {
                 instance.SetPayingUser(isPayingUser);
-            }
-        }
-
-        ///<para>
-        ///Sets the custom user phone number.
-        ///</para>
-        ///<param name="phoneNumber">User's phone number</param>
-        public static void SetPhoneNumber(string phoneNumber)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetPhoneNumber(phoneNumber);
             }
         }
 
@@ -281,60 +213,6 @@ namespace TuneSDK
                 return instance.SetPrivacyProtectedDueToAge(isPrivacyProtected);
             }
             return false;
-        }
-
-        /// <para>
-        /// Specifies if the sdk should auto-collect the geo location of the device.
-        /// </para>
-        public static void DisableLocationAutoCollection()
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.DisableLocationAutoCollection();
-            }
-        }
-
-        /// <para>
-        /// Sets the user ID to associate with Twitter.
-        /// </para>
-        /// <param name="twitterUserId">Twitter user ID</param>
-        public static void SetTwitterUserId(string twitterUserId)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetTwitterUserId(twitterUserId);
-            }
-        }
-
-        /// <para>
-        /// Sets the custom user email.
-        /// </para>
-        /// <param name="userEmail">User's email address</param>
-        public static void SetUserEmail(string userEmail)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetUserEmail(userEmail);
-            }
-        }
-
-        /// <para>
-        /// Sets the custom user ID.
-        /// </para>
-        /// <param name="userId">the new user ID</param>
-        public static void SetUserId(string userId)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetUserId(userId);
-            }
-        }
-
-        /// <para>
-        /// Sets the custom user name.
-        /// </para>
-        /// <param name="userName">User name</param>
-        public static void SetUserName(string userName)
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.SetUserName(userName);
-            }
         }
 
         /// <para>
@@ -399,31 +277,6 @@ namespace TuneSDK
         {
             if (!Application.isEditor && instance != null) {
                 instance.SetJailbroken(isJailbroken);
-            }
-        }
-
-        /*-----------------------Android Specific Features-------------------------*/
-
-        /// <para>
-        /// Collects Email addresses.
-        /// Requires GET_ACCOUNTS permission.
-        /// Does nothing if not an Android device.
-        /// </para>
-        public static void CollectEmails()
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.CollectEmails();
-            }
-        }
-
-        /// <para>
-        /// Clears collected Email addresses
-        /// Does nothing if not an Android device.
-        /// </para>
-        public static void ClearEmails()
-        {
-            if (!Application.isEditor && instance != null) {
-                instance.ClearEmails();
             }
         }
 
