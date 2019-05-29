@@ -1,9 +1,9 @@
-# TUNE Unity Plugin v6.0.0
+# TUNE Unity Plugin v6.0.1
 
 The TUNE plugin for Unity provides application session and event logging functionality via the TUNE native SDKs.
 
-* TUNE Android SDK 6.0.2
-* TUNE iOS SDK 6.0.3
+* TUNE Android SDK 6.1.1
+* TUNE iOS SDK 6.1.0
 
 This plugin was built and tested with `Unity version 2017.4.15f1 LTS`.
 
