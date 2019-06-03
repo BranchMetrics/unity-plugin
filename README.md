@@ -1,4 +1,7 @@
-# TUNE Unity Plugin v7.0.0
+# Legacy TUNE Unity Plugin v7.0.0
+
+[Get the Branch Unity SDK here!](https://github.com/BranchMetrics/unity-branch-deep-linking-attribution)
+
 The TUNE plugin for Unity provides application session and event logging functionality via the TUNE native SDKs.
 
 * TUNE Android SDK 6.1.1
