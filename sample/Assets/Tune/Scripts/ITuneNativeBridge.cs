@@ -26,44 +26,17 @@ namespace TuneSDK
 
         bool IsPrivacyProtectedDueToAge();
 
-        void SetAge(int age);
-
         void SetAppAdTracking(bool adTrackingEnabled);
 
         void SetExistingUser(bool isExistingUser);
 
         void SetFacebookEventLogging(bool fbEventLogging, bool limitEventAndDataUsage);
 
-        void SetFacebookUserId(string facebookUserId);
-
-        void SetGender(int gender);
-
         void SetPayingUser(bool isPayingUser);
-
-        void SetGoogleUserId(string googleUserId);
-
-        void SetPhoneNumber(string phoneNumber);
 
         bool SetPrivacyProtectedDueToAge(bool isPrivacyProtected);
 
-        void SetTwitterUserId(string twitterUserId);
-
-        void SetUserEmail(string userEmail);
-
-        void SetUserId(string userId);
-
-        void SetUserName(string userName);
-
-        void SetLocation(double latitude, double longitude, double altitude);
-
-        void DisableLocationAutoCollection();
-
         void SetPreloadedApp(TunePreloadData preloadData);
-
-        // Android methods
-        void CollectEmails();
-
-        void ClearEmails();
 
         // iOS methods
         void AutomateIapEventMeasurement(bool automate);

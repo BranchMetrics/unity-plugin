@@ -21,21 +21,6 @@ namespace TuneSDK
             TuneIOS.TuneAutomateIapEventMeasurement(automate);
         }
 
-        public void ClearEmails()
-        {
-            // Android only
-        }
-
-        public void CollectEmails()
-        {
-            // Android only
-        }
-
-        public void DisableLocationAutoCollection()
-        {
-            TuneIOS.TuneDisableLocationAutoCollection();
-        }
-
         public string GetTuneId()
         {
             return TuneIOS.TuneGetTuneId();
@@ -98,11 +83,6 @@ namespace TuneSDK
             TuneIOS.TuneRegisterDeeplinkListener();
         }
 
-        public void SetAge(int age)
-        {
-            TuneIOS.TuneSetAge(age);
-        }
-
         public void SetAppAdTracking(bool adTrackingEnabled)
         {
             TuneIOS.TuneSetAppAdTracking(adTrackingEnabled);
@@ -118,39 +98,14 @@ namespace TuneSDK
             TuneIOS.TuneSetFacebookEventLogging(fbEventLogging, limitEventAndDataUsage);
         }
 
-        public void SetFacebookUserId(string facebookUserId)
-        {
-            TuneIOS.TuneSetFacebookUserId(facebookUserId);
-        }
-
-        public void SetGender(int gender)
-        {
-            TuneIOS.TuneSetGender(gender);
-        }
-
-        public void SetGoogleUserId(string googleUserId)
-        {
-            TuneIOS.TuneSetGoogleUserId(googleUserId);
-        }
-
         public void SetJailbroken(bool isJailbroken)
         {
             TuneIOS.TuneSetJailbroken(isJailbroken);
         }
 
-        public void SetLocation(double latitude, double longitude, double altitude)
-        {
-            TuneIOS.TuneSetLocation(latitude, longitude, altitude);
-        }
-
         public void SetPayingUser(bool isPayingUser)
         {
             TuneIOS.TuneSetPayingUser(isPayingUser);
-        }
-
-        public void SetPhoneNumber(string phoneNumber)
-        {
-            TuneIOS.TuneSetPhoneNumber(phoneNumber);
         }
 
         public void SetPreloadedApp(TunePreloadData preloadData)
@@ -162,26 +117,6 @@ namespace TuneSDK
         {
             TuneIOS.TuneSetPrivacyProtectedDueToAge(isPrivacyProtected);
             return true;
-        }
-
-        public void SetTwitterUserId(string twitterUserId)
-        {
-            TuneIOS.TuneSetTwitterUserId(twitterUserId);
-        }
-
-        public void SetUserEmail(string userEmail)
-        {
-            TuneIOS.TuneSetUserEmail(userEmail);
-        }
-
-        public void SetUserId(string userId)
-        {
-            TuneIOS.TuneSetUserId(userId);
-        }
-
-        public void SetUserName(string userName)
-        {
-            TuneIOS.TuneSetUserName(userName);
         }
 
         public void UnregisterDeeplinkListener()
@@ -225,36 +160,13 @@ namespace TuneSDK
         internal static extern void TuneSetDebugMode(bool enable);
 
         [DllImport("__Internal")]
-        internal static extern void TuneDisableLocationAutoCollection();
-
-        [DllImport("__Internal")]
         internal static extern void TuneSetAppAdTracking(bool enable);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetPhoneNumber(string phoneNumber);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetUserEmail(string userEmail);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetUserId(string userId);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetUserName(string userName);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetFacebookUserId(string facebookUserId);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetTwitterUserId(string twitterUserId);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetGoogleUserId(string googleUserId);
         [DllImport("__Internal")]
         internal static extern void TuneSetExistingUser(bool isExisting);
         [DllImport("__Internal")]
         internal static extern void TuneSetPayingUser(bool isPaying);
         [DllImport("__Internal")]
         internal static extern void TuneSetJailbroken(bool isJailbroken);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetAge(int age);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetGender(int gender);
-        [DllImport("__Internal")]
-        internal static extern void TuneSetLocation(double latitude, double longitude, double altitude);
 
         [DllImport("__Internal")]
         internal static extern void TuneSetPreloadData(TunePreloadData preloadData);
