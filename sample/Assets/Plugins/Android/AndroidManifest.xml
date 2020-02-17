@@ -2,10 +2,9 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.unity3d.player"
-    android:installLocation="preferExternal"
-    android:theme="@android:style/Theme.NoTitleBar"
-    android:versionCode="1"
-    android:versionName="1.0">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="preferExternal">
+	
     <supports-screens
         android:smallScreens="true"
         android:normalScreens="true"
@@ -13,18 +12,15 @@
         android:xlargeScreens="true"
         android:anyDensity="true"/>
 
-    <uses-sdk android:minSdkVersion="14"/>
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:icon="@drawable/app_icon"
-        android:label="@string/app_name"
-        android:debuggable="true">
-        <activity android:name="com.unity3d.player.UnityPlayerNativeActivity"
-                  android:label="@string/app_name"
-                  android:configChanges="fontScale|keyboard|keyboardHidden|locale|mnc|mcc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode|touchscreen">
+		android:theme="@style/UnityThemeSelector"
+        android:icon="@mipmap/app_icon"
+        android:label="@string/app_name">
+        <activity android:name="com.unity3d.player.UnityPlayerActivity"
+                  android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -36,7 +32,6 @@
 		        <data android:scheme="unitytestapp" />
             </intent-filter>
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
-            <meta-data android:name="unityplayer.ForwardNativeEventsToDalvik" android:value="true" />
         </activity>
 
         <receiver android:name="com.tune.TuneTracker" android:exported="true">
