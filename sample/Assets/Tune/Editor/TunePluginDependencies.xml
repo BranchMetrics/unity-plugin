@@ -6,7 +6,7 @@
   <androidPackages>
 
     <!-- Tune SDK -->
-    <androidPackage spec="com.tune:tune-marketing-console-sdk:6.1.1" />
+    <androidPackage spec="com.tune:tune-marketing-console-sdk:6.1.2" />
 
     <!-- Google Install Referrer -->
     <androidPackage spec="com.android.installreferrer:installreferrer:1.0" />
