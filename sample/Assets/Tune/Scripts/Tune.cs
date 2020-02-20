@@ -48,7 +48,7 @@ namespace TuneSDK
         /// </summary>
         /// <returns>Version Number.</returns>
         public static string GetVersion() {
-            return "7.1.0";
+            return "7.2.0";
         }
 
         /// <para>
