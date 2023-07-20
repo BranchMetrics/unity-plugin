@@ -1,3 +1,5 @@
+This repo is deprecated
+
 # Legacy TUNE Unity Plugin v7.2.0
 
 [Get the Branch Unity SDK here!](https://github.com/BranchMetrics/unity-branch-deep-linking-attribution)
